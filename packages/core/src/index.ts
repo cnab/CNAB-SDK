@@ -243,3 +243,137 @@ export class CnabSpec {
     return CnabRecord.fromJson(JSON.stringify(this._records[key]));
   }
 }
+
+/** One parsed line of a whole CNAB file. */
+export interface ParsedLine {
+  /** Detected record key (empty when the line could not be classified). */
+  readonly recordKey: string;
+  /** The record-type discriminator value (CNAB240 pos 8 / CNAB400 pos 1). */
+  readonly tipo: string;
+  /** The segment code for CNAB240 detail lines (empty otherwise). */
+  readonly segment: string;
+  /** Parsed field values (empty when the line could not be classified). */
+  readonly fields: { [name: string]: string };
+}
+
+/** Fixed discriminator positions per layout (1-based, inclusive). */
+interface Detect {
+  readonly tipoStart: number;
+  readonly tipoEnd: number;
+  readonly segStart: number;
+  readonly segEnd: number;
+}
+
+const LAYOUT_DETECT: { [layout: string]: Detect } = {
+  cnab240: { tipoStart: 8, tipoEnd: 8, segStart: 14, segEnd: 14 },
+  cnab400: { tipoStart: 1, tipoEnd: 1, segStart: 0, segEnd: 0 },
+};
+
+/**
+ * Parses a whole CNAB file (many lines of mixed record types) by detecting each
+ * line's record type from its discriminator positions and dispatching to the
+ * matching record spec. Scope it to one bank/variant/direction with `forBank`.
+ */
+export class CnabFile {
+  /**
+   * Build a file parser scoped to the records of one bank (and optional variant
+   * / direction). `variant` and `direction` may be empty strings.
+   */
+  public static forBank(
+    specJson: string,
+    layout: string,
+    bank: string,
+    variant: string,
+    direction: string
+  ): CnabFile {
+    const detect = LAYOUT_DETECT[layout];
+    if (!detect) {
+      throw new Error(`unknown layout: ${layout}`);
+    }
+    const spec = CnabSpec.fromJson(specJson);
+    const prefix = variant
+      ? `${layout}/${bank}/${variant}/`
+      : `${layout}/${bank}/`;
+    const byDisc: { [disc: string]: CnabRecord } = {};
+    const keyByDisc: { [disc: string]: string } = {};
+    for (const key of spec.recordKeys()) {
+      if (!key.startsWith(prefix)) {
+        continue;
+      }
+      const rec = spec.getRecord(key);
+      const dir = rec.spec.direction;
+      if (dir !== '' && direction !== '' && dir !== direction) {
+        continue;
+      }
+      const disc = CnabFile.discriminator(rec, layout);
+      if (disc === '') {
+        continue;
+      }
+      byDisc[disc] = rec;
+      keyByDisc[disc] = key;
+    }
+    return new CnabFile(detect, byDisc, keyByDisc);
+  }
+
+  private static discriminator(rec: CnabRecord, layout: string): string {
+    // CNAB240 uses `tipo_registro`; CNAB400 uses `tipo_de_registro` (retorno)
+    // or `tipo_registro` (remessa).
+    const tipoNames =
+      layout === 'cnab240' ? ['tipo_registro'] : ['tipo_de_registro', 'tipo_registro'];
+    let tipo = '';
+    let segment = '';
+    for (const f of rec.spec.fields) {
+      if (tipoNames.indexOf(f.name) !== -1 && f.defaultValue !== '') {
+        tipo = f.defaultValue;
+      }
+      if (layout === 'cnab240' && f.name === 'codigo_segmento') {
+        segment = f.defaultValue;
+      }
+    }
+    if (tipo === '') {
+      return '';
+    }
+    return `${tipo}|${segment}`;
+  }
+
+  private readonly _detect: Detect;
+  private readonly _byDisc: { [disc: string]: CnabRecord };
+  private readonly _keyByDisc: { [disc: string]: string };
+
+  private constructor(
+    detect: Detect,
+    byDisc: { [disc: string]: CnabRecord },
+    keyByDisc: { [disc: string]: string }
+  ) {
+    this._detect = detect;
+    this._byDisc = byDisc;
+    this._keyByDisc = keyByDisc;
+  }
+
+  /** Parse a whole file's content into one `ParsedLine` per non-empty line. */
+  public parse(content: string): ParsedLine[] {
+    const out: ParsedLine[] = [];
+    for (const line of content.split(/\r?\n/)) {
+      if (line.length === 0) {
+        continue;
+      }
+      const tipo = line.substring(this._detect.tipoStart - 1, this._detect.tipoEnd);
+      let segment = '';
+      if (this._detect.segEnd > 0) {
+        segment = line.substring(this._detect.segStart - 1, this._detect.segEnd);
+      }
+      let disc = `${tipo}|${segment}`;
+      let rec = this._byDisc[disc];
+      if (!rec && segment !== '') {
+        disc = `${tipo}|`;
+        rec = this._byDisc[disc];
+      }
+      if (!rec) {
+        out.push({ recordKey: '', tipo, segment, fields: {} });
+        continue;
+      }
+      out.push({ recordKey: this._keyByDisc[disc], tipo, segment, fields: rec.parse(line) });
+    }
+    return out;
+  }
+}

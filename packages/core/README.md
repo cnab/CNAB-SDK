@@ -15,6 +15,10 @@ Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
     `build` is a reserved member name in jsii)
   - `validate(line)` → `{ valid, errors }`
   - `spec` — the underlying `RecordSpec`
+- `CnabFile.forBank(json, layout, bank, variant, direction)` — a whole-file
+  parser scoped to one bank.
+  - `parse(content)` → `ParsedLine[]` (auto-detects each line's record type from
+    its discriminator positions: CNAB240 pos 8 + segment pos 14, CNAB400 pos 1).
 
 `parse` normalizes values (alpha right-trimmed, numerics left-stripped) so that
 `toLine(parse(line))` reproduces a well-formed line.

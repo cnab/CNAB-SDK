@@ -69,9 +69,14 @@ warnings) producing a `.jsii` assembly; targets configured for
 dotnet/python/java. CI runs `jsii` to guard multi-language compatibility. No
 publishing.
 
-**Remains:** richer file-level orchestration (lote/arquivo sequencing,
-DV/checksum computation); verification of the reserved regions flagged below
-against bank manuals; more banks/segments; actual package publishing.
+**Whole-file parsing:** `CnabFile.forBank(...)` parses a complete remessa/
+retorno file, auto-detecting each line's record type from its discriminator
+positions (CNAB240 pos 8 + segment pos 14; CNAB400 pos 1). Golden-tested for a
+Caixa 104 SIGCB remessa file and an Itaú 341 CNAB400 retorno file.
+
+**Remains:** lote/arquivo sequencing and DV/checksum computation; verification
+of the reserved regions flagged below against bank manuals; more banks/segments;
+actual package publishing.
 
 ### Migration coverage
 
