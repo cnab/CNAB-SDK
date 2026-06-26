@@ -1,0 +1,31 @@
+meta:
+  layout: cnab240
+  bank: "104"
+  variant: sigcb
+  record: header_lote
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3] }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "1" }
+  - { ref: tipo_operacao, pos: [9, 9], picture: "X(1)" }
+  - { ref: tipo_servico, pos: [10, 11], default: "01" }
+  - { ref: forma_lancamento, pos: [12, 13], default: "00" }
+  - { ref: versao_layout_lote, pos: [14, 16], default: "030" }
+  - { ref: uso_exclusivo_febraban_01, pos: [17, 17], default: "" }
+  - { ref: codigo_inscricao, pos: [18, 18] }
+  - { ref: numero_inscricao, pos: [19, 33] }
+  - { ref: codigo_convenio, pos: [34, 39], picture: "X(6)" }
+  - { ref: uso_exclusivo_banco, pos: [40, 53], default: "" }
+  - { ref: agencia, pos: [54, 58] }
+  - { ref: agencia_dv, pos: [59, 59] }
+  - { ref: codigo_cedente, pos: [60, 65] }
+  - { ref: codigo_modelo, pos: [66, 72], default: "0" }
+  - { ref: uso_exclusivo_banco_02, pos: [73, 73], default: "0" }
+  - { ref: nome_empresa, pos: [74, 103] }
+  - { ref: mensagem_1, pos: [104, 143], default: "" }
+  - { ref: mensagem_2, pos: [144, 183], default: "" }
+  - { ref: numero_sequencial_arquivo, pos: [184, 191] }
+  - { ref: data_geracao, pos: [192, 199] }
+  - { ref: data_credito, pos: [200, 207], default: "0" }
+  - { ref: uso_exclusivo_febraban_02, pos: [208, 240], default: "", picture: "X(33)" }

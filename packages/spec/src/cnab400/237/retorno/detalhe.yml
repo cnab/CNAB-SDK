@@ -1,0 +1,55 @@
+meta:
+  layout: cnab400
+  bank: "237"
+  direction: retorno
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_de_inscricao, pos: [2, 3] }
+  - { ref: numero_de_inscricao, pos: [4, 17] }
+  - { ref: zeros01, pos: [18, 20], default: 0 }
+  - { ref: zeros02, pos: [21, 21], default: 0 }
+  - { ref: carteira, pos: [22, 24] }
+  - { ref: agencia, pos: [25, 29] }
+  - { ref: conta, pos: [30, 36] }
+  - { ref: conta_dac, pos: [37, 37] }
+  - { ref: uso_da_empresa, pos: [38, 62] }
+  - { ref: zeros03, pos: [63, 70] }
+  - { ref: nosso_numero, pos: [71, 82] }
+  - { ref: uso_banco01, pos: [83, 92] }
+  - { ref: uso_banco02, pos: [93, 104] }
+  - { ref: indicador_rateio, pos: [105, 105] }
+  - { ref: zeros04, pos: [106, 107] }
+  - { ref: carteira_cod, pos: [108, 108] }
+  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: data_de_ocorrencia, pos: [111, 116] }
+  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: nosso_numero_dup, pos: [127, 146] }
+  - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
+  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: codigo_do_banco, pos: [166, 168] }
+  - { ref: agencia_cobradora, pos: [169, 172] }
+  - { ref: agencia_cobradora_dac, pos: [173, 173] }
+  - { ref: especie, pos: [174, 175] }
+  - { ref: valor_tarifa, pos: [176, 188] }
+  - { ref: valor_outras_despesas, pos: [189, 201] }
+  - { ref: valor_juros_desconto, pos: [202, 214] }
+  - { ref: valor_iof, pos: [215, 227] }
+  - { ref: valor_abatimento, pos: [228, 240] }
+  - { ref: valor_desconto, pos: [241, 253] }
+  - { ref: valor_principal, pos: [254, 266] }
+  - { ref: valor_mora_multa, pos: [267, 279] }
+  - { ref: valor_outros_creditos, pos: [280, 292] }
+  - { ref: brancos01, pos: [293, 294] }
+  - { ref: motivo_ocorrencia, pos: [295, 295] }
+  - { ref: data_credito, pos: [296, 301], date_format: "%d%m%y" }
+  - { ref: origem_pagamento, pos: [302, 304] }
+  - { ref: brancos02, pos: [305, 314] }
+  - { ref: codigo_banco, pos: [315, 318] }
+  - { ref: motivo_rejeicao, pos: [319, 328] }
+  - { ref: brancos03, pos: [329, 368] }
+  - { ref: numero_cartorio, pos: [369, 370] }
+  - { ref: numero_protocolo, pos: [371, 380] }
+  - { ref: brancos04, pos: [381, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

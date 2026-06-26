@@ -1,0 +1,21 @@
+{
+  "name": "cnab-sdk-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Modern multi-language SDK for Brazilian CNAB 240/400 bank files",
+  "license": "MIT",
+  "workspaces": [
+    "packages/spec",
+    "packages/core",
+    "packages/cli"
+  ],
+  "scripts": {
+    "build:spec": "node tools/build-spec.mjs",
+    "build:core": "npm run build --workspace @cnab/core",
+    "build": "npm run build:spec && npm run build:core",
+    "test": "npm run build:spec && npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.jsii
+tsconfig.tsbuildinfo
+coverage/
+*.log
+.DS_Store

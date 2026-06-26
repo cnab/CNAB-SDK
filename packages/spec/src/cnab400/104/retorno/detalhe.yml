@@ -1,0 +1,44 @@
+meta:
+  layout: cnab400
+  bank: "104"
+  direction: retorno
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_de_inscricao, pos: [2, 3] }
+  - { ref: numero_de_inscricao, pos: [4, 17] }
+  - { ref: codigo_cedente, pos: [18, 33], default: "", picture: "X(16)" }
+  - { ref: brancos01, pos: [34, 37], default: "" }
+  - { ref: uso_da_empresa, pos: [38, 62] }
+  - { ref: nosso_numero, pos: [63, 73] }
+  - { ref: brancos21, pos: [74, 79] }
+  - { ref: codigo_rejeicao, pos: [80, 82] }
+  - { ref: uso_do_banco, pos: [83, 106] }
+  - { ref: carteira, pos: [107, 108] }
+  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: data_de_ocorrencia, pos: [111, 116] }
+  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: brancos04, pos: [127, 146] }
+  - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
+  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: codigo_do_banco, pos: [166, 168] }
+  - { ref: agencia_cobradora, pos: [169, 172] }
+  - { ref: agencia_cobradora_dac, pos: [173, 173] }
+  - { ref: especie, pos: [174, 175] }
+  - { ref: valor_tarifa, pos: [176, 188] }
+  - { ref: tipo_de_liquidacao, pos: [189, 191] }
+  - { ref: forma_de_pagamento, pos: [192, 192] }
+  - { ref: float, pos: [193, 194] }
+  - { ref: data_debito_tarifa, pos: [195, 200], date_format: "%d%m%y" }
+  - { ref: brancos05, pos: [201, 214] }
+  - { ref: valor_iof, pos: [215, 227] }
+  - { ref: valor_abatimento, pos: [228, 240] }
+  - { ref: valor_desconto, pos: [241, 253] }
+  - { ref: valor_principal, pos: [254, 266] }
+  - { ref: valor_juros, pos: [267, 279] }
+  - { ref: valor_multa, pos: [280, 292] }
+  - { ref: moeda, pos: [293, 293] }
+  - { ref: data_credito, pos: [294, 299], picture: "X(06)", date_format: "%d%m%y" }
+  - { ref: brancos06, pos: [300, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

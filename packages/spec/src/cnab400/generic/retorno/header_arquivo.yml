@@ -1,0 +1,17 @@
+meta:
+  layout: cnab400
+  bank: "generic"
+  direction: retorno
+  record: header_arquivo
+  lineLength: 400
+  template: true
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_de_retorno, pos: [2, 2], default: "2" }
+  - { ref: literal_de_retorno, pos: [3, 9] }
+  - { ref: retorno_codigo_do_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26] }
+  - { ref: nome_da_empresa, pos: [47, 76] }
+  - { ref: codigo_do_banco, pos: [77, 79] }
+  - { ref: nome_do_banco, pos: [80, 94] }
+  - { ref: data_de_geracao, pos: [95, 100] }

@@ -1,0 +1,24 @@
+meta:
+  layout: cnab400
+  bank: "generic"
+  direction: remessa
+  record: header_arquivo
+  lineLength: 400
+  template: true
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "0" }
+  - { ref: tipo_operacao, pos: [2, 2], default: "1" }
+  - { ref: literal_remessa, pos: [3, 9], default: "REMESSA" }
+  - { ref: codigo_servico, pos: [10, 11], default: "1" }
+  - { ref: literal_servico, pos: [12, 26], default: "COBRANCA" }
+  - { ref: agencia, pos: [27, 30] }
+  - { ref: zeros01, pos: [31, 32], default: "0" }
+  - { ref: conta, pos: [33, 37] }
+  - { ref: conta_dv, pos: [38, 38] }
+  - { ref: brancos01, pos: [39, 46], default: "" }
+  - { ref: nome_empresa, pos: [47, 76] }
+  - { ref: codigo_banco, pos: [77, 79], default: "341" }
+  - { ref: nome_banco, pos: [80, 94] }
+  - { ref: data_geracao, pos: [95, 100], date_format: "%d%m%y" }
+  - { ref: brancos02, pos: [101, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400], default: "1" }

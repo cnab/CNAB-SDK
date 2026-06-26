@@ -1,0 +1,27 @@
+meta:
+  layout: cnab400
+  bank: "generic"
+  direction: retorno
+  record: detalhe
+  lineLength: 400
+  template: true
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_de_inscricao, pos: [2, 3] }
+  - { ref: numero_de_inscricao, pos: [4, 17] }
+  - { ref: uso_da_empresa, pos: [38, 62] }
+  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: data_de_ocorrencia, pos: [111, 116] }
+  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
+  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: codigo_do_banco, pos: [166, 168] }
+  - { ref: agencia_cobradora, pos: [169, 172] }
+  - { ref: agencia_cobradora_dac, pos: [173, 173] }
+  - { ref: especie, pos: [174, 175] }
+  - { ref: valor_tarifa, pos: [176, 188] }
+  - { ref: valor_iof, pos: [215, 227] }
+  - { ref: valor_abatimento, pos: [228, 240] }
+  - { ref: valor_desconto, pos: [241, 253] }
+  - { ref: valor_principal, pos: [254, 266] }
+  - { ref: numero_sequencial, pos: [395, 400] }
