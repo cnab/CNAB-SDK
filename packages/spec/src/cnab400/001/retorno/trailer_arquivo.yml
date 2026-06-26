@@ -1,0 +1,33 @@
+meta:
+  layout: cnab400
+  bank: "001"
+  direction: retorno
+  record: trailer_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "9" }
+  - { ref: codigo_de_retorno, pos: [2, 2], default: "2" }
+  - { ref: codigo_de_servico, pos: [3, 4], default: "01" }
+  - { ref: codigo_do_banco, pos: [5, 7] }
+  - { ref: brancos01, pos: [8, 17] }
+  - { ref: qtdede_titulos, pos: [18, 25] }
+  - { ref: valor_total, pos: [26, 39] }
+  - { ref: aviso_bancario, pos: [40, 47] }
+  - { ref: brancos02, pos: [48, 57] }
+  - { ref: qtdede_titulos_dup, pos: [58, 65] }
+  - { ref: valor_total_dup, pos: [66, 79] }
+  - { ref: aviso_bancario_dup, pos: [80, 87] }
+  - { ref: brancos03, pos: [88, 97] }
+  - { ref: qtdede_titulos_dup2, pos: [98, 105] }
+  - { ref: valor_total_dup2, pos: [106, 119] }
+  - { ref: aviso_bancario_dup2, pos: [120, 127] }
+  - { ref: brancos04, pos: [128, 137] }
+  - { ref: qtdede_titulos_dup3, pos: [138, 145] }
+  - { ref: valor_total_dup3, pos: [146, 159] }
+  - { ref: aviso_bancario_dup3, pos: [160, 167] }
+  - { ref: brancos05, pos: [168, 217] }
+  - { ref: qtdede_titulos_dup4, pos: [218, 225] }
+  - { ref: valor_total_dup4, pos: [226, 239] }
+  - { ref: aviso_bancario_dup4, pos: [240, 247] }
+  - { ref: brancos06, pos: [248, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

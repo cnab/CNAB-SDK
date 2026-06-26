@@ -1,0 +1,28 @@
+meta:
+  layout: cnab240
+  bank: "033"
+  record: header_arquivo
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3] }
+  - { ref: lote_servico, pos: [4, 7], default: "0000" }
+  - { ref: tipo_registro, pos: [8, 8], default: "0" }
+  - { ref: uso_exclusivo_febraban_01, pos: [9, 16], default: "" }
+  - { ref: codigo_inscricao, pos: [17, 17] }
+  - { ref: numero_inscricao, pos: [18, 32] }
+  - { ref: agencia, pos: [33, 36] }
+  - { ref: agencia_dv, pos: [37, 37] }
+  - { ref: conta, pos: [38, 46] }
+  - { ref: conta_dv, pos: [47, 47] }
+  - { ref: uso_exclusivo_banco_01, pos: [48, 52], default: "" }
+  - { ref: codigo_cedente, pos: [53, 61] }
+  - { ref: uso_exclusivo_banco_02, pos: [62, 72], picture: "X(11)" }
+  - { ref: nome_empresa, pos: [73, 102] }
+  - { ref: nome_banco, pos: [103, 132] }
+  - { ref: uso_exclusivo_febraban_02, pos: [133, 142], default: "", picture: "X(10)" }
+  - { ref: codigo_remessa_retorno, pos: [143, 143] }
+  - { ref: data_geracao, pos: [144, 151] }
+  - { ref: hora_geracao, pos: [152, 157] }
+  - { ref: numero_sequencial_arquivo, pos: [158, 163] }
+  - { ref: versao_layout_arquivo, pos: [164, 166], default: "030" }
+  - { ref: uso_exclusivo_febraban_03, pos: [167, 240], default: "", picture: "X(74)" }

@@ -1,0 +1,53 @@
+meta:
+  layout: cnab240
+  bank: "033"
+  direction: remessa
+  record: detalhe_segmento_p
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3] }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "P" }
+  - { ref: uso_exclusivo_febraban_01, pos: [15, 15], default: "" }
+  - { ref: codigo_ocorrencia, pos: [16, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: agencia_dv, pos: [22, 22] }
+  - { ref: conta, pos: [23, 31] }
+  - { ref: conta_dv, pos: [32, 32] }
+  - { ref: conta_cobranca, pos: [33, 41] }
+  - { ref: conta_cobranca_dv, pos: [42, 42] }
+  - { ref: reservado_santander_01, pos: [43, 44], default: "" }
+  - { ref: nosso_numero, pos: [45, 57] }
+  - { ref: codigo_carteira, pos: [58, 58] }
+  - { ref: forma_cadastramento, pos: [59, 59] }
+  - { ref: tipo_documento, pos: [60, 60], default: "2" }
+  - { ref: reservado_santander_02, pos: [61, 61], default: "" }
+  - { ref: reservado_santander_03, pos: [62, 62], default: "" }
+  - { ref: numero_documento, pos: [63, 77] }
+  - { ref: vencimento, pos: [78, 85] }
+  - { ref: valor_titulo, pos: [86, 100] }
+  - { ref: agencia_cobradora, pos: [101, 104], default: "0" }
+  - { ref: agencia_cobradora_dv, pos: [105, 105], default: "0" }
+  - { ref: reservado_santander_04, pos: [106, 106], default: "" }
+  - { ref: especie, pos: [107, 108] }
+  - { ref: aceite, pos: [109, 109] }
+  - { ref: data_emissao, pos: [110, 117] }
+  - { ref: codigo_juros_mora, pos: [118, 118] }
+  - { ref: data_juros_mora, pos: [119, 126] }
+  - { ref: valor_juros_mora, pos: [127, 141] }
+  - { ref: codigo_desconto_1, pos: [142, 142] }
+  - { ref: data_desconto_1, pos: [143, 150] }
+  - { ref: valor_desconto_1, pos: [151, 165] }
+  - { ref: valor_iof, pos: [166, 180], default: "0" }
+  - { ref: valor_abatimento, pos: [181, 195] }
+  - { ref: uso_empresa, pos: [196, 220] }
+  - { ref: codigo_protesto, pos: [221, 221] }
+  - { ref: prazo_protesto, pos: [222, 223] }
+  - { ref: codigo_baixa, pos: [224, 224] }
+  - { ref: reservado_santander_05, pos: [225, 225], default: "0" }
+  - { ref: prazo_baixa, pos: [226, 227] }
+  - { ref: codigo_moeda, pos: [228, 229], default: "09" }
+  - { ref: uso_exclusivo_banco_03, pos: [230, 239], default: "0" }
+  - { ref: uso_exclusivo_febraban_02, pos: [240, 240], default: "", picture: "X(1)" }

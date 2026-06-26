@@ -1,0 +1,23 @@
+meta:
+  layout: cnab400
+  bank: "237"
+  direction: retorno
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_de_retorno, pos: [2, 2], default: "2" }
+  - { ref: literal_de_retorno, pos: [3, 9] }
+  - { ref: retorno_codigo_do_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26] }
+  - { ref: codigo_cedente, pos: [27, 46] }
+  - { ref: nome_da_empresa, pos: [47, 76] }
+  - { ref: codigo_do_banco, pos: [77, 79] }
+  - { ref: nome_do_banco, pos: [80, 94] }
+  - { ref: data_de_geracao, pos: [95, 100] }
+  - { ref: zeros01, pos: [101, 108], default: 0 }
+  - { ref: numero_aviso_bancario, pos: [109, 113] }
+  - { ref: brancos01, pos: [114, 379], default: "" }
+  - { ref: data_de_credito, pos: [380, 385] }
+  - { ref: brancos02, pos: [386, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400], default: 1 }

@@ -1,0 +1,10 @@
+meta:
+  layout: cnab400
+  bank: "341"
+  direction: remessa
+  record: trailer_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "9" }
+  - { ref: brancos01, pos: [2, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

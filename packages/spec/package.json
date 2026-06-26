@@ -1,0 +1,16 @@
+{
+  "name": "@cnab/spec",
+  "version": "0.0.0",
+  "description": "CNAB field catalog + full standalone record specs, compiled to neutral JSON",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/spec.json",
+  "files": [
+    "fields",
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "node ../../tools/build-spec.mjs"
+  }
+}

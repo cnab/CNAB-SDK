@@ -1,0 +1,28 @@
+meta:
+  layout: cnab400
+  bank: "341"
+  direction: retorno
+  record: trailer_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "9" }
+  - { ref: codigo_de_retorno, pos: [2, 2], default: "2" }
+  - { ref: codigo_de_servico, pos: [3, 4], default: "01" }
+  - { ref: codigo_do_banco, pos: [5, 7] }
+  - { ref: brancos01, pos: [8, 17] }
+  - { ref: qtdede_titulos, pos: [18, 25] }
+  - { ref: valor_total, pos: [26, 39] }
+  - { ref: aviso_bancario, pos: [40, 47] }
+  - { ref: brancos02, pos: [48, 57] }
+  - { ref: qtdede_titulos_dup, pos: [58, 65] }
+  - { ref: valor_total_dup, pos: [66, 79] }
+  - { ref: aviso_bancario_dup, pos: [80, 87] }
+  - { ref: brancos03, pos: [88, 177] }
+  - { ref: qtdede_titulos_dup2, pos: [178, 185] }
+  - { ref: valor_total_dup2, pos: [186, 199] }
+  - { ref: aviso_bancario_dup2, pos: [200, 207] }
+  - { ref: controle_do_arquivo, pos: [208, 212] }
+  - { ref: qtde_de_detalhes, pos: [213, 220] }
+  - { ref: vlr_total_informado, pos: [221, 234] }
+  - { ref: brancos04, pos: [235, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

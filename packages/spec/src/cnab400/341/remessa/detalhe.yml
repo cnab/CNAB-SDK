@@ -1,0 +1,53 @@
+meta:
+  layout: cnab400
+  bank: "341"
+  direction: remessa
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_inscricao, pos: [2, 3] }
+  - { ref: numero_inscricao, pos: [4, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: zeros01, pos: [22, 23], default: "0" }
+  - { ref: conta, pos: [24, 28] }
+  - { ref: conta_dv, pos: [29, 29] }
+  - { ref: brancos01, pos: [30, 33], default: "" }
+  - { ref: codigo_instrucao, pos: [34, 37] }
+  - { ref: uso_empresa, pos: [38, 62] }
+  - { ref: nosso_numero, pos: [63, 70] }
+  - { ref: qtde_moeda, pos: [71, 83] }
+  - { ref: numero_carteira, pos: [84, 86] }
+  - { ref: uso_banco, pos: [87, 107] }
+  - { ref: codigo_carteira, pos: [108, 108], picture: "X(01)" }
+  - { ref: codigo_ocorrencia, pos: [109, 110], default: "1" }
+  - { ref: numero_documento, pos: [111, 120] }
+  - { ref: vencimento, pos: [121, 126] }
+  - { ref: valor_titulo, pos: [127, 139] }
+  - { ref: codigo_banco, pos: [140, 142], default: "341" }
+  - { ref: agencia_cobradora, pos: [143, 147], default: "0" }
+  - { ref: especie, pos: [148, 149], picture: "X(02)" }
+  - { ref: aceite, pos: [150, 150] }
+  - { ref: data_emissao, pos: [151, 156], date_format: "%d%m%y" }
+  - { ref: instrucao1, pos: [157, 158], default: "05" }
+  - { ref: instrucao2, pos: [159, 160], default: "20" }
+  - { ref: juros_um_dia, pos: [161, 173], default: "0" }
+  - { ref: desconto_ate, pos: [174, 179], default: "0" }
+  - { ref: valor_desconto, pos: [180, 192], default: "0" }
+  - { ref: valor_iof, pos: [193, 205], default: "0" }
+  - { ref: abatimento, pos: [206, 218], default: "0" }
+  - { ref: sacado_codigo_inscricao, pos: [219, 220] }
+  - { ref: sacado_numero_inscricao, pos: [221, 234] }
+  - { ref: nome, pos: [235, 264] }
+  - { ref: brancos02, pos: [265, 274], default: "" }
+  - { ref: logradouro, pos: [275, 314] }
+  - { ref: bairro, pos: [315, 326] }
+  - { ref: cep, pos: [327, 334] }
+  - { ref: cidade, pos: [335, 349] }
+  - { ref: estado, pos: [350, 351] }
+  - { ref: sacador, pos: [352, 381] }
+  - { ref: brancos03, pos: [382, 385], default: "" }
+  - { ref: data_mora, pos: [386, 391], default: "0" }
+  - { ref: prazo, pos: [392, 393], default: "0" }
+  - { ref: brancos04, pos: [394, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

@@ -1,0 +1,25 @@
+meta:
+  layout: cnab240
+  bank: "033"
+  direction: remessa
+  record: detalhe_segmento_r
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3] }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "R" }
+  - { ref: uso_exclusivo_febraban_01, pos: [15, 15], default: "" }
+  - { ref: codigo_ocorrencia, pos: [16, 17] }
+  - { ref: codigo_desconto_02, pos: [18, 18], default: 0 }
+  - { ref: data_desconto_02, pos: [19, 26], default: "" }
+  - { ref: valor_desconto_02, pos: [27, 41], default: 0 }
+  - { ref: reservado_santander_01, pos: [42, 65], default: "" }
+  - { ref: codigo_multa, pos: [66, 66] }
+  - { ref: data_multa, pos: [67, 74] }
+  - { ref: valor_multa, pos: [75, 89] }
+  - { ref: informacao_sacado, pos: [90, 99], default: "" }
+  - { ref: mensagem_3, pos: [100, 139], default: "" }
+  - { ref: mensagem_4, pos: [140, 179], default: "" }
+  - { ref: uso_exclusivo_febraban_03, pos: [180, 240], default: "", picture: "X(61)" }

@@ -1,0 +1,57 @@
+meta:
+  layout: cnab400
+  bank: "001"
+  direction: retorno
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "7" }
+  - { ref: zeros01, pos: [2, 17], default: 0 }
+  - { ref: agencia_cobradora, pos: [18, 21] }
+  - { ref: agencia_cobradora_dac, pos: [22, 22] }
+  - { ref: conta_cedente, pos: [23, 30] }
+  - { ref: conta_cedente_dac, pos: [31, 31] }
+  - { ref: convenio, pos: [32, 38] }
+  - { ref: controle_participante, pos: [39, 63] }
+  - { ref: nosso_numero, pos: [64, 80] }
+  - { ref: tipo_cobranca, pos: [81, 81] }
+  - { ref: tipo_cobranca_especifico, pos: [82, 82] }
+  - { ref: dias_calculo, pos: [83, 86] }
+  - { ref: natureza_recebimento, pos: [87, 88] }
+  - { ref: prefixo_titulo, pos: [89, 91] }
+  - { ref: variacao_carteira, pos: [92, 94] }
+  - { ref: conta_caucao, pos: [95, 95] }
+  - { ref: taxa_desconto, pos: [96, 100] }
+  - { ref: taxa_iof, pos: [101, 105] }
+  - { ref: zeros02, pos: [106, 106], default: 0 }
+  - { ref: carteira, pos: [107, 108] }
+  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: data_de_ocorrencia, pos: [111, 116] }
+  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: brancos01, pos: [127, 146], default: "" }
+  - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
+  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: codigo_do_banco, pos: [166, 168] }
+  - { ref: reservado_bb_d1, pos: [169, 173], default: "0" }
+  - { ref: especie, pos: [174, 175] }
+  - { ref: data_credito, pos: [176, 181], date_format: "%d%m%y" }
+  - { ref: valor_tarifa, pos: [182, 188] }
+  - { ref: valor_outras_despesas, pos: [189, 201] }
+  - { ref: valor_juros_desconto, pos: [202, 214] }
+  - { ref: valor_iof, pos: [215, 227] }
+  - { ref: valor_abatimento, pos: [228, 240] }
+  - { ref: valor_desconto, pos: [241, 253] }
+  - { ref: valor_principal, pos: [254, 266] }
+  - { ref: valor_juros, pos: [267, 279] }
+  - { ref: valor_outros_recebimentos, pos: [280, 292] }
+  - { ref: valor_abatimento_nao_aproveitado, pos: [293, 305] }
+  - { ref: valor_lancamento, pos: [306, 318] }
+  - { ref: indicativo_debito_credito, pos: [319, 319] }
+  - { ref: indicador_valor, pos: [320, 320] }
+  - { ref: valor_ajuste, pos: [321, 332] }
+  - { ref: brancos02, pos: [333, 333], default: "" }
+  - { ref: zeros03, pos: [334, 390], default: 0 }
+  - { ref: indicativo_autorizacao_liquidacao_parcial, pos: [391, 391] }
+  - { ref: brancos03, pos: [392, 392], default: "" }
+  - { ref: codigo_liquidacao, pos: [393, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

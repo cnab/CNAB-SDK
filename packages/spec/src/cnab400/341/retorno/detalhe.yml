@@ -1,0 +1,54 @@
+meta:
+  layout: cnab400
+  bank: "341"
+  direction: retorno
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_de_inscricao, pos: [2, 3] }
+  - { ref: numero_de_inscricao, pos: [4, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: zeros01, pos: [22, 23], default: "00" }
+  - { ref: conta, pos: [24, 28] }
+  - { ref: dac, pos: [29, 29] }
+  - { ref: brancos01, pos: [30, 37] }
+  - { ref: uso_da_empresa, pos: [38, 62] }
+  - { ref: nosso_numero, pos: [63, 70] }
+  - { ref: brancos02, pos: [71, 82] }
+  - { ref: carteira, pos: [83, 85] }
+  - { ref: nosso_numero_dup, pos: [86, 93] }
+  - { ref: dac_nosso_numero, pos: [94, 94] }
+  - { ref: brancos03, pos: [95, 107] }
+  - { ref: carteira_cod, pos: [108, 108] }
+  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: data_de_ocorrencia, pos: [111, 116] }
+  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: nosso_numero_dup2, pos: [127, 134] }
+  - { ref: brancos04, pos: [135, 146] }
+  - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
+  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: codigo_do_banco, pos: [166, 168] }
+  - { ref: agencia_cobradora, pos: [169, 172] }
+  - { ref: agencia_cobradora_dac, pos: [173, 173] }
+  - { ref: especie, pos: [174, 175] }
+  - { ref: valor_tarifa, pos: [176, 188] }
+  - { ref: brancos05, pos: [189, 214] }
+  - { ref: valor_iof, pos: [215, 227] }
+  - { ref: valor_abatimento, pos: [228, 240] }
+  - { ref: valor_desconto, pos: [241, 253] }
+  - { ref: valor_principal, pos: [254, 266] }
+  - { ref: valor_mora_multa, pos: [267, 279] }
+  - { ref: valor_outros_creditos, pos: [280, 292] }
+  - { ref: boleto_dda, pos: [293, 293] }
+  - { ref: brancos06, pos: [294, 295] }
+  - { ref: data_credito, pos: [296, 301], picture: "X(06)", date_format: "%d%m%y" }
+  - { ref: instr_cancelada, pos: [302, 305] }
+  - { ref: brancos07, pos: [306, 311] }
+  - { ref: zeros02, pos: [312, 324] }
+  - { ref: nome_do_sacado, pos: [325, 354] }
+  - { ref: brancos08, pos: [355, 377] }
+  - { ref: erros, pos: [378, 385] }
+  - { ref: brancos09, pos: [386, 392] }
+  - { ref: codigo_liquidacao, pos: [393, 394], picture: "X(02)" }
+  - { ref: numero_sequencial, pos: [395, 400] }

@@ -1,0 +1,27 @@
+meta:
+  layout: cnab400
+  bank: "341"
+  direction: retorno
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_de_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_de_retorno, pos: [2, 2], default: "2" }
+  - { ref: literal_de_retorno, pos: [3, 9] }
+  - { ref: retorno_codigo_do_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26] }
+  - { ref: cobranca, pos: [27, 30] }
+  - { ref: zeros01, pos: [31, 32], default: "00" }
+  - { ref: conta, pos: [33, 37] }
+  - { ref: dac, pos: [38, 38] }
+  - { ref: brancos01, pos: [39, 46], default: "" }
+  - { ref: nome_da_empresa, pos: [47, 76] }
+  - { ref: codigo_do_banco, pos: [77, 79] }
+  - { ref: nome_do_banco, pos: [80, 94] }
+  - { ref: data_de_geracao, pos: [95, 100] }
+  - { ref: densidade, pos: [101, 105] }
+  - { ref: unidade_de_densid, pos: [106, 108], default: "BPI" }
+  - { ref: n_seq_arquivo_ret, pos: [109, 113] }
+  - { ref: data_de_credito, pos: [114, 119] }
+  - { ref: brancos02, pos: [120, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400], default: 1 }
