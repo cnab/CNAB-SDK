@@ -1,0 +1,20 @@
+{
+  "name": "@cnab/cli",
+  "version": "0.0.0",
+  "description": "CNAB command-line tool: parse, build and validate CNAB 240/400 files",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "cnab": "bin/cnab.mjs"
+  },
+  "files": [
+    "bin"
+  ],
+  "dependencies": {
+    "@cnab/core": "0.0.0",
+    "@cnab/spec": "0.0.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

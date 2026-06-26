@@ -49,8 +49,29 @@ consumed by `@cnab/core` (engine) and `@cnab/cli`.
 
 ## What was migrated / tested / remains
 
-See the end-of-step summary in the branch history. Status snapshot lives in the
-"Migration coverage" section below, regenerated from the build.
+**Migrated (step A):** all CNAB240 and CNAB400 specs from `cnab_yaml` →
+54 full standalone records + 4 code tables, driven by a 297-field catalog.
+Covers banks 001 (BB), 033 (Santander), 104 (Caixa, incl. SIGCB variant),
+237 (Bradesco) and 341 (Itaú), plus `generic` reference templates. Every
+non-template record is verified for full, gapless, non-overlapping 240/400
+coverage by `tools/build-spec.mjs`. Itaú 341 CNAB400 remessa records were
+authored by copying the generic Itaú 400 layout (legacy had only retorno).
+
+**Tested (step C):** `packages/core` golden-file tests (`node --test`) cover
+Caixa 104 CNAB240 (remessa header + segment P, retorno segment T) and Itaú 341
+CNAB400 (remessa header, retorno header/detalhe/trailer) with synthetic
+anonymized lines: byte-exact golden lines, `parse`/`toLine` round-trip, position
+assertions, and `validate` failure cases. `packages/cli` has end-to-end tests
+for `records`/`build`/`parse`/`validate`.
+
+**jsii (step D):** `packages/core` compiles cleanly under `jsii` (0 errors/
+warnings) producing a `.jsii` assembly; targets configured for
+dotnet/python/java. CI runs `jsii` to guard multi-language compatibility. No
+publishing.
+
+**Remains:** richer file-level orchestration (lote/arquivo sequencing,
+DV/checksum computation); verification of the reserved regions flagged below
+against bank manuals; more banks/segments; actual package publishing.
 
 ### Migration coverage
 

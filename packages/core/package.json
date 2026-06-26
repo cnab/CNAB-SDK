@@ -1,0 +1,47 @@
+{
+  "name": "@cnab/core",
+  "version": "0.0.0",
+  "description": "CNAB 240/400 parsing, building and validation engine (jsii, multi-language)",
+  "license": "MIT",
+  "author": {
+    "name": "CNAB SDK contributors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cnab/CNAB-SDK.git",
+    "directory": "packages/core"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "stability": "experimental",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:jsii": "jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
+    "package": "jsii-pacmak",
+    "test": "tsc -p tsconfig.json && node --test"
+  },
+  "devDependencies": {
+    "typescript": "~5.5.4"
+  },
+  "jsii": {
+    "outdir": "dist",
+    "versionFormat": "short",
+    "targets": {
+      "python": {
+        "distName": "cnab-core",
+        "module": "cnab_core"
+      },
+      "java": {
+        "package": "org.cnab.core",
+        "maven": {
+          "groupId": "org.cnab",
+          "artifactId": "cnab-core"
+        }
+      },
+      "dotnet": {
+        "namespace": "Cnab.Core",
+        "packageId": "Cnab.Core"
+      }
+    }
+  }
+}

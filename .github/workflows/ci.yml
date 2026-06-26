@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    name: build spec + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - name: Compile + validate spec, run all workspace tests
+        run: npm test
+
+  jsii:
+    name: jsii multi-language API check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      # Prove the @cnab/core public API is jsii-compatible (Node/.NET/Python/Java).
+      # We compile the jsii assembly only; we do NOT publish.
+      - name: jsii compile (packages/core)
+        working-directory: packages/core
+        run: npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies
+      - name: Upload jsii assembly
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsii-assembly
+          path: packages/core/.jsii
+          if-no-files-found: error
