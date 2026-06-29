@@ -35,17 +35,17 @@ bank/record). Domain terms are in [`CONTEXT.md`](CONTEXT.md).
 
 ## Design
 
-Locked architectural decisions live in [`docs/adr`](docs/adr) (see the
-[ADR index](docs/adr/README.md)):
+Locked architectural decisions live in [`docs/adrs`](docs/adrs) (see the
+[ADR index](docs/adrs/README.md)):
 
-1. [Single monorepo](docs/adr/0001-single-monorepo.md).
-2. [Author the engine once in jsii-compatible TypeScript](docs/adr/0002-jsii-single-engine.md);
+1. [Single monorepo](docs/adrs/0001-single-monorepo.md).
+2. [Author the engine once in jsii-compatible TypeScript](docs/adrs/0002-jsii-single-engine.md);
    publish to Node/.NET/Python/Java via jsii.
-3. [Hybrid spec model](docs/adr/0003-spec-model-catalog-and-standalone-records.md):
+3. [Hybrid spec model](docs/adrs/0003-spec-model-catalog-and-standalone-records.md):
    a field-library catalog (semantics by canonical name) + full standalone
    records (each lists its complete positioned field set; no inheritance), with
    build-time full-line coverage validation.
-4. [Record-level format overrides](docs/adr/0004-record-level-format-overrides.md)
+4. [Record-level format overrides](docs/adrs/0004-record-level-format-overrides.md)
    for polymorphic fields (e.g. 6- vs 8-digit dates).
 
 See [`docs/REFORMULATION.md`](docs/REFORMULATION.md) for the roadmap and status.

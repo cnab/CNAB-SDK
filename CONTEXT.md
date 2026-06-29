@@ -4,7 +4,7 @@ Living glossary for the CNAB-SDK reformulation. Keep terms here current as they
 crystallize; code and docs should use these canonical English/Portuguese terms.
 
 > Working in this repo? Start with [`AGENTS.md`](AGENTS.md) (build/test, rules,
-> how to add a spec) and the ADRs in [`docs/adr/`](docs/adr/).
+> how to add a spec) and the ADRs in [`docs/adrs/`](docs/adrs/).
 
 ## CNAB
 
@@ -83,6 +83,6 @@ Legacy strftime is converted at build time to language-neutral tokens:
 ## Cross-references
 
 - Build/test/authoring workflow and jsii rules: [`AGENTS.md`](AGENTS.md).
-- Architecture decisions: [`docs/adr/`](docs/adr/).
+- Architecture decisions: [`docs/adrs/`](docs/adrs/).
 - Plan & status: [`docs/REFORMULATION.md`](docs/REFORMULATION.md).
 - Remaining work: GitHub EPIC issue #2 and its sub-issues.

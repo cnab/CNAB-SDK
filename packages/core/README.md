@@ -3,7 +3,7 @@
 The CNAB 240/400 engine for parsing, building and validating Brazilian bank
 files. Authored once in jsii-compatible TypeScript and published to
 Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
-[ADR 0002](../../docs/adr/0002-jsii-single-engine.md)).
+[ADR 0002](../../docs/adrs/0002-jsii-single-engine.md)).
 
 ## API
 

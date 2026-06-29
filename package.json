@@ -13,9 +13,12 @@
     "build:spec": "node tools/build-spec.mjs",
     "build:core": "npm run build --workspace @cnab/core",
     "build": "npm run build:spec && npm run build:core",
-    "test": "npm run build:spec && npm run test --workspaces --if-present"
+    "test": "npm run build:spec && npm run test --workspaces --if-present",
+    "docs": "typedoc",
+    "docs:serve": "npx --yes http-server site -p 8080"
   },
   "devDependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "typedoc": "^0.26.11"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["packages/core/src/index.ts"],
+  "tsconfig": "packages/core/tsconfig.json",
+  "out": "site",
+  "readme": "docs/api-landing.md",
+  "name": "CNAB SDK — Developer API",
+  "includeVersion": false,
+  "hideGenerator": false,
+  "navigationLinks": {
+    "GitHub": "https://github.com/cnab/CNAB-SDK",
+    "Guide (AGENTS.md)": "https://github.com/cnab/CNAB-SDK/blob/main/AGENTS.md"
+  },
+  "categorizeByGroup": true,
+  "sort": ["source-order"]
+}

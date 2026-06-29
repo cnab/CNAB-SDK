@@ -2,7 +2,7 @@
 
 This is the **canonical entry point** for anyone (human or AI) working in this
 repo. Read this first, then [`CONTEXT.md`](CONTEXT.md) (domain glossary) and the
-ADRs in [`docs/adr/`](docs/adr/). The roadmap of remaining work is **issue #2**
+ADRs in [`docs/adrs/`](docs/adrs/). The roadmap of remaining work is **issue #2**
 (the EPIC) and its sub-issues.
 
 ## What this project is
@@ -26,7 +26,7 @@ tools/
   migrate-legacy.mjs ONE-SHOT importer from ../cnab_yaml (do not re-run blindly)
 docs/
   REFORMULATION.md  plan & status
-  adr/              architecture decisions (READ THESE — they are binding)
+  adrs/             architecture decisions (READ THESE — they are binding)
 CONTEXT.md          domain glossary
 ```
 
@@ -44,20 +44,20 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 
 ## Binding rules (ADRs — do not relitigate)
 
-1. **Single monorepo** ([ADR 0001](docs/adr/0001-single-monorepo.md)).
-2. **Author the engine once in jsii-compatible TS** ([ADR 0002](docs/adr/0002-jsii-single-engine.md)).
+1. **Single monorepo** ([ADR 0001](docs/adrs/0001-single-monorepo.md)).
+2. **Author the engine once in jsii-compatible TS** ([ADR 0002](docs/adrs/0002-jsii-single-engine.md)).
    The public API may use **only**: enums, struct interfaces (props-only
    `readonly`), string-keyed maps (`{[k:string]: string}`), primitives, and
    arrays of those. **No** union/intersection types, **no** method overloads,
    **no** tuples (positions are exposed as `start`/`end` numbers).
-3. **Hybrid spec model** ([ADR 0003](docs/adr/0003-spec-model-catalog-and-standalone-records.md)):
+3. **Hybrid spec model** ([ADR 0003](docs/adrs/0003-spec-model-catalog-and-standalone-records.md)):
    catalog = semantics by canonical name (no positions); records = full
    standalone positioned field sets that `ref` the catalog. No inheritance/
    overlay at author/build/runtime. The build validates **full, gapless,
    non-overlapping** line coverage for bank records.
-4. **Record-level overrides** ([ADR 0004](docs/adr/0004-record-level-format-overrides.md)):
+4. **Record-level overrides** ([ADR 0004](docs/adrs/0004-record-level-format-overrides.md)):
    a record field may override `picture`/`decimals`/`date_format`.
-5. **Build & jsii toolchain** ([ADR 0005](docs/adr/0005-build-and-jsii-toolchain.md)):
+5. **Build & jsii toolchain** ([ADR 0005](docs/adrs/0005-build-and-jsii-toolchain.md)):
    `tsc` for tests, `jsii` for the assembly; the gotchas below are recorded there.
 
 ## jsii gotchas (learned the hard way — keep them)
