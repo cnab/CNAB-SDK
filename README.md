@@ -27,9 +27,16 @@ echo '{"codigo_banco":"104"}' \
   | node packages/cli/bin/cnab.mjs build --record cnab240/104/sigcb/header_arquivo
 ```
 
+## Contributing / working in this repo
+
+Start with [`AGENTS.md`](AGENTS.md) — the canonical guide for humans and AI
+agents (build/test commands, the binding rules, jsii gotchas, and how to add a
+bank/record). Domain terms are in [`CONTEXT.md`](CONTEXT.md).
+
 ## Design
 
-Locked architectural decisions live in [`docs/adr`](docs/adr):
+Locked architectural decisions live in [`docs/adr`](docs/adr) (see the
+[ADR index](docs/adr/README.md)):
 
 1. [Single monorepo](docs/adr/0001-single-monorepo.md).
 2. [Author the engine once in jsii-compatible TypeScript](docs/adr/0002-jsii-single-engine.md);
