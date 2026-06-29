@@ -6,10 +6,10 @@ and one verifiable spec.
 
 See the locked architectural decisions:
 
-- [ADR 0001](adr/0001-single-monorepo.md) — single monorepo.
-- [ADR 0002](adr/0002-jsii-single-engine.md) — author the engine once in
+- [ADR 0001](adrs/0001-single-monorepo.md) — single monorepo.
+- [ADR 0002](adrs/0002-jsii-single-engine.md) — author the engine once in
   jsii-compatible TypeScript; publish to Node/.NET/Python/Java via jsii.
-- [ADR 0003](adr/0003-spec-model-catalog-and-standalone-records.md) — hybrid
+- [ADR 0003](adrs/0003-spec-model-catalog-and-standalone-records.md) — hybrid
   field catalog + full standalone records; build-time coverage validation.
 
 Domain terms: [CONTEXT.md](../CONTEXT.md).

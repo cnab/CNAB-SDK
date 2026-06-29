@@ -3,6 +3,9 @@
 Living glossary for the CNAB-SDK reformulation. Keep terms here current as they
 crystallize; code and docs should use these canonical English/Portuguese terms.
 
+> Working in this repo? Start with [`AGENTS.md`](AGENTS.md) (build/test, rules,
+> how to add a spec) and the ADRs in [`docs/adrs/`](docs/adrs/).
+
 ## CNAB
 
 **CNAB** (Centro Nacional de Automação Bancária) is the FEBRABAN standard for
@@ -66,3 +69,20 @@ trailing spaces).
 
 Legacy strftime is converted at build time to language-neutral tokens:
 `%d%m%Y → ddMMyyyy`, `%d%m%y → ddMMyy`, `%H%M%S → HHmmss`.
+
+## Check digits & boleto (planned — see issue #8)
+
+- **DV / DAC** — dígito verificador / dígito de autoconferência: a check digit
+  computed by módulo 10 or módulo 11 over a field (agência, conta, nosso número,
+  código de barras…). Rules vary per bank.
+- **código de barras** — the 44-digit barcode payload of a boleto.
+- **linha digitável** — the 47-digit human-typeable representation of the barcode.
+- **fator de vencimento** — days since a fixed base date, encoding the due date
+  inside the barcode.
+
+## Cross-references
+
+- Build/test/authoring workflow and jsii rules: [`AGENTS.md`](AGENTS.md).
+- Architecture decisions: [`docs/adrs/`](docs/adrs/).
+- Plan & status: [`docs/REFORMULATION.md`](docs/REFORMULATION.md).
+- Remaining work: GitHub EPIC issue #2 and its sub-issues.
