@@ -62,7 +62,10 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 
 ## jsii gotchas (learned the hard way — keep them)
 
-- Method **`build` is prohibited** by jsii → the builder method is `toLine`.
+- Method **`build` is prohibited** by jsii → the builder method is `toLine`
+  (and `CnabFileBuilder`'s terminal method is `toFileContent`).
+- Method names **`setXxx` are prohibited** by jsii (Java setter conflict,
+  JSII5001) → `CnabFileBuilder.withHeader`, not `setHeader`.
 - **`type` is a Go reserved word** → the field-type property is `fieldType`.
 - `packages/core/tsconfig.json` uses **`module`/`moduleResolution: node16`** so
   both `tsc` (local) and jsii's bundled TS accept it (avoids `ignoreDeprecations`
@@ -99,6 +102,9 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 - `CnabRecord.fromJson(json)` → `parse(line)`, `toLine(values)`, `validate(line)`, `spec`.
 - `CnabSpec.fromJson(json)` → `recordKeys()`, `hasRecord(key)`, `getRecord(key)`.
 - `CnabFile.forBank(specJson, layout, bank, variant, direction)` → `parse(content): ParsedLine[]`.
+- `CnabFileBuilder.forBank(specJson, layout, bank, variant, direction)` →
+  `withHeader`, `startLote`/`addDetail`/`endLote` (cnab240), `addDetail` (cnab400),
+  `toFileContent(trailerValues)`. Control fields auto-computed per ADR 0007.
 
 Record keys look like `cnab240/104/sigcb/header_arquivo`.
 

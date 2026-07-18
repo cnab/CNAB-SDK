@@ -24,6 +24,7 @@ New to ADRs? See Michael Nygard's
 | [0004](0004-record-level-format-overrides.md) | Record-level overrides for date format / decimals | Accepted |
 | [0005](0005-build-and-jsii-toolchain.md) | Build & jsii toolchain conventions | Accepted |
 | [0006](0006-typed-value-representation.md) | Typed value representation: decimal strings & ISO dates | Accepted |
+| [0007](0007-file-builder-control-fields.md) | File builder control fields by name convention | Accepted |
 
 ## Decisions expected soon (tracked in issues, ADR to be written when decided)
 
@@ -32,5 +33,4 @@ These are deliberately **not** ADRs yet — record one when the call is made:
 - **Spec distribution** (embed `spec.json` in `@cnab/core` vs separate per-language
   packages) — issue #13.
 - **Where validation rules live** (catalog vs record YAML vs separate rules) — issue #11.
-- **Control-field roles** for whole-file generation (counters/totals) — issue #7.
 - **Versioning/release strategy** (Changesets vs semantic-release) — issue #14.
