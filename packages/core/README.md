@@ -9,6 +9,12 @@ Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
 
 - `CnabSpec.fromJson(json)` — load the compiled `spec.json`.
   - `recordKeys()`, `hasRecord(key)`, `getRecord(key)`.
+  - `codeTableKeys()`, `hasCodeTable(key)`, `getCodeTable(key)` →
+    `{ [code]: description }` (throws when the key is missing).
+  - `lookupCode(key, code)` → description or `''` when unknown. The code is
+    normalized during lookup (as-is, then leading zeros stripped, then
+    zero-padded to 2), since legacy tables use unpadded keys like `"2"` while
+    CNAB fields carry `"02"`.
 - `CnabRecord.fromJson(json)` — load a single record spec.
   - `parse(line)` → `{ [name]: value }`
   - `toLine(values)` → fixed-width line (named `toLine`, not `build`, because

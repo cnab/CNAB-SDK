@@ -1,0 +1,20 @@
+# Código de Movimento Remessa — código FEBRABAN que identifica o tipo de
+# movimentação enviado nos registros do arquivo de remessa (CNAB240,
+# Segmento P pos 16-17). Cada banco define os campos alteráveis para o
+# código '31'.
+meta:
+  layout: cnab240
+  bank: "generic"
+  record: codigo_movimento_remessa
+  kind: code_table
+codes:
+  "01": "Entrada de Títulos"
+  "02": "Pedido de Baixa"
+  "04": "Concessão de Abatimento"
+  "05": "Cancelamento de Abatimento"
+  "06": "Alteração de Vencimento"
+  "07": "Concessão de Desconto"
+  "08": "Cancelamento de Desconto"
+  "09": "Protestar"
+  "10": "Sustar Protesto e Baixar Título"
+  "31": "Alteração de Outros Dados"

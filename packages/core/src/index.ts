@@ -211,18 +211,39 @@ export class CnabRecord {
   }
 }
 
+interface RawCodeTableJson {
+  readonly meta?: Record<string, unknown>;
+  readonly codes?: Record<string, unknown>;
+}
+
 /** A compiled spec: a collection of named records (whole `spec.json`). */
 export class CnabSpec {
   /** Load from the compiled `spec.json` content. */
   public static fromJson(json: string): CnabSpec {
-    const doc = JSON.parse(json) as { records?: Record<string, unknown> };
-    return new CnabSpec(doc.records ?? {});
+    const doc = JSON.parse(json) as {
+      records?: Record<string, unknown>;
+      codeTables?: Record<string, RawCodeTableJson>;
+    };
+    const codeTables: { [key: string]: { [code: string]: string } } = {};
+    for (const [key, table] of Object.entries(doc.codeTables ?? {})) {
+      const codes: { [code: string]: string } = {};
+      for (const [code, description] of Object.entries(table.codes ?? {})) {
+        codes[code] = String(description);
+      }
+      codeTables[key] = codes;
+    }
+    return new CnabSpec(doc.records ?? {}, codeTables);
   }
 
   private readonly _records: Record<string, unknown>;
+  private readonly _codeTables: { [key: string]: { [code: string]: string } };
 
-  private constructor(records: Record<string, unknown>) {
+  private constructor(
+    records: Record<string, unknown>,
+    codeTables: { [key: string]: { [code: string]: string } }
+  ) {
     this._records = records;
+    this._codeTables = codeTables;
   }
 
   /** All available record keys, e.g. `cnab240/104/sigcb/header_arquivo`. */
@@ -241,6 +262,48 @@ export class CnabSpec {
       throw new Error(`record not found: ${key}`);
     }
     return CnabRecord.fromJson(JSON.stringify(this._records[key]));
+  }
+
+  /** All available code-table keys, e.g. `cnab400/104/retorno/codigo_ocorrencia`. */
+  public codeTableKeys(): string[] {
+    return Object.keys(this._codeTables);
+  }
+
+  /** Whether a code table with the given key exists. */
+  public hasCodeTable(key: string): boolean {
+    return Object.prototype.hasOwnProperty.call(this._codeTables, key);
+  }
+
+  /** Get a code table (code -> description map) by key. Throws if it does not exist. */
+  public getCodeTable(key: string): { [code: string]: string } {
+    if (!this.hasCodeTable(key)) {
+      throw new Error(`code table not found: ${key}`);
+    }
+    const out: { [code: string]: string } = {};
+    for (const [code, description] of Object.entries(this._codeTables[key])) {
+      out[code] = description;
+    }
+    return out;
+  }
+
+  /**
+   * Look up a code's description in a table, or `''` when the code is unknown.
+   * The code is normalized during lookup: tried as-is, then with leading zeros
+   * stripped (legacy tables use unpadded keys like `"2"` while CNAB fields
+   * carry `"02"`), then zero-padded to 2 digits.
+   */
+  public lookupCode(key: string, code: string): string {
+    const table = this.getCodeTable(key);
+    const candidates = [code];
+    const stripped = code.replace(/^0+/, '');
+    candidates.push(stripped === '' ? '0' : stripped);
+    candidates.push(code.padStart(2, '0'));
+    for (const candidate of candidates) {
+      if (Object.prototype.hasOwnProperty.call(table, candidate)) {
+        return table[candidate];
+      }
+    }
+    return '';
   }
 }
 
