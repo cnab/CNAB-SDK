@@ -319,6 +319,18 @@ export interface ParsedLine {
   readonly fields: { [name: string]: string };
 }
 
+/** The scope of a CNAB file inferred from its content (see `CnabFile.detectScope`). */
+export interface DetectedScope {
+  /** Detected layout family, `cnab240` or `cnab400`. */
+  readonly layout: string;
+  /** Detected bank code, e.g. `104`. */
+  readonly bank: string;
+  /** Detected variant, e.g. `sigcb` (empty when the bank has none). */
+  readonly variant: string;
+  /** Detected direction, `remessa` or `retorno`. */
+  readonly direction: string;
+}
+
 /** Fixed discriminator positions per layout (1-based, inclusive). */
 interface Detect {
   readonly tipoStart: number;
@@ -376,6 +388,189 @@ export class CnabFile {
       keyByDisc[disc] = key;
     }
     return new CnabFile(detect, byDisc, keyByDisc);
+  }
+
+  /**
+   * Infer a file's scope (layout / bank / variant / direction) from its first
+   * line (the header_arquivo):
+   *
+   * - **layout** from the line length: 240 -> `cnab240`, 400 -> `cnab400`;
+   * - **bank** from `codigo_banco`: positions 1-3 (CNAB240) or 77-79 (CNAB400);
+   * - **direction** from the CNAB240 header position 143 (`1` remessa /
+   *   `2` retorno), or for CNAB400 from header position 2 (`1` remessa /
+   *   `2` retorno) corroborated by the `REMESSA`/`RETORNO` literal at 3-9;
+   * - **variant** by trying every candidate variant of the detected bank and
+   *   keeping the one whose records classify the most lines of the file.
+   *
+   * Throws an `Error` with a descriptive message when the content cannot be
+   * detected: empty input, a first line that is not 240/400 characters long, a
+   * position 1-3 / 77-79 value that is not a three-digit bank code, an
+   * unrecognizable direction indicator, or a bank with no matching records in
+   * the spec.
+   */
+  public static detectScope(specJson: string, content: string): DetectedScope {
+    const lines = content.split(/\r?\n/).filter((l) => l.length > 0);
+    if (lines.length === 0) {
+      throw new Error('cannot detect CNAB scope: content has no non-empty lines');
+    }
+    const first = lines[0];
+
+    let layout = '';
+    if (first.length === 240) {
+      layout = 'cnab240';
+    } else if (first.length === 400) {
+      layout = 'cnab400';
+    } else {
+      throw new Error(
+        `cannot detect CNAB layout: first line is ${first.length} characters long (expected 240 or 400)`
+      );
+    }
+
+    const bank =
+      layout === 'cnab240' ? first.substring(0, 3) : first.substring(76, 79);
+    if (!/^[0-9]{3}$/.test(bank)) {
+      throw new Error(
+        `cannot detect bank: "${bank}" at positions ${
+          layout === 'cnab240' ? '1-3' : '77-79'
+        } is not a three-digit bank code`
+      );
+    }
+
+    let direction = '';
+    if (layout === 'cnab240') {
+      const code = first.substring(142, 143);
+      if (code === '1') {
+        direction = 'remessa';
+      } else if (code === '2') {
+        direction = 'retorno';
+      } else {
+        throw new Error(
+          `cannot detect direction: CNAB240 header position 143 is "${code}" (expected "1" remessa or "2" retorno)`
+        );
+      }
+    } else {
+      const tipo = first.substring(0, 1);
+      const operacao = first.substring(1, 2);
+      const literal = first.substring(2, 9);
+      if (tipo !== '0') {
+        throw new Error(
+          `cannot detect direction: CNAB400 first line is not a header (position 1 is "${tipo}", expected "0")`
+        );
+      }
+      if (operacao === '2' || literal === 'RETORNO') {
+        direction = 'retorno';
+      } else if (operacao === '1' || literal === 'REMESSA') {
+        direction = 'remessa';
+      } else {
+        throw new Error(
+          `cannot detect direction: CNAB400 header position 2 is "${operacao}" and positions 3-9 are "${literal}" (expected "1"/REMESSA or "2"/RETORNO)`
+        );
+      }
+    }
+
+    // Candidate variants: every distinct variant of this bank/layout that has
+    // at least one record usable for the detected direction.
+    const spec = CnabSpec.fromJson(specJson);
+    const variants: string[] = [];
+    for (const key of spec.recordKeys()) {
+      const rs = spec.getRecord(key).spec;
+      if (rs.layout !== layout || rs.bank !== bank) {
+        continue;
+      }
+      if (rs.direction !== '' && rs.direction !== direction) {
+        continue;
+      }
+      if (variants.indexOf(rs.variant) === -1) {
+        variants.push(rs.variant);
+      }
+    }
+    if (variants.length === 0) {
+      throw new Error(
+        `cannot detect scope: no ${layout} ${direction} records for bank "${bank}" in the spec`
+      );
+    }
+
+    variants.sort();
+    let variant = variants[0];
+    if (variants.length > 1) {
+      let bestScore = -1;
+      for (const candidate of variants) {
+        const score = CnabFile.classifiedLineCount(
+          spec,
+          layout,
+          bank,
+          candidate,
+          direction,
+          lines
+        );
+        if (score > bestScore) {
+          bestScore = score;
+          variant = candidate;
+        }
+      }
+    }
+
+    return { layout, bank, variant, direction };
+  }
+
+  /**
+   * Convenience: detect the file's scope with `detectScope` and return a
+   * `CnabFile` parser scoped to it. Throws the same errors as `detectScope`
+   * when the content cannot be identified.
+   */
+  public static detect(specJson: string, content: string): CnabFile {
+    const scope = CnabFile.detectScope(specJson, content);
+    return CnabFile.forBank(
+      specJson,
+      scope.layout,
+      scope.bank,
+      scope.variant,
+      scope.direction
+    );
+  }
+
+  /**
+   * How many of the given lines are classifiable by the records of exactly
+   * this scope (unlike `forBank`, the variant must match exactly — an empty
+   * variant does not absorb the records of named variants). Used by
+   * `detectScope` to rank candidate variants.
+   */
+  private static classifiedLineCount(
+    spec: CnabSpec,
+    layout: string,
+    bank: string,
+    variant: string,
+    direction: string,
+    lines: string[]
+  ): number {
+    const detect = LAYOUT_DETECT[layout];
+    const byDisc: { [disc: string]: boolean } = {};
+    for (const key of spec.recordKeys()) {
+      const rec = spec.getRecord(key);
+      const m = rec.spec;
+      if (m.layout !== layout || m.bank !== bank || m.variant !== variant) {
+        continue;
+      }
+      if (m.direction !== '' && m.direction !== direction) {
+        continue;
+      }
+      const disc = CnabFile.discriminator(rec, layout);
+      if (disc !== '') {
+        byDisc[disc] = true;
+      }
+    }
+    let score = 0;
+    for (const line of lines) {
+      const tipo = line.substring(detect.tipoStart - 1, detect.tipoEnd);
+      let segment = '';
+      if (detect.segEnd > 0) {
+        segment = line.substring(detect.segStart - 1, detect.segEnd);
+      }
+      if (byDisc[`${tipo}|${segment}`] || (segment !== '' && byDisc[`${tipo}|`])) {
+        score += 1;
+      }
+    }
+    return score;
   }
 
   private static discriminator(rec: CnabRecord, layout: string): string {
