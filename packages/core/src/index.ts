@@ -635,3 +635,5 @@ export class CnabFile {
     return out;
   }
 }
+
+export * from './boleto';
