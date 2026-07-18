@@ -23,6 +23,7 @@ New to ADRs? See Michael Nygard's
 | [0003](0003-spec-model-catalog-and-standalone-records.md) | Spec model: field catalog + full standalone records | Accepted (locked) |
 | [0004](0004-record-level-format-overrides.md) | Record-level overrides for date format / decimals | Accepted |
 | [0005](0005-build-and-jsii-toolchain.md) | Build & jsii toolchain conventions | Accepted |
+| [0007](0007-file-builder-control-fields.md) | File builder control fields by name convention | Accepted |
 
 ## Decisions expected soon (tracked in issues, ADR to be written when decided)
 
@@ -33,5 +34,4 @@ These are deliberately **not** ADRs yet — record one when the call is made:
 - **Numeric value representation** at the API boundary (string-decimal vs double)
   — issue #9.
 - **Where validation rules live** (catalog vs record YAML vs separate rules) — issue #11.
-- **Control-field roles** for whole-file generation (counters/totals) — issue #7.
 - **Versioning/release strategy** (Changesets vs semantic-release) — issue #14.

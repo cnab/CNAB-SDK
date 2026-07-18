@@ -29,6 +29,33 @@ Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
 `parse` normalizes values (alpha right-trimmed, numerics left-stripped) so that
 `toLine(parse(line))` reproduces a well-formed line.
 
+## CnabFileBuilder — whole-file generation
+
+`CnabFileBuilder.forBank(json, layout, bank, variant, direction)` builds a
+complete file (header + lotes/details + trailer) and owns the layout's control
+fields — CNAB240 `lote_servico` sequencing (`0000` / per-lote `0001`… / `9999`),
+`numero_sequencial_lote` within each lote, `qtde_registro_lote` /
+`qtde_lotes` / `qtde_registros`, and the CNAB400 `numero_sequencial` line
+counter. Counters/totals you pass explicitly win over auto-computation; pure
+sequence counters are always builder-owned. Monetary totals (e.g.
+`valor_total_titulo_simples`) are not auto-summed — pass them in the trailer
+values. See [ADR 0007](../../docs/adrs/0007-file-builder-control-fields.md).
+
+```ts
+const b = CnabFileBuilder.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa');
+b.withHeader({ codigo_banco: '104', nome_empresa: 'ACME LTDA', /* ... */ });
+b.startLote({ codigo_banco: '104', tipo_operacao: 'R', /* ... */ });
+b.addDetail('detalhe_segmento_p', { numero_documento: 'DOC1', valor_titulo: '150000', /* ... */ });
+b.addDetail('detalhe_segmento_r', { codigo_ocorrencia: '01' });
+b.endLote({ codigo_banco: '104', valor_total_titulo_simples: '150000' });
+const content = b.toFileContent({ codigo_banco: '104' }); // '\n'-joined lines
+
+// CNAB400: no lotes — withHeader / addDetail('detalhe', ...) / toFileContent.
+```
+
+(Terminal method is `toFileContent`, not `build`, and the header setter is
+`withHeader`, not `setHeader` — both names are prohibited by jsii.)
+
 ## Boleto helpers
 
 Pure, stateless check-digit and boleto helpers (FEBRABAN cobrança layout):
