@@ -21,6 +21,23 @@ Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
     `build` is a reserved member name in jsii)
   - `validate(line)` → `{ valid, errors }`
   - `spec` — the underlying `RecordSpec`
+  - Typed value helpers (see [ADR 0006](../../docs/adrs/0006-typed-value-representation.md):
+    numeric values cross the API boundary as **decimal strings**, never floats;
+    dates as **ISO** strings). They read/write the same `{ [name]: value }` map
+    that `parse` returns and `toLine` consumes:
+    - `getDecimal(values, name)` → decimal string with the field's implied
+      decimals inserted (raw `"150000"` with 2 decimals → `"1500.00"`,
+      `"0"` → `"0.00"`; decimals-0 fields pass through unchanged).
+    - `setDecimal(values, name, decimalValue)` — inverse (`"1500.00"` →
+      `"150000"`); accepts a missing/short fractional part (`"1500"`,
+      `"1500.5"`), throws on malformed input or too many fraction digits.
+    - `getDateIso(values, name)` → `YYYY-MM-DD` for `ddMMyyyy`/`ddMMyy` fields
+      (`ddMMyy` century pivot: `yy >= 70` → `19yy`, else `20yy`), `HH:mm:ss`
+      for `HHmmss`; `''` when the raw value is all zeros (unset). Throws for
+      fields with no `dateFormat`.
+    - `setDateIso(values, name, iso)` — inverse (`"2026-07-15"` → `"15072026"`
+      / `"150726"`; `"10:30:00"` → `"103000"`); `''` stores the all-zeros
+      unset value; throws on malformed input.
 - `CnabFile.forBank(json, layout, bank, variant, direction)` — a whole-file
   parser scoped to one bank.
   - `parse(content)` → `ParsedLine[]` (auto-detects each line's record type from
