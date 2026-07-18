@@ -55,6 +55,34 @@ test('parses a whole Itaú 341 CNAB400 retorno file', () => {
   assert.strictEqual(parsed[2].tipo, '9');
 });
 
+test('parses a whole Caixa 104 SIGCB retorno file (T/U detection)', () => {
+  const keys = [
+    'cnab240/104/sigcb/header_arquivo',
+    'cnab240/104/sigcb/header_lote',
+    'cnab240/104/sigcb/retorno/detalhe_segmento_t',
+    'cnab240/104/sigcb/retorno/detalhe_segmento_u',
+    'cnab240/104/sigcb/trailer_lote',
+  ];
+  const content = buildFile(keys, {
+    0: { codigo_banco: '104', codigo_remessa_retorno: '2' },
+    2: { nosso_numero: '000000000000001', valor_titulo: '000000000150000' },
+    3: { valor_pago: '000000000150000' },
+  });
+  const file = CnabFile.forBank(specJson, 'cnab240', '104', 'sigcb', 'retorno');
+  const parsed = file.parse(content);
+
+  assert.strictEqual(parsed.length, keys.length);
+  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  // segment T and U retorno lines are classified via their defaults
+  assert.strictEqual(parsed[2].tipo, '3');
+  assert.strictEqual(parsed[2].segment, 'T');
+  assert.strictEqual(parsed[3].tipo, '3');
+  assert.strictEqual(parsed[3].segment, 'U');
+  // fields were actually parsed
+  assert.strictEqual(parsed[2].fields.valor_titulo, '150000');
+  assert.strictEqual(parsed[3].fields.valor_pago, '150000');
+});
+
 test('unclassifiable line yields an empty recordKey', () => {
   const file = CnabFile.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa');
   const junk = 'Z'.repeat(240);
@@ -66,4 +94,76 @@ test('unclassifiable line yields an empty recordKey', () => {
 
 test('forBank rejects an unknown layout', () => {
   assert.throws(() => CnabFile.forBank(specJson, 'cnab999', '104', '', ''), /unknown layout/);
+});
+
+test('detectScope identifies a 104 CNAB240 SIGCB remessa file', () => {
+  const keys = [
+    'cnab240/104/sigcb/header_arquivo',
+    'cnab240/104/sigcb/header_lote',
+    'cnab240/104/sigcb/remessa/detalhe_segmento_p',
+    'cnab240/104/sigcb/trailer_lote',
+  ];
+  const content = buildFile(keys, {
+    0: { codigo_banco: '104', codigo_remessa_retorno: '1' },
+  });
+  const scope = CnabFile.detectScope(specJson, content);
+  assert.deepStrictEqual(scope, {
+    layout: 'cnab240',
+    bank: '104',
+    variant: 'sigcb',
+    direction: 'remessa',
+  });
+});
+
+test('detectScope/detect identify a 104 CNAB240 SIGCB retorno file', () => {
+  const keys = [
+    'cnab240/104/sigcb/header_arquivo',
+    'cnab240/104/sigcb/header_lote',
+    'cnab240/104/sigcb/retorno/detalhe_segmento_t',
+    'cnab240/104/sigcb/retorno/detalhe_segmento_u',
+    'cnab240/104/sigcb/trailer_lote',
+  ];
+  const content = buildFile(keys, {
+    0: { codigo_banco: '104', codigo_remessa_retorno: '2' },
+  });
+  const scope = CnabFile.detectScope(specJson, content);
+  assert.deepStrictEqual(scope, {
+    layout: 'cnab240',
+    bank: '104',
+    variant: 'sigcb',
+    direction: 'retorno',
+  });
+  // the convenience factory builds a working parser from the detected scope
+  const parsed = CnabFile.detect(specJson, content).parse(content);
+  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+});
+
+test('detectScope/detect identify an Itaú 341 CNAB400 retorno file', () => {
+  const keys = [
+    'cnab400/341/retorno/header_arquivo',
+    'cnab400/341/retorno/detalhe',
+    'cnab400/341/retorno/trailer_arquivo',
+  ];
+  const content = buildFile(keys, {
+    0: { codigo_do_banco: '341' },
+    1: { tipo_de_registro: '1' },
+  });
+  const scope = CnabFile.detectScope(specJson, content);
+  assert.deepStrictEqual(scope, {
+    layout: 'cnab400',
+    bank: '341',
+    variant: '',
+    direction: 'retorno',
+  });
+  const parsed = CnabFile.detect(specJson, content).parse(content);
+  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+});
+
+test('detect throws a clear error on garbage content', () => {
+  assert.throws(() => CnabFile.detect(specJson, 'Z'.repeat(240)), /cannot detect bank/);
+  assert.throws(() => CnabFile.detect(specJson, 'hello world'), /cannot detect CNAB layout/);
+  assert.throws(() => CnabFile.detect(specJson, '\n\n'), /no non-empty lines/);
+  // valid bank code but no direction indicator at position 143
+  const junk = `104${'X'.repeat(237)}`;
+  assert.throws(() => CnabFile.detect(specJson, junk), /cannot detect direction/);
 });
