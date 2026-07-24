@@ -6,6 +6,20 @@
 // that parse/toLine round-trips.
 //
 // Sample values are synthetic (anonymized): fictional CNPJs, agencies, names.
+//
+// Two kinds of cases (issue #16):
+//   * `cases`     — hand-written, with explicit position/parsed assertions.
+//                   These encode real knowledge of the layout; prefer them.
+//   * `autoCases` — deterministically derived (see `defaultCaseFor`) for every
+//                   shipped record NOT covered by a hand-written case, so all
+//                   shipped records have a committed golden line. They assert
+//                   nothing about the layout's meaning; they are drift
+//                   detectors — a spec edit that moves a field changes the
+//                   golden and the diff shows exactly what moved.
+// `allCases` is the union and is what the generator and the test iterate.
+
+const fs = require('node:fs');
+const path = require('node:path');
 
 const cases = [
   // --- Caixa 104 CNAB240 (SIGCB) --------------------------------------------
@@ -124,4 +138,94 @@ const cases = [
   },
 ];
 
-module.exports = { cases, safeKey: (k) => k.replace(/\//g, '__') };
+const safeKey = (k) => k.replace(/\//g, '__');
+
+// --- auto-derived cases -----------------------------------------------------
+
+const specDoc = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../spec/dist/spec.json'), 'utf8')
+);
+
+/** Record keys of everything shipped (templates are copy-from sources only). */
+function shippedRecordKeys() {
+  return Object.keys(specDoc.records).filter(
+    (k) => specDoc.records[k].meta.template !== true
+  );
+}
+
+/** Stable 32-bit FNV-1a hash — the whole derivation must be reproducible. */
+function hash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+// Fixed synthetic date/time values keep the derived lines plausible and stable.
+const DATE_SAMPLES = { ddMMyyyy: '26062026', ddMMyy: '260626', HHmmss: '103000' };
+
+/**
+ * Deterministic synthetic value for one field. Alpha fields get the field name
+ * (uppercased, `_` -> space) so the golden line stays human-readable; numeric
+ * fields get digits derived from a stable hash of `record|field`. Values always
+ * fit the field width, and digits only ever go into numeric fields, so this
+ * works whether `toLine` truncates or throws on bad input.
+ */
+function syntheticValue(recordKey, field) {
+  const width = field.end - field.start + 1;
+  if (field.type === 'alpha') {
+    const text = field.name.toUpperCase().replace(/[^A-Z]+/g, ' ').trim();
+    return text.substring(0, width);
+  }
+  if (field.dateFormat && DATE_SAMPLES[field.dateFormat]) {
+    const sample = DATE_SAMPLES[field.dateFormat];
+    return sample.length <= width ? sample : sample.substring(0, width);
+  }
+  let seed = hash(`${recordKey}|${field.name}`);
+  let digits = '';
+  for (let i = 0; i < Math.min(width, 15); i++) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    digits += String(seed % 10);
+  }
+  return digits;
+}
+
+/**
+ * Derive a deterministic case for a record that has no hand-written one.
+ * Fields carrying a spec default are left out so the default wins — that keeps
+ * record discriminators (tipo_registro, codigo_segmento, ...) intact.
+ */
+function defaultCaseFor(recordKey) {
+  const raw = specDoc.records[recordKey];
+  if (!raw) {
+    throw new Error(`unknown record key: ${recordKey}`);
+  }
+  const values = {};
+  for (const field of raw.fields) {
+    if (field.default) {
+      continue;
+    }
+    values[field.name] = syntheticValue(recordKey, field);
+  }
+  return { key: recordKey, values, checks: {}, auto: true };
+}
+
+const explicitKeys = new Set(cases.map((c) => c.key));
+const autoCases = shippedRecordKeys()
+  .filter((k) => !explicitKeys.has(k))
+  .sort()
+  .map(defaultCaseFor);
+
+const allCases = [...cases, ...autoCases];
+
+module.exports = {
+  cases,
+  autoCases,
+  allCases,
+  defaultCaseFor,
+  shippedRecordKeys,
+  safeKey,
+};
