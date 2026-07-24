@@ -57,8 +57,20 @@ for (const parsed of file.parse(fileContent)) {
 ```bash
 npm install -g @cnab/cli
 cnab records --bank 104
+cnab detect     --file remessa.txt          # {layout, bank, variant, direction}
+cnab parse-file --file remessa.txt --pretty # whole file, auto-detected scope
+cnab tables --grep ocorrencia
+cnab code cnab400/104/retorno/codigo_ocorrencia 02
+cnab boleto barcode --bank 104 --due 2026-08-30 --amount 150000 \
+     --free 1234567890123456789012345
 echo '{"codigo_banco":"104"}' | cnab build --record cnab240/104/sigcb/header_arquivo
 ```
+
+Input is decoded and output encoded with `--encoding latin1|utf8` — **latin1 by
+default**, because that is what real CNAB files use (one char == one byte, so
+the fixed-width positions hold for accented names). A leading UTF-8 BOM is
+stripped and CRLF input is accepted; `--crlf` / `--trailing-newline` shape the
+generated output, and `--out <file>` writes it to a file.
 
 ## Key types
 

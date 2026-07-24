@@ -42,9 +42,56 @@ Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
   parser scoped to one bank.
   - `parse(content)` → `ParsedLine[]` (auto-detects each line's record type from
     its discriminator positions: CNAB240 pos 8 + segment pos 14, CNAB400 pos 1).
+- `CnabFile.detectScope(json, content)` → `DetectedScope`
+  (`{ layout, bank, variant, direction }`) inferred from the first line;
+  `CnabFile.detect(json, content)` → a `CnabFile` already scoped to it.
 
 `parse` normalizes values (alpha right-trimmed, numerics left-stripped) so that
 `toLine(parse(line))` reproduces a well-formed line.
+
+## Encoding & line endings — the contract for callers
+
+The engine works on **strings**, never on bytes. It has no opinion about how
+those strings were produced, which makes the encoding boundary the **caller's**
+responsibility in every language:
+
+> **Decode bytes → string before calling the engine, and encode string → bytes
+> after.**
+
+What you need to know:
+
+- Real CNAB files are **Latin-1 (ISO-8859-1) / Windows-1252**, not UTF-8.
+  Accented names (`JOSÉ`, `SÃO PAULO`, `CAIXA ECONÔMICA`) are one byte per
+  character there, which is exactly what keeps the fixed-width positions valid:
+  **in latin1 one char == one byte**, so a 240-byte line decodes to a 240-char
+  string and `start`/`end` positions line up. Decode the same bytes as UTF-8
+  and every accented character either becomes a replacement char or shifts the
+  rest of the line — parsing silently produces garbage.
+- Encode the output with the **same** charset you decoded with, so the file you
+  write back is byte-compatible with what the bank expects.
+- Per language: Node `buf.toString('latin1')` / `Buffer.from(s, 'latin1')`;
+  .NET `Encoding.Latin1`; Java `new String(bytes, StandardCharsets.ISO_8859_1)`
+  / `s.getBytes(ISO_8859_1)`; Python `bytes.decode('latin-1')` /
+  `str.encode('latin-1')`.
+- Characters that do not exist in Latin-1 cannot be written to a CNAB file at
+  all; strip or transliterate them before building a line.
+
+The engine is tolerant about the two remaining file-shape quirks:
+
+- **Line endings** — `CnabFile.parse`, `CnabFile.detectScope`/`detect` accept
+  both `LF` and `CRLF`, and ignore a trailing newline. `CnabFileBuilder`
+  *emits* `LF`-joined lines with no trailing newline; convert if the bank wants
+  `CRLF` (`content.split('\n').join('\r\n')`).
+- **BOM** — a leading UTF-8 byte-order mark (`U+FEFF`) is stripped by
+  `CnabFile.parse` and `CnabFile.detectScope`/`detect`; without that it would
+  shift every position of the first line by one and break detection. Note that
+  the *byte* sequence `EF BB BF` only decodes to `U+FEFF` when you decode as
+  UTF-8 — when reading a latin1 file, drop those three bytes before decoding
+  (the CLI does both).
+
+The `@cnab/cli` tool implements this contract: `--encoding latin1|utf8`
+(default `latin1`) applies to reading and writing, plus `--crlf` and
+`--trailing-newline` for the output shape.
 
 ## CnabFileBuilder — whole-file generation
 
