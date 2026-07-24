@@ -4,7 +4,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
 const { CnabSpec, CnabRecord, FieldType } = require('../lib/index.js');
-const { cases, safeKey } = require('./cases.cjs');
+const { cases, allCases, shippedRecordKeys, safeKey } = require('./cases.cjs');
 
 const specJson = fs.readFileSync(
   path.resolve(__dirname, '../../spec/dist/spec.json'),
@@ -14,14 +14,27 @@ const spec = CnabSpec.fromJson(specJson);
 const goldenDir = path.resolve(__dirname, 'golden');
 
 test('spec.json exposes the expected record keys', () => {
-  for (const c of cases) {
+  for (const c of allCases) {
     assert.ok(spec.hasRecord(c.key), `missing record ${c.key}`);
   }
   assert.ok(spec.recordKeys().length >= 50);
 });
 
-for (const c of cases) {
-  test(`golden: ${c.key}`, () => {
+test('every shipped record has a committed golden line', () => {
+  const covered = new Set(allCases.map((c) => c.key));
+  const missing = shippedRecordKeys().filter((k) => !covered.has(k));
+  assert.deepStrictEqual(missing, [], `shipped records without a golden case`);
+  for (const key of covered) {
+    const file = path.join(goldenDir, safeKey(key) + '.line');
+    assert.ok(
+      fs.existsSync(file),
+      `missing golden fixture ${file} — run node test/generate-golden.cjs`
+    );
+  }
+});
+
+for (const c of allCases) {
+  test(`golden${c.auto ? ' (auto)' : ''}: ${c.key}`, () => {
     const rec = spec.getRecord(c.key);
     const goldenPath = path.join(goldenDir, safeKey(c.key) + '.line');
     const golden = fs.readFileSync(goldenPath, 'utf8');
@@ -35,6 +48,14 @@ for (const c of cases) {
     // 3. round-trip: parse then rebuild is identity
     const parsed = rec.parse(golden);
     assert.strictEqual(rec.toLine(parsed), golden, 'parse/toLine not invertible');
+
+    // 3b. the golden line is a valid line for this record
+    const validation = rec.validate(golden);
+    assert.strictEqual(
+      validation.valid,
+      true,
+      `golden line is invalid: ${validation.errors.join('; ')}`
+    );
 
     // 4. independent position checks (1-based inclusive ranges)
     for (const [range, expected] of Object.entries(c.checks.substr || {})) {

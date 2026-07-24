@@ -36,6 +36,7 @@ CONTEXT.md          domain glossary
 npm install
 npm run build:spec   # compile + validate all specs; fails on coverage gaps/overlaps
 npm test             # build:spec + all workspace tests (node --test). KEEP GREEN.
+npm run report:spec  # coverage summary: records, code tables, bank matrix, goldens
 # Prove the public API stays multi-language compatible:
 cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies
 ```
@@ -95,6 +96,11 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 4. `node tools/build-spec.mjs` until coverage validation passes (no gaps/overlaps).
 5. Add/refresh golden tests (`packages/core/test/`); regenerate goldens with
    `node packages/core/test/generate-golden.cjs` after an intentional change.
+   Every **shipped** record gets a golden line automatically (a deterministic
+   case derived by `defaultCaseFor` in `test/cases.cjs`), so a new record only
+   needs the regeneration step — add a hand-written case in `cases.cjs` when you
+   can assert real positions/values, which is far more valuable. Generic
+   round-trip invariants for all shipped records live in `test/property.test.js`.
 6. `npm test` green; commit.
 
 ## Engine API (current)
