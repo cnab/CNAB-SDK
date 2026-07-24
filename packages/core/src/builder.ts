@@ -84,6 +84,14 @@ interface PendingLote {
  * CNAB240 usage: `setHeader`, then one or more `startLote` / `addDetail`* /
  * `endLote` cycles, then `toFileContent`.
  * CNAB400 usage: `setHeader`, `addDetail`*, `toFileContent` (no lotes).
+ *
+ * Every line is emitted through the **strict** `CnabRecord.toLine`: a value
+ * that does not fit its field, or a non-digit value on a numeric field, aborts
+ * `toFileContent` with an error naming the field instead of being silently
+ * truncated or stripped. There is deliberately no lenient mode here — a whole
+ * generated bank file must never contain quietly altered amounts. Callers that
+ * need the legacy behaviour must build those lines themselves with
+ * `CnabRecord.toLineWithOptions`.
  */
 export class CnabFileBuilder {
   /**

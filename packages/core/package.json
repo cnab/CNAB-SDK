@@ -14,7 +14,16 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "stability": "experimental",
+  "files": [
+    "lib",
+    "README.md",
+    ".jsii"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "prepack": "npm run build",
     "build": "tsc -p tsconfig.json",
     "build:jsii": "jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
     "package": "jsii-pacmak",

@@ -100,6 +100,8 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 ## Engine API (current)
 
 - `CnabRecord.fromJson(json)` → `parse(line)`, `toLine(values)`, `validate(line)`, `spec`.
+  `toLine` is **strict** (throws on oversized / non-digit values); the lenient
+  legacy behaviour is opt-in via `toLineWithOptions(values, LineOptions)`.
 - `CnabSpec.fromJson(json)` → `recordKeys()`, `hasRecord(key)`, `getRecord(key)`.
 - `CnabFile.forBank(specJson, layout, bank, variant, direction)` → `parse(content): ParsedLine[]`.
 - `CnabFileBuilder.forBank(specJson, layout, bank, variant, direction)` →

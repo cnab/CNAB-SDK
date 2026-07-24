@@ -56,6 +56,38 @@ export interface RecordSpec {
   readonly fields: FieldSpec[];
 }
 
+/**
+ * Opt-out knobs for the **lenient** line-building behaviour of
+ * `CnabRecord.toLineWithOptions`.
+ *
+ * `toLine` is strict: a value that does not fit its field, or that is not a
+ * digit string on a numeric field, raises an error instead of being silently
+ * rewritten. Both flags below restore the legacy lenient behaviour, which
+ * **silently changes the data written to the file** — for a bank file that is
+ * financial corruption that `validate` cannot detect afterwards. Only set them
+ * when you knowingly accept that.
+ */
+export interface LineOptions {
+  /**
+   * When true, a value longer than its field is cut to size instead of raising:
+   * alphanumeric fields keep the **leftmost** characters, numeric fields keep
+   * the **rightmost** digits (so `123456` in a 4-wide field becomes `3456`).
+   */
+  readonly truncateOversized: boolean;
+  /**
+   * When true, every non-digit character is deleted from values written to
+   * numeric fields instead of raising (so `"1500.00"` becomes `"150000"` and
+   * `"-10"` becomes `"10"`). Prefer `setDecimal` for decimal input.
+   */
+  readonly stripNonDigits: boolean;
+}
+
+/** Strict defaults used by `toLine`. */
+const STRICT_LINE_OPTIONS: LineOptions = {
+  truncateOversized: false,
+  stripNonDigits: false,
+};
+
 /** Outcome of validating a line against a record spec. */
 export interface ValidationResult {
   /** True when no problems were found. */
@@ -158,14 +190,60 @@ export class CnabRecord {
    * Build a fixed-width line from a map of field name -> value. Missing fields
    * fall back to their default value. (Named `toLine` rather than `build`
    * because `build` is a prohibited member name in jsii.)
+   *
+   * This is the **strict** builder: it never silently rewrites a value.
+   * It throws an `Error` naming the field, its positions and its width when
+   *
+   * - an alphanumeric value is longer than its field;
+   * - a numeric value has more significant digits than its field (redundant
+   *   leading zeros are fine: `"00150000"` in a 6-wide field is `"150000"`,
+   *   nothing is lost);
+   * - a numeric value is not a digit string (`"1500.00"`, `"-10"`, `"R$ 10"`).
+   *   CNAB numeric fields are **unsigned digit strings** with implied decimals;
+   *   use `setDecimal` to write decimal input.
+   *
+   * An empty value is always allowed and produces the field's blank/zero fill;
+   * on a numeric field an all-blank value means the same thing (CNAB's "unset"
+   * spelling) and is zero-filled. Values produced by `parse` always round-trip:
+   * `toLine(parse(line)) === line` for a well-formed line.
+   *
+   * Use `toLineWithOptions` to opt back into the legacy lenient behaviour.
    */
   public toLine(values: { [name: string]: string }): string {
+    return this.buildLine(values, STRICT_LINE_OPTIONS);
+  }
+
+  /**
+   * Same as `toLine`, but with explicit control over what happens to values
+   * that do not fit or are not digit strings (see `LineOptions`).
+   *
+   * `toLineWithOptions(values, { truncateOversized: true, stripNonDigits: true })`
+   * reproduces the pre-strict (legacy) behaviour: oversized alphanumerics are
+   * cut on the right, oversized numerics keep their rightmost digits, and
+   * non-digit characters are deleted from numeric values. That behaviour
+   * **silently alters amounts and identifiers**, so it exists only as a
+   * deliberate opt-out for callers migrating legacy pipelines.
+   *
+   * (A separate method rather than an optional argument or an overload:
+   * jsii prohibits method overloads.)
+   */
+  public toLineWithOptions(
+    values: { [name: string]: string },
+    options: LineOptions
+  ): string {
+    return this.buildLine(values, options);
+  }
+
+  private buildLine(
+    values: { [name: string]: string },
+    options: LineOptions
+  ): string {
     let line = '';
     for (const f of this._spec.fields) {
       const provided = Object.prototype.hasOwnProperty.call(values, f.name)
         ? values[f.name]
         : f.defaultValue;
-      line += this.format(f, provided ?? '');
+      line += this.format(f, provided ?? '', options);
     }
     return line;
   }
@@ -385,16 +463,67 @@ export class CnabRecord {
     return stripped === '' ? '0' : stripped;
   }
 
-  private format(f: FieldSpec, value: string): string {
+  private format(f: FieldSpec, value: string, options: LineOptions): string {
     const width = size(f);
+    const where = `field "${f.name}" (${f.start}-${f.end})`;
+
     if (f.fieldType === FieldType.ALPHA) {
-      const v = value.length > width ? value.substring(0, width) : value;
-      return v.padEnd(width, ' ');
+      if (value.length > width) {
+        if (!options.truncateOversized) {
+          throw new Error(
+            `${where}: value is ${value.length} characters but the field is ${width} wide: ` +
+              `"${value}". Shorten the value, or call toLineWithOptions with ` +
+              `truncateOversized=true to keep only its leftmost ${width} characters ` +
+              '(legacy lenient behaviour — it silently drops data).'
+          );
+        }
+        return value.substring(0, width);
+      }
+      return value.padEnd(width, ' ');
     }
-    // numeric / numeric-with-decimals: digits only, right-aligned, zero-padded
-    const digits = value.replace(/\D/g, '');
-    const v = digits.length > width ? digits.substring(digits.length - width) : digits;
-    return v.padStart(width, '0');
+
+    // numeric / numeric-with-decimals: digits only, right-aligned, zero-padded.
+    // An all-blank value is CNAB's "unset" spelling (`validate` accepts it and
+    // `parse` returns it verbatim for blank-filled fields) — treat it as empty
+    // so that rebuilding a parsed real-world line keeps working.
+    let digits = value.trim() === '' ? '' : value;
+    if (!/^[0-9]*$/.test(digits)) {
+      if (!options.stripNonDigits) {
+        const decimalHint =
+          f.decimals > 0
+            ? `setDecimal(values, "${f.name}", "${value}") writes a decimal string into this ` +
+              `field's ${f.decimals} implied decimal places`
+            : `this field stores whole units (no implied decimals); use setDecimal for ` +
+              'decimal input on num_decimal fields';
+        throw new Error(
+          `${where}: value "${value}" is not a digit string. CNAB numeric fields are ` +
+            'unsigned digit strings — no sign, no decimal separator, no spaces. ' +
+            `${decimalHint}. To silently delete every non-digit character (legacy lenient ` +
+            'behaviour) call toLineWithOptions with stripNonDigits=true.'
+        );
+      }
+      digits = digits.replace(/\D/g, '');
+    }
+
+    if (digits.length > width) {
+      // Redundant leading zeros carry no information — dropping them is lossless.
+      const significant = digits.replace(/^0+/, '');
+      if (significant.length <= width) {
+        digits = significant;
+      } else if (options.truncateOversized) {
+        digits = digits.substring(digits.length - width);
+      } else {
+        throw new Error(
+          `${where}: value has ${significant.length} digits but the field is ${width} wide: ` +
+            `"${value}". The value does not fit — correct it (check the units: numeric fields ` +
+            'carry implied decimals, see setDecimal), or call toLineWithOptions with ' +
+            `truncateOversized=true to keep only its rightmost ${width} digits ` +
+            '(legacy lenient behaviour — it silently writes a different number).'
+        );
+      }
+    }
+
+    return digits.padStart(width, '0');
   }
 }
 
