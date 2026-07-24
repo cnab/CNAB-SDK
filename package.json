@@ -9,6 +9,9 @@
     "packages/core",
     "packages/cli"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build:spec": "node tools/build-spec.mjs",
     "build:core": "npm run build --workspace @cnab/core",

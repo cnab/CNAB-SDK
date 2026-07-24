@@ -10,6 +10,9 @@
   "files": [
     "bin"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@cnab/core": "0.0.0",
     "@cnab/spec": "0.0.0"

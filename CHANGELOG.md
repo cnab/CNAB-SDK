@@ -1,0 +1,79 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Nothing has been released yet: every package is at `0.0.0` and everything below
+sits under *Unreleased*.
+
+## [Unreleased]
+
+### Added
+
+- **Spec model and compiler** (`@cnab/spec`, `tools/build-spec.mjs`) — a field
+  catalog (`fields/catalog.yml`, canonical semantics without positions) plus
+  full standalone positioned record specs under `src/<layout>/<bank>/…`, per
+  ADR 0003/0004. The compiler validates every bank record for full, gapless and
+  non-overlapping line coverage and emits a language-neutral
+  `dist/spec.json` (currently 55 records, 6 code tables, 297 catalog fields).
+- **Engine** (`@cnab/core`), authored once in jsii-compatible TypeScript and
+  published to Node/.NET/Python/Java (ADR 0002):
+  - `CnabRecord` — `fromJson`, `parse`, `toLine`, `toLineWithOptions`,
+    `validate`, `spec`.
+  - `CnabSpec` — record registry (`recordKeys`, `hasRecord`, `getRecord`) and
+    code tables (`codeTableKeys`, `hasCodeTable`, `getCodeTable`, `lookupCode`).
+  - `CnabFile` — whole-file parsing with per-line record detection,
+    `forBank`, `detectScope` and `detect`.
+  - `CnabFileBuilder` — whole-file generation (`withHeader`, `startLote` /
+    `addDetail` / `endLote`, `toFileContent`) with layout control fields
+    (lote numbering, per-lote sequences, record/lote counters) auto-computed
+    per ADR 0007.
+  - `Modulo` / `Boleto` — módulo 10 and módulo 11 check digits, the FEBRABAN
+    44-digit barcode and the 47-digit linha digitável.
+  - Typed value helpers `getDecimal` / `setDecimal` and `getDateIso` /
+    `setDateIso`, exchanging exact decimal and ISO strings instead of floats
+    (ADR 0006).
+- **CLI** (`@cnab/cli`): `cnab records | parse | build | validate`.
+- **Docs site** — typedoc API reference with the `docs/api-landing.md` landing
+  page, the ADRs in `docs/adrs/`, the domain glossary in `CONTEXT.md` and the
+  contributor/agent guide in `AGENTS.md`.
+- `LineOptions` struct and `CnabRecord.toLineWithOptions(values, options)`, the
+  explicit opt-out that restores the lenient line-building behaviour
+  (`truncateOversized`, `stripNonDigits`). A separate method rather than an
+  optional argument because jsii prohibits method overloads.
+- `packages/core/test/strict.test.js` covering the strict failures, the lenient
+  opt-out and the `toLine(parse(line))` round-trip.
+- `engines: { node: ">=18" }` on the root and on all three packages.
+
+### Changed
+
+- **BREAKING (behaviour): `CnabRecord.toLine` is now strict and throws instead
+  of silently rewriting values.** It previously truncated oversized
+  alphanumerics on the right, kept only the *rightmost* digits of oversized
+  numerics, and deleted every non-digit character from numeric values — so a
+  17-digit amount written into a 15-wide field silently became a different,
+  entirely plausible amount, and `validate()` still reported the line as valid.
+  For a bank file that is undetectable financial corruption. `toLine` now
+  raises an error naming the field, its positions, its width and the offending
+  value when a value does not fit or is not representable, and it points at
+  `setDecimal` when a decimal string such as `"1500.00"` is written into a
+  numeric field (CNAB numeric fields are unsigned digit strings with implied
+  decimals). Redundant leading zeros, empty values and CNAB's all-blank "unset"
+  spelling still work, so `toLine(parse(line))` round-trips as before.
+  Callers who deliberately want the old behaviour must switch to
+  `toLineWithOptions(values, { truncateOversized: true, stripNonDigits: true })`.
+- `CnabFileBuilder` emits every line through the strict `toLine`: a bad value
+  aborts `toFileContent` instead of producing a quietly corrupted file. It has
+  no lenient mode.
+
+### Fixed
+
+- **Packaging: both publishable packages would have shipped broken.**
+  - `@cnab/core` had no `files` field, so npm fell back to `.gitignore` — which
+    ignores `lib/` and `.jsii` — and would have published a tarball without the
+    compiled output its own `main`/`types` point at. It now declares
+    `files: ["lib", "README.md", ".jsii"]` (jsii consumers need the `.jsii`
+    assembly) and a `prepack` script that builds `lib/` before packing.
+  - `@cnab/spec` pointed `main` at the generated `dist/spec.json` with no
+    build-before-publish hook. It now runs `tools/build-spec.mjs` on `prepack`.

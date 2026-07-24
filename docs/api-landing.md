@@ -62,7 +62,8 @@ echo '{"codigo_banco":"104"}' | cnab build --record cnab240/104/sigcb/header_arq
 
 ## Key types
 
-- **`CnabRecord`** — one record spec: `parse` / `toLine` / `validate` / `spec`.
+- **`CnabRecord`** — one record spec: `parse` / `toLine` / `toLineWithOptions` /
+  `validate` / `spec`.
 - **`CnabSpec`** — registry of records: `recordKeys` / `hasRecord` / `getRecord`.
 - **`CnabFile`** — whole-file parser with record auto-detection.
 - **`FieldType`**, **`FieldSpec`**, **`RecordSpec`**, **`ValidationResult`**,
@@ -74,6 +75,12 @@ echo '{"codigo_banco":"104"}' | cnab build --record cnab240/104/sigcb/header_arq
   `toLine(parse(line))` reproduces a well-formed line.
 - The builder method is `toLine` (not `build`) and the field-type property is
   `fieldType` (not `type`) to stay multi-language compatible.
+- `toLine` is **strict**: a value that is too long for its field, or that is not
+  a digit string on a numeric field (`"1500.00"`, `"-10"`), throws an error
+  naming the field and its positions instead of being silently truncated or
+  stripped — silent truncation of a bank file is undetectable data corruption.
+  Use `setDecimal` for decimal input, or `toLineWithOptions(values, { truncateOversized, stripNonDigits })`
+  to deliberately opt back into the old lenient behaviour.
 
 ---
 
