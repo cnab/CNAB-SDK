@@ -23,13 +23,14 @@
     "node": ">=18"
   },
   "scripts": {
-    "prepack": "npm run build",
+    "prepack": "npm run build:jsii",
     "build": "tsc -p tsconfig.json",
     "build:jsii": "jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
     "package": "jsii-pacmak",
     "test": "tsc -p tsconfig.json && node --test"
   },
   "devDependencies": {
+    "jsii": "^6.0.4",
     "typescript": "~5.5.4"
   },
   "jsii": {

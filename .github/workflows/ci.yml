@@ -29,9 +29,10 @@ jobs:
       - run: npm install
       # Prove the @cnab/core public API is jsii-compatible (Node/.NET/Python/Java).
       # We compile the jsii assembly only; we do NOT publish.
+      # Uses the jsii pinned in packages/core devDependencies, so CI validates
+      # against the same compiler version `prepack` publishes with.
       - name: jsii compile (packages/core)
-        working-directory: packages/core
-        run: npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies
+        run: npm run build:jsii --workspace @cnab/core
       - name: Upload jsii assembly
         uses: actions/upload-artifact@v4
         with:
