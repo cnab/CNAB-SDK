@@ -25,6 +25,7 @@ New to ADRs? See Michael Nygard's
 | [0005](0005-build-and-jsii-toolchain.md) | Build & jsii toolchain conventions | Accepted |
 | [0006](0006-typed-value-representation.md) | Typed value representation: decimal strings & ISO dates | Accepted |
 | [0007](0007-file-builder-control-fields.md) | File builder control fields by name convention | Accepted |
+| [0008](0008-canonical-field-naming.md) | Canonical field naming: one spelling per concept | Proposed |
 
 ## Decisions expected soon (tracked in issues, ADR to be written when decided)
 
