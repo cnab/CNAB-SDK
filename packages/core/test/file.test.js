@@ -167,3 +167,50 @@ test('detect throws a clear error on garbage content', () => {
   const junk = `104${'X'.repeat(237)}`;
   assert.throws(() => CnabFile.detect(specJson, junk), /cannot detect direction/);
 });
+
+test('a leading UTF-8 BOM does not shift positions in detectScope/parse', () => {
+  const keys = [
+    'cnab240/104/sigcb/header_arquivo',
+    'cnab240/104/sigcb/header_lote',
+    'cnab240/104/sigcb/remessa/detalhe_segmento_p',
+    'cnab240/104/sigcb/trailer_lote',
+  ];
+  const content = buildFile(keys, {
+    0: { codigo_banco: '104', codigo_remessa_retorno: '1' },
+  });
+  const withBom = `﻿${content}`;
+
+  assert.deepStrictEqual(CnabFile.detectScope(specJson, withBom), {
+    layout: 'cnab240',
+    bank: '104',
+    variant: 'sigcb',
+    direction: 'remessa',
+  });
+  const parsed = CnabFile.detect(specJson, withBom).parse(withBom);
+  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  // positions are intact: the BOM did not become part of codigo_banco
+  assert.strictEqual(parsed[0].fields.codigo_banco, '104');
+  assert.deepStrictEqual(parsed, CnabFile.detect(specJson, content).parse(content));
+});
+
+test('CRLF line endings and a trailing newline parse like LF', () => {
+  const keys = [
+    'cnab240/104/sigcb/header_arquivo',
+    'cnab240/104/sigcb/header_lote',
+    'cnab240/104/sigcb/remessa/detalhe_segmento_p',
+    'cnab240/104/sigcb/trailer_lote',
+  ];
+  const lf = buildFile(keys, {
+    0: { codigo_banco: '104', codigo_remessa_retorno: '1' },
+  });
+  const crlf = `${lf.split('\n').join('\r\n')}\r\n`;
+
+  assert.deepStrictEqual(
+    CnabFile.detectScope(specJson, crlf),
+    CnabFile.detectScope(specJson, lf)
+  );
+  assert.deepStrictEqual(
+    CnabFile.detect(specJson, crlf).parse(crlf),
+    CnabFile.detect(specJson, lf).parse(lf)
+  );
+});

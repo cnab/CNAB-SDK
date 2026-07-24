@@ -20,7 +20,9 @@ packages/spec    field catalog + full standalone record specs -> compiled JSON
   src/<layout>/<bank>/[variant/][direction/]<record>.yml   full positioned records
   dist/spec.json                     compiled, language-neutral output (generated)
 packages/core    jsii engine: CnabRecord, CnabSpec, CnabFile (parse/build/validate)
-packages/cli     @cnab/cli — Node CLI (records | parse | build | validate)
+packages/cli     @cnab/cli — Node CLI (records | parse | build | validate |
+                 detect | parse-file | tables | code | boleto); reads/writes
+                 latin1 by default (--encoding, --crlf, --trailing-newline)
 tools/
   build-spec.mjs    compile + VALIDATE specs -> packages/spec/dist/spec.json
   migrate-legacy.mjs ONE-SHOT importer from ../cnab_yaml (do not re-run blindly)

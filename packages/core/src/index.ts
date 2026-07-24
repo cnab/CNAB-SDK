@@ -532,6 +532,15 @@ const LAYOUT_DETECT: { [layout: string]: Detect } = {
 };
 
 /**
+ * Drop a leading UTF-8 byte-order mark (U+FEFF) from decoded file content.
+ * A BOM would otherwise shift every 1-based position of the first line by one
+ * and break both detection and parsing.
+ */
+function stripBom(content: string): string {
+  return content.charCodeAt(0) === 0xfeff ? content.substring(1) : content;
+}
+
+/**
  * Parses a whole CNAB file (many lines of mixed record types) by detecting each
  * line's record type from its discriminator positions and dispatching to the
  * matching record spec. Scope it to one bank/variant/direction with `forBank`.
@@ -594,9 +603,14 @@ export class CnabFile {
    * position 1-3 / 77-79 value that is not a three-digit bank code, an
    * unrecognizable direction indicator, or a bank with no matching records in
    * the spec.
+   *
+   * A leading UTF-8 BOM (U+FEFF) is ignored, and both LF and CRLF line endings
+   * are accepted.
    */
   public static detectScope(specJson: string, content: string): DetectedScope {
-    const lines = content.split(/\r?\n/).filter((l) => l.length > 0);
+    const lines = stripBom(content)
+      .split(/\r?\n/)
+      .filter((l) => l.length > 0);
     if (lines.length === 0) {
       throw new Error('cannot detect CNAB scope: content has no non-empty lines');
     }
@@ -795,10 +809,14 @@ export class CnabFile {
     this._keyByDisc = keyByDisc;
   }
 
-  /** Parse a whole file's content into one `ParsedLine` per non-empty line. */
+  /**
+   * Parse a whole file's content into one `ParsedLine` per non-empty line.
+   * A leading UTF-8 BOM (U+FEFF) is ignored, and both LF and CRLF line endings
+   * are accepted.
+   */
   public parse(content: string): ParsedLine[] {
     const out: ParsedLine[] = [];
-    for (const line of content.split(/\r?\n/)) {
+    for (const line of stripBom(content).split(/\r?\n/)) {
       if (line.length === 0) {
         continue;
       }
