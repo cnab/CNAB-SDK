@@ -25,6 +25,30 @@ jobs:
       - name: Verify published tarball contents
         run: npm run check:packaging
 
+  # Build the docs site on every push and PR. pages.yml only runs on main, so a
+  # broken docs build used to surface *after* merge -- and it did: all 7 Pages
+  # runs failed, for two different reasons, and nobody saw it because nothing on
+  # a PR ever built the site.
+  docs:
+    name: docs site builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      # spec.generated.ts is gitignored; typedoc cannot resolve it without this.
+      - run: npm run build:spec
+      - run: npm run docs
+      - name: The site must exist and contain the engine classes
+        run: |
+          test -f site/index.html
+          for c in CnabRecord CnabSpec CnabFile CnabFileBuilder Boleto Modulo; do
+            test -f "site/classes/$c.html" || { echo "::error::missing docs for $c"; exit 1; }
+          done
+          echo "docs: $(find site -type f | wc -l) files" >> "$GITHUB_STEP_SUMMARY"
+
   jsii:
     name: jsii multi-language API check
     runs-on: ubuntu-latest
