@@ -178,20 +178,13 @@ codigo_convenio:
   picture: "9(9)"
   description: "Código de convênio no Banco"
 
-codigo_de_inscricao:
-  picture: "9(02)"
-  description: "Identificação Do Tipo De Inscrição/empresa"
-
-codigo_de_ocorrencia:
-  picture: "9(02)"
-  description: "Nota 17 - Identificação Da Ocorrência"
-
 codigo_de_retorno:
   picture: "9(01)"
   description: "Identificação Do Arquivo Retorno"
 
 codigo_de_servico:
   picture: "9(02)"
+  aliases: [codigo_servico]
   description: "Identificação Do Tipo De Serviço"
 
 codigo_desconto_02:
@@ -212,6 +205,7 @@ codigo_erro_01:
 
 codigo_inscricao:
   picture: "9(1)"
+  aliases: [codigo_de_inscricao]
   description: "Código que identifica o tipo de inscrição da Empresa ou Pessoa Física."
 
 codigo_instrucao:
@@ -244,6 +238,7 @@ codigo_multa:
 
 codigo_ocorrencia:
   picture: "9(2)"
+  aliases: [codigo_de_ocorrencia]
   description: "Código de Movimento Remessa"
 
 codigo_protesto:
@@ -261,10 +256,6 @@ codigo_remessa_retorno:
 codigo_segmento:
   picture: "X(1)"
   description: "Código adotado pela FEBRABAN para identificar o segmento do registro."
-
-codigo_servico:
-  picture: "9(02)"
-  description: "Identificação do tipo de serviço."
 
 codigo_transmissao:
   picture: "9(15)"
@@ -328,6 +319,7 @@ dac_nosso_numero:
 
 data_credito:
   picture: "9(8)"
+  aliases: [data_de_credito]
   date_format: "%d%m%Y"
   description: "Data de efetivação do crédito referente ao pagamento do título de cobrança. Informação enviada somente"
 
@@ -335,18 +327,9 @@ data_credito_obsoleto:
   picture: "9(8)"
   description: "Campo não tradado pelo banco do brasil"
 
-data_de_credito:
-  picture: "9(6)"
-  date_format: "%d%m%y"
-  description: "Data De Crédito Dos Lançamentos"
-
-data_de_geracao:
-  picture: "9(06)"
-  date_format: "%d%m%y"
-  description: "Data De Geração Do Arquivo"
-
 data_de_ocorrencia:
   picture: "9(06)"
+  aliases: [data_ocorrencia]
   date_format: "%d%m%y"
   description: "Data De Ocorrência No Banco"
 
@@ -372,6 +355,7 @@ data_emissao:
 
 data_geracao:
   picture: "9(8)"
+  aliases: [data_de_geracao]
   date_format: "%d%m%Y"
   description: "Data da criação do arquivo. utilizar o formato DDMMAAAA, onde : dd = dia, mm = mês, aa = ano"
 
@@ -389,11 +373,6 @@ data_multa:
   picture: "9(8)"
   date_format: "%d%m%Y"
   description: "Data a partir da qual a multa deverá ser cobrada. Na ausência, será considerada a data de"
-
-data_ocorrencia:
-  picture: "9(8)"
-  date_format: "%d%m%Y"
-  description: "Data da ocorrência no banco."
 
 data_vencimento:
   picture: "9(8)"
@@ -512,15 +491,12 @@ literal_de_retorno:
 
 literal_de_servico:
   picture: "X(15)"
+  aliases: [literal_servico]
   description: "Identificação Por Extenso Do Tipo De Serviço"
 
 literal_remessa:
   picture: "X(07)"
   description: "Identificação por extenso do tipo de arquivo — preencher com 'REMESSA'."
-
-literal_servico:
-  picture: "X(15)"
-  description: "Identificação por extenso do tipo de serviço."
 
 logradouro:
   picture: "X(40)"
@@ -534,20 +510,14 @@ mensagem:
   picture: "X(58)"
   description: "Unidade Da Densidade"
 
-mensagem1:
-  picture: "X(40)"
-  description: "Texto de mensagem livre a ser impressa no boleto (mensagem 1)."
-
-mensagem2:
-  picture: "X(40)"
-  description: "Texto de mensagem livre a ser impressa no boleto (mensagem 2)."
-
 mensagem_1:
   picture: "X(40)"
+  aliases: [mensagem1]
   description: "Mensagem 1 / 2"
 
 mensagem_2:
   picture: "X(40)"
+  aliases: [mensagem2]
   description: "Mensagem 1 / 2"
 
 mensagem_3:
@@ -588,26 +558,17 @@ nome:
 
 nome_banco:
   picture: "X(30)"
+  aliases: [nome_do_banco]
   description: "Nome que identifica o banco que está recebendo ou enviando o arquivo."
-
-nome_da_empresa:
-  picture: "X(30)"
-  description: "Nome Por Extenso Da \"empresa Mãe\""
-
-nome_do_banco:
-  picture: "X(15)"
-  description: "Nome Por Extenso Do Banco Cobrador"
-
-nome_do_sacado:
-  picture: "X(30)"
-  description: "Nome Do Sacado"
 
 nome_empresa:
   picture: "X(30)"
+  aliases: [nome_da_empresa]
   description: "Nome que identifica a pessoa, física ou jurídica, a qual se quer fazer referência"
 
 nome_sacado:
   picture: "X(40)"
+  aliases: [nome_do_sacado]
   description: "Nome do sacado (pagador)."
 
 nosso_numero:
@@ -646,20 +607,14 @@ numero_convenio:
   picture: "9(07)"
   description: "Número do convênio de cobrança do cedente junto ao banco."
 
-numero_de_inscricao:
-  picture: "9(14)"
-  description: "Número De Inscrição Da Empresa (cpf/cnpj)"
-
-numero_do_documento:
-  picture: "X(10)"
-  description: "Nota 18 - Nº Do Documento De Cobrança (dupl, Np Etc)"
-
 numero_documento:
   picture: "X(15)"
+  aliases: [numero_do_documento]
   description: "Número adotado e controlado pelo Cliente, para identificar o título de cobrança."
 
 numero_inscricao:
   picture: "9(14)"
+  aliases: [numero_de_inscricao]
   description: "Informar o número de inscrição da Empresa (CNPJ) ou Pessoa Física (CPF)."
 
 numero_inscricao_empresa:
@@ -898,10 +853,6 @@ tipo_de_liquidacao:
   picture: "9(3)"
   description: "Meio pelo qual o título foi liquidado."
 
-tipo_de_registro:
-  picture: "9(01)"
-  description: "Identificação Do Registro Transação para BB '7'"
-
 tipo_documento:
   picture: "X(1)"
   description: "Código adotado pela FEBRABAN para identificar a existência material do documento no processo."
@@ -920,6 +871,7 @@ tipo_operacao:
 
 tipo_registro:
   picture: "9(1)"
+  aliases: [tipo_de_registro]
   description: "Código adotado pela FEBRABAN para identificar o tipo de registro."
 
 tipo_servico:
@@ -936,6 +888,7 @@ unidade_de_densid:
 
 uso_banco:
   picture: "X(21)"
+  aliases: [uso_do_banco]
   description: "Uso exclusivo do banco — preencher com brancos."
 
 uso_banco01:
@@ -946,16 +899,9 @@ uso_banco02:
   picture: "9(12)"
   description: "Uso exclusivo do banco — preencher com zeros."
 
-uso_da_empresa:
-  picture: "X(25)"
-  description: "Nota 2 - Identificação Do Título Na Empresa"
-
-uso_do_banco:
-  picture: "X(24)"
-  description: "Uso exclusivo do banco — preencher com brancos."
-
 uso_empresa:
   picture: "X(25)"
+  aliases: [uso_da_empresa]
   description: "Campo livre para uso da empresa — identificação do título no cedente."
 
 uso_exclusivo_banco:
@@ -1006,20 +952,14 @@ uso_exclusivo_febraban:
   picture: "X(17)"
   description: "Uso exclusivo FEBRABAN/CNAB — preencher com brancos."
 
-uso_exclusivo_febraban01:
-  picture: "X(9)"
-  description: "Uso exclusivo FEBRABAN/CNAB — preencher com brancos."
-
-uso_exclusivo_febraban02:
-  picture: "X(6)"
-  description: "Uso exclusivo FEBRABAN/CNAB — preencher com brancos."
-
 uso_exclusivo_febraban_01:
   picture: "X(9)"
+  aliases: [uso_exclusivo_febraban01]
   description: "Texto de observações destinado para uso exclusivo da FEBRABAN. Preencher com Brancos."
 
 uso_exclusivo_febraban_02:
   picture: "9(79)"
+  aliases: [uso_exclusivo_febraban02]
   description: "Texto de observações destinado para uso exclusivo da FEBRABAN. Preencher com Brancos."
 
 uso_exclusivo_febraban_03:
@@ -1069,10 +1009,6 @@ valor_desconto_02:
 valor_desconto_1:
   picture: "9(13)V9(2)"
   description: "Valor ou percentual de desconto a ser concedido sobre o título de cobrança."
-
-valor_do_titulo:
-  picture: "9(11)V9(2)"
-  description: "Valor Nominal Do Título"
 
 valor_iof:
   picture: "9(13)V9(2)"
@@ -1132,6 +1068,7 @@ valor_tarifa:
 
 valor_titulo:
   picture: "9(13)V9(2)"
+  aliases: [valor_do_titulo]
   description: "Valor original do Título. Quando o valor for expresso em moeda corrente, utilizar 2 casas decimais."
 
 valor_total:

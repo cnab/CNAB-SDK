@@ -101,8 +101,8 @@ const cases = [
     key: 'cnab400/341/retorno/header_arquivo',
     values: {
       codigo_do_banco: '341',
-      nome_da_empresa: 'EMPRESA TESTE LTDA',
-      data_de_geracao: '260626',
+      nome_empresa: 'EMPRESA TESTE LTDA',
+      data_geracao: '260626',
     },
     checks: {
       substr: { '1-1': '0', '2-2': '2' },
@@ -112,18 +112,18 @@ const cases = [
   {
     key: 'cnab400/341/retorno/detalhe',
     values: {
-      tipo_de_registro: '1',
+      tipo_registro: '1',
       agencia: '1234',
       conta: '56789',
       nosso_numero: '00000001',
-      codigo_de_ocorrencia: '06',
+      codigo_ocorrencia: '06',
       data_de_ocorrencia: '260626',
-      valor_do_titulo: '0000000150000',
+      valor_titulo: '0000000150000',
       data_vencimento: '150726',
     },
     checks: {
       substr: { '1-1': '1' },
-      parsed: { codigo_de_ocorrencia: '6', valor_do_titulo: '150000' },
+      parsed: { codigo_ocorrencia: '6', valor_titulo: '150000' },
     },
   },
   {
@@ -133,7 +133,7 @@ const cases = [
     },
     checks: {
       substr: { '1-1': '9' },
-      parsed: { tipo_de_registro: '9' },
+      parsed: { tipo_registro: '9' },
     },
   },
 ];

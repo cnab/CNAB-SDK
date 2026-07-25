@@ -17,7 +17,7 @@ const spec = CnabSpec.fromJson(specJson);
 const segP = spec.getRecord('cnab240/104/sigcb/remessa/detalhe_segmento_p');
 // cnab400/341/retorno/detalhe:
 //   data_vencimento  num ddMMyy (147-152)
-//   valor_do_titulo  num_decimal decimals=2 (153-165)
+//   valor_titulo  num_decimal decimals=2 (153-165)
 const det400 = spec.getRecord('cnab400/341/retorno/detalhe');
 // cnab240/104/sigcb/header_arquivo: hora_geracao num HHmmss (152-157)
 const header = spec.getRecord('cnab240/104/sigcb/header_arquivo');
@@ -121,9 +121,9 @@ test('decimal values round-trip through toLine and parse', () => {
 
 test('cnab400 decimal values round-trip through toLine and parse', () => {
   const values = {};
-  det400.setDecimal(values, 'valor_do_titulo', '0.99');
+  det400.setDecimal(values, 'valor_titulo', '0.99');
   const parsed = det400.parse(det400.toLine(values));
-  assert.strictEqual(det400.getDecimal(parsed, 'valor_do_titulo'), '0.99');
+  assert.strictEqual(det400.getDecimal(parsed, 'valor_titulo'), '0.99');
 });
 
 // --- getDateIso ---------------------------------------------------------

@@ -146,7 +146,7 @@ test('detectScope/detect identify an Itaú 341 CNAB400 retorno file', () => {
   ];
   const content = buildFile(keys, {
     0: { codigo_do_banco: '341' },
-    1: { tipo_de_registro: '1' },
+    1: { tipo_registro: '1' },
   });
   const scope = CnabFile.detectScope(specJson, content);
   assert.deepStrictEqual(scope, {

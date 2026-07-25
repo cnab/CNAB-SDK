@@ -20,7 +20,7 @@ fields:
   - { ref: valor_liquido, pos: [93, 107] }
   - { ref: valor_outras_despesas, pos: [108, 122] }
   - { ref: valor_outros_creditos, pos: [123, 137] }
-  - { ref: data_ocorrencia, pos: [138, 145] }
+  - { ref: data_de_ocorrencia, pos: [138, 145], date_format: "%d%m%Y" }
   - { ref: data_credito, pos: [146, 153] }
   - { ref: data_debito_tarifa, pos: [154, 161] }
   - { ref: uso_exclusivo_febraban_02, pos: [162, 240] }

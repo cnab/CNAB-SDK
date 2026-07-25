@@ -24,8 +24,8 @@
   },
   "scripts": {
     "prepack": "npm run build:jsii",
-    "build": "tsc -p tsconfig.json",
-    "build:jsii": "jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
+    "build": "node ../../tools/embed-spec.mjs && tsc -p tsconfig.json",
+    "build:jsii": "node ../../tools/embed-spec.mjs && jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
     "package": "jsii-pacmak",
     "test": "npm run build:jsii && node --test"
   },

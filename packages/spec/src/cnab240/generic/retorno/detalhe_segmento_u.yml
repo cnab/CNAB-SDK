@@ -21,7 +21,7 @@ fields:
   - { ref: valor_liquido, pos: [93, 107] }
   - { ref: valor_outras_despesas, pos: [108, 122] }
   - { ref: valor_outros_creditos, pos: [123, 137] }
-  - { ref: data_ocorrencia, pos: [138, 145] }
+  - { ref: data_de_ocorrencia, pos: [138, 145], date_format: "%d%m%Y" }
   - { ref: data_credito, pos: [146, 153] }
   - { ref: ocorrencia_sacado_codigo, pos: [154, 157] }
   - { ref: ocorrencia_sacado_data, pos: [158, 165] }
