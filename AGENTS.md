@@ -159,6 +159,13 @@ broken once:
   `files`, `prepack`, `engines`, `main` coverage) and in CI with `--pack`
   (`npm run check:packaging`, which builds the real tarballs and asserts
   `lib/index.js`, `.jsii` and `dist/spec.json` are inside).
+- **Release wiring** — the same tool asserts that `.changeset/config.json` and
+  the `@changesets/cli` devDependency exist whenever `release.yml` does, that all
+  three package versions are identical (lockstep), and that `@cnab/cli`'s exact
+  pins match its siblings' real versions. `.changeset/` is a **dotfile
+  directory**: it was once left out of a commit by a `git add` on named paths, so
+  `main` shipped a release workflow with no config and the job failed on every
+  push. Use `git add -A`, and let this check be the backstop.
 - **CLI surface** — `packages/cli/test/surface.test.cjs` asserts every
   documented command is really dispatched and vice versa, so the CLI cannot
   silently fall behind the engine again.

@@ -9,9 +9,16 @@ name: Release (version + tag)
 #   1. A PR adds a changeset (`npx changeset`) describing the change.
 #   2. On merge to main, this workflow opens/updates a "Version Packages" PR
 #      that applies the bumps and rewrites the per-package changelogs.
-#   3. Merging THAT PR tags the release and creates a GitHub Release.
+#   3. Merging THAT PR consumes the changesets. Nothing is tagged yet — see below.
+#
+# NOT YET WIRED: tagging. `createGithubReleases` only takes effect when the
+# action is given a `publish:` command, which this workflow deliberately does not
+# have. So today step 3 is a no-op run, and no git tag or GitHub Release is
+# created. Wiring the tag is part of #36; until then, tags are manual.
 #
 # All three packages move in lockstep (`fixed` in .changeset/config.json).
+# That directory is REQUIRED — without it this job fails outright with
+# "There is no .changeset directory in this project" (it has happened).
 
 on:
   push:
@@ -53,8 +60,8 @@ jobs:
         with:
           # `version` applies pending changesets and rewrites changelogs.
           version: npx changeset version
-          # No `publish:` on purpose — see the header. When a version PR merges
-          # and no changesets remain, this creates the git tag + GitHub Release.
+          # No `publish:` on purpose — see the header. Note this also means
+          # `createGithubReleases` below is inert; tagging is #36.
           title: 'chore: version packages'
           commit: 'chore: version packages'
           createGithubReleases: true

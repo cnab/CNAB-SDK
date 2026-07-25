@@ -1,6 +1,6 @@
 {
   "name": "@cnab/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "CNAB 240/400 parsing, building and validation engine (jsii, multi-language)",
   "license": "MIT",
   "author": {

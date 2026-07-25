@@ -98,6 +98,56 @@ if (!rootPkg.engines || !rootPkg.engines.node) {
   problems.push('root: missing "engines.node"');
 }
 
+// --- release wiring -------------------------------------------------------
+//
+// This whole block exists because of one incident. `.changeset/` is a DOTFILE
+// directory, so a `git add` on named paths skipped it: the "adopt Changesets"
+// commit landed release.yml, AGENTS.md and CHANGELOG.md but neither the config
+// nor the version bumps. Every check was green -- packaging never looked at
+// versions -- and the breakage only surfaced as a red release job on main,
+// after the merge. These three checks would each have caught it pre-merge.
+
+const releaseWorkflow = '.github/workflows/release.yml';
+if (fs.existsSync(path.join(ROOT, releaseWorkflow))) {
+  if (!fs.existsSync(path.join(ROOT, '.changeset/config.json'))) {
+    problems.push(
+      `${releaseWorkflow} exists but .changeset/config.json does not — the ` +
+        `release job fails with "There is no .changeset directory in this project"`
+    );
+  }
+  const devDeps = rootPkg.devDependencies || {};
+  if (!devDeps['@changesets/cli']) {
+    problems.push(
+      'root: missing "@changesets/cli" devDependency, but the release workflow ' +
+        'runs `changeset version`'
+    );
+  }
+}
+
+// Versions move in lockstep (`fixed` in .changeset/config.json), and @cnab/cli
+// pins its siblings by EXACT version. A stale pin is how the packages sat at
+// "0.0.0" pinning "0.0.0" and no release was possible.
+const versions = Object.fromEntries(
+  Object.entries(EXPECTED).map(([name, spec]) => [name, readPkg(spec.dir).version])
+);
+const distinct = [...new Set(Object.values(versions))];
+if (distinct.length > 1) {
+  problems.push(
+    `versions are not in lockstep: ${Object.entries(versions)
+      .map(([n, v]) => `${n}@${v}`)
+      .join(', ')}`
+  );
+}
+const cliPkg = readPkg(EXPECTED['@cnab/cli'].dir);
+for (const [dep, pinned] of Object.entries(cliPkg.dependencies || {})) {
+  if (dep in versions && pinned !== versions[dep]) {
+    problems.push(
+      `@cnab/cli pins ${dep}@${pinned} but ${dep} is at ${versions[dep]} — ` +
+        `the published CLI would resolve a version that does not exist`
+    );
+  }
+}
+
 // --- authoritative check (CI) ----------------------------------------------
 
 if (withPack) {
