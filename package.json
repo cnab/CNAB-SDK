@@ -23,6 +23,7 @@
     "docs:serve": "npx --yes http-server site -p 8080"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "js-yaml": "^4.1.0",
     "typedoc": "^0.26.11"
   }
