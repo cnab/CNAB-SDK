@@ -122,6 +122,14 @@ Record keys look like `cnab240/104/sigcb/header_arquivo`.
 
 - Commit per logical step with a clear message; keep `npm test` green.
 - Develop on a feature branch; do **not** open a PR unless asked.
+- **Always squash-merge PRs into `main`.** `main` keeps one commit per PR, so its
+  history reads as a list of changes rather than a list of keystrokes. Two
+  consequences worth knowing before you hit merge:
+  - The branch commits are **not** ancestors of `main` afterwards, even though
+    the tree is identical. Do not try to re-push or "catch up" a merged branch —
+    start the next piece of work from `origin/main` instead.
+  - The squash commit message is the durable record. Write the PR description as
+    if it were that message.
 - Generated artifacts (`lib/`, `dist/`, `.jsii`) are gitignored; goldens under
   `packages/core/test/golden/` are committed fixtures.
 - `tools/migrate-legacy.mjs` is a one-shot importer — the generated files under
