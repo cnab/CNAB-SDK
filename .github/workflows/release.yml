@@ -1,0 +1,67 @@
+name: Release (version + tag)
+
+# Changesets-driven versioning. This workflow only VERSIONS and TAGS — it never
+# publishes to a registry. Publishing is issue #14 and its per-registry
+# children (#37 npm, #38 PyPI, #39 Maven, #40 NuGet, #41 Go), each gated behind
+# its own GitHub Environment approval.
+#
+# Flow:
+#   1. A PR adds a changeset (`npx changeset`) describing the change.
+#   2. On merge to main, this workflow opens/updates a "Version Packages" PR
+#      that applies the bumps and rewrites the per-package changelogs.
+#   3. Merging THAT PR tags the release and creates a GitHub Release.
+#
+# All three packages move in lockstep (`fixed` in .changeset/config.json).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  version:
+    name: Open/refresh the version PR, or tag on merge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # changesets needs history to diff against baseBranch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+
+      # Guard: never cut a release from a red tree. The full suite also runs the
+      # packaging declaration check, and build:jsii proves the multi-language
+      # API still compiles.
+      - name: Verify the tree is releasable
+        run: |
+          npm test
+          npm run check:packaging
+
+      - name: Changesets — version PR or tag
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # `version` applies pending changesets and rewrites changelogs.
+          version: npx changeset version
+          # No `publish:` on purpose — see the header. When a version PR merges
+          # and no changesets remain, this creates the git tag + GitHub Release.
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "published(tagged): ${{ steps.changesets.outputs.published }}" >> $GITHUB_STEP_SUMMARY
+          echo "version PR: ${{ steps.changesets.outputs.pullRequestNumber }}" >> $GITHUB_STEP_SUMMARY
