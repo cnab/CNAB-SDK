@@ -13,3 +13,8 @@ tsconfig.tsbuildinfo
 coverage/
 *.log
 .DS_Store
+# Staging dir + notes built by the `release` job in .github/workflows/release.yml.
+# Also created when dry-running those steps locally.
+artifacts/
+RELEASE_NOTES.md
+*.tgz
