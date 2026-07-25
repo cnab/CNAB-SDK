@@ -8,6 +8,11 @@
  * tuples (positions are exposed as `start`/`end` numbers).
  */
 
+// The compiled spec, embedded at build time by tools/embed-spec.mjs so every
+// target language ships the data with the engine (see that file for why).
+// Deliberately NOT re-exported: jsii has no concept of a top-level constant.
+import { BUNDLED_SPEC_JSON } from './spec.generated';
+
 /** How a fixed-width field is typed and padded. */
 export enum FieldType {
   /** Numeric: right-aligned, zero-padded. */
@@ -551,6 +556,27 @@ export class CnabSpec {
     return new CnabSpec(doc.records ?? {}, codeTables);
   }
 
+  /**
+   * The compiled spec that ships inside this package — no file, no download,
+   * no `spec.json` path to resolve.
+   *
+   * This is the entry point for every non-Node language: a Python / Java /
+   * .NET consumer installs the engine and immediately has the full catalog,
+   * every record and every code table.
+   */
+  public static bundled(): CnabSpec {
+    return CnabSpec.fromJson(BUNDLED_SPEC_JSON);
+  }
+
+  /**
+   * The raw JSON of the spec that ships inside this package, so the
+   * `specJson`-taking entry points (`CnabFile.detectScope`, `CnabFile.detect`,
+   * …) are usable without a file too.
+   */
+  public static bundledJson(): string {
+    return BUNDLED_SPEC_JSON;
+  }
+
   private readonly _records: Record<string, unknown>;
   private readonly _codeTables: { [key: string]: { [code: string]: string } };
 
@@ -713,6 +739,23 @@ export class CnabFile {
       keyByDisc[disc] = key;
     }
     return new CnabFile(detect, byDisc, keyByDisc);
+  }
+
+  /**
+   * Same as `forBank`, but against the spec bundled with this package — the
+   * common path, and the only one available to consumers who have no
+   * `spec.json` file (i.e. everyone outside Node).
+   *
+   * jsii forbids method overloads, so this is a distinct name rather than an
+   * optional first parameter.
+   */
+  public static forBankBundled(
+    layout: string,
+    bank: string,
+    variant: string,
+    direction: string
+  ): CnabFile {
+    return CnabFile.forBank(BUNDLED_SPEC_JSON, layout, bank, variant, direction);
   }
 
   /**

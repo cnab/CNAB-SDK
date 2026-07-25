@@ -48,3 +48,52 @@ jobs:
           # .jsii is a dotfile; upload-artifact@v4 skips hidden files by default
           include-hidden-files: true
           if-no-files-found: error
+
+  pacmak:
+    name: jsii-pacmak language bindings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # pacmak shells out to each language's toolchain, so they must be present.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+      - run: npm install
+      - name: Build spec + jsii assembly
+        run: npm run build:spec && npm run build:jsii --workspace @cnab/core
+      # Generating the bindings is the only thing that proves the API is
+      # *projectable* in practice rather than just in principle. We generate
+      # and smoke-test them; we do NOT publish (that is #14 and its children).
+      - name: jsii-pacmak (python, java, dotnet)
+        working-directory: packages/core
+        run: npx jsii-pacmak --targets python --targets java --targets dotnet
+      - name: Smoke-test the generated Python wheel
+        run: |
+          python -m venv /tmp/cnabvenv
+          /tmp/cnabvenv/bin/pip install --quiet packages/core/dist/python/*.whl
+          /tmp/cnabvenv/bin/python - <<'PY'
+          import cnab_core as c
+          spec = c.CnabSpec.bundled()
+          assert len(spec.record_keys()) > 50, spec.record_keys()
+          rec = spec.get_record('cnab240/104/sigcb/header_arquivo')
+          line = rec.to_line({'codigo_banco': '104'})
+          assert len(line) == 240 and line[:3] == '104', repr(line[:10])
+          assert rec.to_line(rec.parse(line)) == line, 'round-trip failed'
+          print(f'python binding OK — {len(spec.record_keys())} records from the bundled spec')
+          PY
+      - name: Upload language bindings
+        uses: actions/upload-artifact@v4
+        with:
+          name: language-bindings
+          path: packages/core/dist
+          if-no-files-found: error
