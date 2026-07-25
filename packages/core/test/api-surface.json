@@ -27,7 +27,8 @@
       "parse(content: string): array<ParsedLine>",
       "static detect(specJson: string, content: string): CnabFile",
       "static detectScope(specJson: string, content: string): DetectedScope",
-      "static forBank(specJson: string, layout: string, bank: string, variant: string, direction: string): CnabFile"
+      "static forBank(specJson: string, layout: string, bank: string, variant: string, direction: string): CnabFile",
+      "static forBankBundled(layout: string, bank: string, variant: string, direction: string): CnabFile"
     ]
   },
   "CnabFileBuilder": {
@@ -37,6 +38,7 @@
       "endLote(trailerValues: map<string>): void",
       "startLote(headerValues: map<string>): void",
       "static forBank(specJson: string, layout: string, bank: string, variant: string, direction: string): CnabFileBuilder",
+      "static forBankBundled(layout: string, bank: string, variant: string, direction: string): CnabFileBuilder",
       "toFileContent(trailerValues: map<string>): string",
       "withHeader(values: map<string>): void"
     ]
@@ -66,6 +68,8 @@
       "hasRecord(key: string): boolean",
       "lookupCode(key: string, code: string): string",
       "recordKeys(): array<string>",
+      "static bundled(): CnabSpec",
+      "static bundledJson(): string",
       "static fromJson(json: string): CnabSpec"
     ]
   },

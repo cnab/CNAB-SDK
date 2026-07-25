@@ -13,7 +13,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build:spec": "node tools/build-spec.mjs",
+    "build:spec": "node tools/build-spec.mjs && node tools/embed-spec.mjs",
     "build:core": "npm run build --workspace @cnab/core",
     "build": "npm run build:spec && npm run build:core",
     "test": "npm run build:spec && node tools/check-packaging.mjs && npm run test --workspaces --if-present",

@@ -143,6 +143,29 @@ export class CnabFileBuilder {
     return new CnabFileBuilder(layout, byName);
   }
 
+  /**
+   * Same as `forBank`, but against the spec bundled with this package — the
+   * common path, and the only one available to consumers who have no
+   * `spec.json` file (i.e. everyone outside Node).
+   *
+   * jsii forbids method overloads, so this is a distinct name rather than an
+   * optional first parameter.
+   */
+  public static forBankBundled(
+    layout: string,
+    bank: string,
+    variant: string,
+    direction: string
+  ): CnabFileBuilder {
+    return CnabFileBuilder.forBank(
+      CnabSpec.bundledJson(),
+      layout,
+      bank,
+      variant,
+      direction
+    );
+  }
+
   private readonly _layout: string;
   private readonly _byName: { [record: string]: CnabRecord };
   private _headerValues: { [name: string]: string };
