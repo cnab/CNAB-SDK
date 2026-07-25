@@ -14,7 +14,17 @@
     "esModuleInterop": true,
     "outDir": "lib",
     "rootDir": "src",
-    "composite": false
+    "composite": false,
+    // The engine must not depend on Node APIs: it runs in Python, Java and .NET
+    // through jsii, where no Node globals exist in the caller's world. Empty
+    // `types` stops TypeScript auto-loading every @types package (which is how
+    // @types/node crept in) and turns "someone used a Node global in the
+    // engine" into a compile error instead of a runtime surprise in a binding.
+    //
+    // It also unbreaks `npm run docs`: typedoc 0.26 pins TypeScript <= 5.6, and
+    // @types/node 26 needs newer than that, so type-checking those .d.ts files
+    // failed with 7 errors and produced no site at all.
+    "types": []
   },
   "include": ["src/**/*.ts"]
 }
