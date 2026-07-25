@@ -16,6 +16,38 @@ The SDK stays on **0.x** deliberately: the jsii assembly is
 `stability: experimental`, `toLine` recently became strict, and catalog field
 names may still move as the remaining ADR 0008 cleanup lands.
 
+## [0.2.0] — 2026-07-25
+
+### Changed
+
+- **BREAKING: `CnabRecord.setDecimal` and `CnabRecord.setDateIso` return the
+  updated value map instead of mutating their argument.** They previously
+  returned `void` and wrote into the map in place, which works only in Node.
+  jsii marshals maps **by value**, so in Python, Java and .NET the mutation was
+  applied to a copy that was discarded the moment the call returned — the two
+  helpers did nothing at all, and returned nothing the caller could use instead.
+  Two documented parts of the typed-value API (ADR 0006) were therefore
+  non-functional in three of the four languages the SDK ships. Every one of the
+  185 Node tests passed throughout, because Node passes objects by reference and
+  can never observe the difference.
+
+  ```diff
+  - record.setDecimal(values, 'valor_titulo', '1500.00');
+  + values = record.setDecimal(values, 'valor_titulo', '1500.00');
+  ```
+
+  The input map is now left untouched, so both helpers are pure and compose.
+
+### Added
+
+- **Per-language unit test suites** under `bindings/`, run against the
+  **generated** bindings rather than the TypeScript source — 47 pytest tests
+  (Python), 35 JUnit 5 tests (Java) and an xUnit suite (.NET), executed by a
+  `fail-fast: false` CI matrix. They mirror the Node assertions deliberately, so
+  a projection that drifts from the engine fails rather than silently diverging.
+  This is what surfaced the `setDecimal` defect above; no amount of Node testing
+  could have found it.
+
 ## [0.1.0] — 2026-07-25
 
 First versioned release. Nothing is published to any registry yet — see the

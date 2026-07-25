@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Unit tests for the generated Java binding of @cnab/core.
+
+  Runs against the jar that jsii-pacmak produced, installed into the local Maven
+  repository by the CI job (`mvn install:install-file`), NOT against the
+  TypeScript source. That is the point: these tests exercise the jsii projection
+  and its marshalling, which the Node suite cannot see.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.cnab</groupId>
+  <artifactId>cnab-core-binding-tests</artifactId>
+  <version>0.0.0</version>
+  <packaging>jar</packaging>
+  <name>CNAB core Java binding tests</name>
+
+  <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Overridden by CI with the version actually built, so the tests always
+         run against the artifact from this commit rather than a stale one. -->
+    <cnab.version>0.1.0</cnab.version>
+    <junit.version>5.10.2</junit.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.cnab</groupId>
+      <artifactId>cnab-core</artifactId>
+      <version>${cnab.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>

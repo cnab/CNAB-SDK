@@ -18,3 +18,12 @@ coverage/
 artifacts/
 RELEASE_NOTES.md
 *.tgz
+# Per-language binding test build output. Scoped to bindings/ on purpose:
+# an unanchored `bin/` would swallow packages/cli/bin/, which is tracked and is
+# the CLI's published entry point.
+bindings/java/target/
+bindings/dotnet/bin/
+bindings/dotnet/obj/
+__pycache__/
+*.pyc
+.pytest_cache/

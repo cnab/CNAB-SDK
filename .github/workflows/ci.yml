@@ -97,3 +97,74 @@ jobs:
           name: language-bindings
           path: packages/core/dist
           if-no-files-found: error
+
+  # Real unit suites per language, run against the GENERATED artifacts rather
+  # than the TypeScript source. The Node suite cannot see projection bugs:
+  # `setDecimal` was void + mutate, which works in Node (objects by reference)
+  # and silently did nothing in Python/Java/.NET, because jsii marshals maps by
+  # value. Two documented helpers were inert in three of four shipped languages
+  # and every Node test passed. See bindings/README.md.
+  bindings:
+    name: ${{ matrix.language }} binding unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # one language failing must not hide the others
+      matrix:
+        language: [python, java, dotnet]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        if: matrix.language == 'java'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-dotnet@v4
+        if: matrix.language == 'dotnet'
+        with:
+          dotnet-version: '8.0'
+      - run: npm install
+
+      - name: Build spec + jsii assembly
+        run: npm run build:spec && npm run build:jsii --workspace @cnab/core
+
+      - name: Generate the ${{ matrix.language }} binding
+        working-directory: packages/core
+        run: npx jsii-pacmak --targets ${{ matrix.language }}
+
+      - name: Resolve the version under test
+        id: v
+        run: echo "version=$(node -p "require('./packages/core/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # --- python ---------------------------------------------------------
+      - name: Python — install the wheel and run pytest
+        if: matrix.language == 'python'
+        run: |
+          python -m venv /tmp/venv
+          /tmp/venv/bin/pip install --quiet pytest packages/core/dist/python/*.whl
+          /tmp/venv/bin/python -m pytest bindings/python -v
+
+      # --- java -----------------------------------------------------------
+      - name: Java — install the jar and run JUnit
+        if: matrix.language == 'java'
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          D="packages/core/dist/java/org/cnab/cnab-core/$V"
+          mvn -B -q install:install-file -Dfile="$D/cnab-core-$V.jar" -DpomFile="$D/cnab-core-$V.pom"
+          mvn -B -f bindings/java/pom.xml -Dcnab.version="$V" test
+
+      # --- dotnet ---------------------------------------------------------
+      # The local package feed comes from bindings/dotnet/nuget.config, which is
+      # committed -- no `dotnet nuget add source`, which mutates the global
+      # config and fails if the source name already exists.
+      - name: .NET — restore from the local feed and run xUnit
+        if: matrix.language == 'dotnet'
+        run: |
+          dotnet test bindings/dotnet/Cnab.Core.BindingTests.csproj \
+            -p:CnabVersion="${{ steps.v.outputs.version }}" \
+            --verbosity normal
