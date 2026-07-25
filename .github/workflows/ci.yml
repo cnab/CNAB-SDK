@@ -159,11 +159,12 @@ jobs:
           mvn -B -f bindings/java/pom.xml -Dcnab.version="$V" test
 
       # --- dotnet ---------------------------------------------------------
+      # The local package feed comes from bindings/dotnet/nuget.config, which is
+      # committed -- no `dotnet nuget add source`, which mutates the global
+      # config and fails if the source name already exists.
       - name: .NET — restore from the local feed and run xUnit
         if: matrix.language == 'dotnet'
         run: |
-          V="${{ steps.v.outputs.version }}"
-          FEED="$(pwd)/packages/core/dist/dotnet"
-          dotnet nuget add source "$FEED" --name cnab-local
           dotnet test bindings/dotnet/Cnab.Core.BindingTests.csproj \
-            -p:CnabVersion="$V" --verbosity normal
+            -p:CnabVersion="${{ steps.v.outputs.version }}" \
+            --verbosity normal
