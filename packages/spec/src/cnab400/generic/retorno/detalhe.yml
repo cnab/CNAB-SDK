@@ -6,15 +6,15 @@ meta:
   lineLength: 400
   template: true
 fields:
-  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
-  - { ref: codigo_de_inscricao, pos: [2, 3] }
-  - { ref: numero_de_inscricao, pos: [4, 17] }
-  - { ref: uso_da_empresa, pos: [38, 62] }
-  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_inscricao, pos: [2, 3] }
+  - { ref: numero_inscricao, pos: [4, 17] }
+  - { ref: uso_empresa, pos: [38, 62] }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
   - { ref: data_de_ocorrencia, pos: [111, 116] }
-  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: numero_documento, pos: [117, 126] }
   - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
-  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: valor_titulo, pos: [153, 165] }
   - { ref: codigo_do_banco, pos: [166, 168] }
   - { ref: agencia_cobradora, pos: [169, 172] }
   - { ref: agencia_cobradora_dac, pos: [173, 173] }

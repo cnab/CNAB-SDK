@@ -5,7 +5,7 @@ meta:
   record: detalhe
   lineLength: 400
 fields:
-  - { ref: tipo_de_registro, pos: [1, 1], default: "7" }
+  - { ref: tipo_registro, pos: [1, 1], default: "7" }
   - { ref: zeros01, pos: [2, 17], default: 0 }
   - { ref: agencia_cobradora, pos: [18, 21] }
   - { ref: agencia_cobradora_dac, pos: [22, 22] }
@@ -25,12 +25,12 @@ fields:
   - { ref: taxa_iof, pos: [101, 105] }
   - { ref: zeros02, pos: [106, 106], default: 0 }
   - { ref: carteira, pos: [107, 108] }
-  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
   - { ref: data_de_ocorrencia, pos: [111, 116] }
-  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: numero_documento, pos: [117, 126] }
   - { ref: brancos01, pos: [127, 146], default: "" }
   - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
-  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: valor_titulo, pos: [153, 165] }
   - { ref: codigo_do_banco, pos: [166, 168] }
   - { ref: reservado_bb_d1, pos: [169, 173], default: "0" }
   - { ref: especie, pos: [174, 175] }

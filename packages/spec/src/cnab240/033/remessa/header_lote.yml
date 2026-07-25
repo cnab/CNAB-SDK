@@ -19,8 +19,8 @@ fields:
   - { ref: codigo_transmissao, pos: [54, 68] }
   - { ref: reservado_santander_02, pos: [69, 73], default: "" }
   - { ref: nome_empresa, pos: [74, 103] }
-  - { ref: mensagem1, pos: [104, 143], default: "" }
-  - { ref: mensagem2, pos: [144, 183], default: "" }
+  - { ref: mensagem_1, pos: [104, 143], default: "" }
+  - { ref: mensagem_2, pos: [144, 183], default: "" }
   - { ref: numero_sequencial_arquivo, pos: [184, 191] }
   - { ref: data_geracao, pos: [192, 199] }
   - { ref: reservado_santander_03, pos: [200, 240], default: "" }

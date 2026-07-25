@@ -8,8 +8,8 @@ fields:
   - { ref: tipo_registro, pos: [1, 1], default: "0" }
   - { ref: tipo_operacao, pos: [2, 2], default: "1" }
   - { ref: literal_remessa, pos: [3, 9], default: "REMESSA" }
-  - { ref: codigo_servico, pos: [10, 11], default: "1" }
-  - { ref: literal_servico, pos: [12, 26], default: "COBRANCA" }
+  - { ref: codigo_de_servico, pos: [10, 11], default: "1" }
+  - { ref: literal_de_servico, pos: [12, 26], default: "COBRANCA" }
   - { ref: agencia, pos: [27, 30] }
   - { ref: zeros01, pos: [31, 32], default: "0" }
   - { ref: conta, pos: [33, 37] }

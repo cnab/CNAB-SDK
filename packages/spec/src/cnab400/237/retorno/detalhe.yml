@@ -5,16 +5,16 @@ meta:
   record: detalhe
   lineLength: 400
 fields:
-  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
-  - { ref: codigo_de_inscricao, pos: [2, 3] }
-  - { ref: numero_de_inscricao, pos: [4, 17] }
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_inscricao, pos: [2, 3] }
+  - { ref: numero_inscricao, pos: [4, 17] }
   - { ref: zeros01, pos: [18, 20], default: 0 }
   - { ref: zeros02, pos: [21, 21], default: 0 }
   - { ref: carteira, pos: [22, 24] }
   - { ref: agencia, pos: [25, 29] }
   - { ref: conta, pos: [30, 36] }
   - { ref: conta_dac, pos: [37, 37] }
-  - { ref: uso_da_empresa, pos: [38, 62] }
+  - { ref: uso_empresa, pos: [38, 62] }
   - { ref: zeros03, pos: [63, 70] }
   - { ref: nosso_numero, pos: [71, 82] }
   - { ref: uso_banco01, pos: [83, 92] }
@@ -22,12 +22,12 @@ fields:
   - { ref: indicador_rateio, pos: [105, 105] }
   - { ref: zeros04, pos: [106, 107] }
   - { ref: carteira_cod, pos: [108, 108] }
-  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
   - { ref: data_de_ocorrencia, pos: [111, 116] }
-  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: numero_documento, pos: [117, 126] }
   - { ref: nosso_numero_dup, pos: [127, 146] }
   - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
-  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: valor_titulo, pos: [153, 165] }
   - { ref: codigo_do_banco, pos: [166, 168] }
   - { ref: agencia_cobradora, pos: [169, 172] }
   - { ref: agencia_cobradora_dac, pos: [173, 173] }

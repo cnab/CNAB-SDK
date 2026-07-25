@@ -5,23 +5,23 @@ meta:
   record: detalhe
   lineLength: 400
 fields:
-  - { ref: tipo_de_registro, pos: [1, 1], default: "1" }
-  - { ref: codigo_de_inscricao, pos: [2, 3] }
-  - { ref: numero_de_inscricao, pos: [4, 17] }
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_inscricao, pos: [2, 3] }
+  - { ref: numero_inscricao, pos: [4, 17] }
   - { ref: codigo_cedente, pos: [18, 33], default: "", picture: "X(16)" }
   - { ref: brancos01, pos: [34, 37], default: "" }
-  - { ref: uso_da_empresa, pos: [38, 62] }
+  - { ref: uso_empresa, pos: [38, 62] }
   - { ref: nosso_numero, pos: [63, 73] }
   - { ref: brancos21, pos: [74, 79] }
   - { ref: codigo_rejeicao, pos: [80, 82] }
-  - { ref: uso_do_banco, pos: [83, 106] }
+  - { ref: uso_banco, pos: [83, 106] }
   - { ref: carteira, pos: [107, 108] }
-  - { ref: codigo_de_ocorrencia, pos: [109, 110] }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
   - { ref: data_de_ocorrencia, pos: [111, 116] }
-  - { ref: numero_do_documento, pos: [117, 126] }
+  - { ref: numero_documento, pos: [117, 126] }
   - { ref: brancos04, pos: [127, 146] }
   - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
-  - { ref: valor_do_titulo, pos: [153, 165] }
+  - { ref: valor_titulo, pos: [153, 165] }
   - { ref: codigo_do_banco, pos: [166, 168] }
   - { ref: agencia_cobradora, pos: [169, 172] }
   - { ref: agencia_cobradora_dac, pos: [173, 173] }
