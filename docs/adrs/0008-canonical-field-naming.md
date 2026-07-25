@@ -1,7 +1,7 @@
 # ADR 0008 — Canonical field naming: one spelling per concept
 
-- Status: Proposed
-- Date: 2026-07
+- Status: Accepted
+- Date: 2026-07 (decided and implemented 2026-07-25)
 
 ## Context
 
@@ -81,8 +81,8 @@ compensação"). None encodes a real semantic distinction.
 
 ## Decision
 
-**Not yet decided — this ADR is Proposed and needs a human call.** The options
-considered, with a recommendation:
+**Option C, adopted and implemented** — see [Outcome](#outcome-as-implemented)
+below for what actually shipped. The options as they were considered:
 
 ### Option A — Do nothing (status quo)
 
@@ -174,3 +174,50 @@ alias resolution happens at **compile** time, not as record inheritance.
 - Follow-up work: choose the 21 winners (mechanical, given the table above);
   implement alias resolution + the collision gate; then 21 small migration
   commits; then update `AGENTS.md` and `CONTEXT.md`.
+
+## Outcome (as implemented)
+
+**Option C.** Implemented and merged in PR #44.
+
+- 20 of the 21 clusters were merged: the winning spelling is the one with more
+  references, and every losing spelling is kept as an `aliases:` entry in
+  `packages/spec/fields/catalog.yml` so legacy names keep resolving.
+- 361 record references were rewritten; the catalog went from **297 to 277**
+  canonical names.
+- `tools/build-spec.mjs` gained alias resolution plus a **collision gate** that
+  fails the build on any new colliding canonical name, seeded with an explicit,
+  deliberately shrinking `ALLOWED_NAME_COLLISIONS` allow-list.
+- `CnabFile`'s discriminator no longer probes two spellings of
+  `tipo_registro`.
+
+### The one cluster left unmerged
+
+`codigo_banco` / `codigo_do_banco` are **not** synonyms.
+`cnab400/237/retorno/detalhe` carries both on the same line —
+`codigo_do_banco` at 166-168 (banco cobrador) and `codigo_banco` at 315-318 —
+so collapsing them would put the same canonical name twice in one record. It is
+the sole entry in the allow-list. This is the general rule: if merging a cluster
+would produce a duplicate name within a single record, the two fields are
+distinct concepts and the cluster stays split.
+
+### Correction to a claim made while this was in flight
+
+An in-progress note asserted that the goldens must not change, and that a
+changed golden would prove the rename was unsafe. **That is wrong.**
+`defaultCaseFor` in `packages/core/test/cases.cjs` derives synthetic values from
+the field *name* — alpha text is built from the name, numerics are seeded with
+`hash(recordKey|field.name)` — so a rename legitimately changes the
+auto-generated goldens. Six of them did.
+
+The checks that actually establish safety are: every line length unchanged (no
+positional drift), and all seven **hand-written** goldens byte-identical, since
+those assert real positions and values. Use those, not a blanket empty diff.
+
+### Resulting consequences and remaining debt
+
+- Aliases are permanent public surface area, and the allow-list keeps the
+  remaining debt countable rather than invisible.
+- Catalog `picture` **size digits** remain unverifiable dead data — 216 of 921
+  positioned field instances across 56 names disagree with their positional
+  width. Sizes come from `pos` (ADR 0003), so this is inert, but it is
+  misleading to authors. Cleanup is tracked in issue #46, not here.
