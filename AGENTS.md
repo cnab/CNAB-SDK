@@ -43,6 +43,11 @@ npm run report:spec  # coverage summary: records, code tables, bank matrix, gold
 cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies
 ```
 
+`npm test` covers Node only. The Python/Java/.NET unit suites live in
+`bindings/` and run against the **generated** bindings — see
+[`bindings/README.md`](bindings/README.md) for how to run them locally. CI runs
+all three on every push.
+
 `npm test` must be green at every commit.
 
 ## Binding rules (ADRs — do not relitigate)
@@ -169,6 +174,14 @@ broken once:
 - **CLI surface** — `packages/cli/test/surface.test.cjs` asserts every
   documented command is really dispatched and vice versa, so the CLI cannot
   silently fall behind the engine again.
+- **Per-language bindings** — `bindings/` holds real unit suites (pytest, JUnit
+  5, xUnit) that run against the **generated** artifacts, in a `fail-fast: false`
+  CI matrix. `npm test` proves the *engine*; only these prove the *projection*.
+  `setDecimal`/`setDateIso` used to be `void` + mutate — fine in Node, and
+  completely inert in Python/Java/.NET because jsii marshals maps **by value**.
+  All 185 Node tests passed the entire time. When you change engine behaviour,
+  change the binding assertions too; they mirror `packages/core/test/*.js` on
+  purpose. See [`bindings/README.md`](bindings/README.md).
 
 ## Releasing (tag + GitHub Release — registry publishing is not wired)
 

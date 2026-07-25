@@ -105,8 +105,7 @@ test('a negative value on a numeric field throws (the sign would be stripped)', 
 
 test('the setDecimal path produces exactly what the raw digits would', () => {
   const rec = spec.getRecord(SEG_P);
-  const values = {};
-  rec.setDecimal(values, 'valor_titulo', '1500.00');
+  const values = rec.setDecimal({}, 'valor_titulo', '1500.00');
   assert.strictEqual(values.valor_titulo, '150000');
   assert.strictEqual(
     rec.toLine(values).substring(85, 100),

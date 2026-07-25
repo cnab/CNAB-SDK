@@ -308,6 +308,16 @@ export class CnabRecord {
    * omitted (`"1500"` -> `"150000"`) or shorter than the field's decimals (it
    * is right-padded with zeros: `"1500.5"` -> `"150050"`).
    *
+   * Returns a **new map** with the field set; the input is not modified. It
+   * cannot mutate: jsii marshals maps **by value**, so a mutation performed
+   * here would be invisible to a Python/Java/.NET caller. This method used to
+   * return `void` and mutate, which worked only in Node and silently did
+   * nothing everywhere else.
+   *
+   * ```ts
+   * values = record.setDecimal(values, 'valor_titulo', '1500.00');
+   * ```
+   *
    * Throws when the field name is unknown, the value is not a well-formed
    * decimal string, or it carries more fraction digits than the field allows.
    */
@@ -315,7 +325,7 @@ export class CnabRecord {
     values: { [name: string]: string },
     name: string,
     decimalValue: string
-  ): void {
+  ): { [name: string]: string } {
     const f = this.fieldByName(name);
     const m = /^([0-9]+)(?:\.([0-9]+))?$/.exec(decimalValue);
     if (!m) {
@@ -332,7 +342,7 @@ export class CnabRecord {
     }
     const combined = intPart + frac.padEnd(f.decimals, '0');
     const stripped = combined.replace(/^0+/, '');
-    values[name] = stripped === '' ? '0' : stripped;
+    return this.withValue(values, name, stripped === '' ? '0' : stripped);
   }
 
   /**
@@ -391,22 +401,35 @@ export class CnabRecord {
    *   not be read back)
    * - `HHmmss`:   `"10:30:00"` -> `"103000"`
    *
-   * An empty string stores the all-zeros "unset" value. Throws when the field
-   * name is unknown, the field has no `dateFormat`, or the input is malformed
-   * (wrong shape, month/day/time component out of range).
+   * An empty string stores the all-zeros "unset" value.
+   *
+   * Returns a **new map** with the field set; the input is not modified. See
+   * `setDecimal` for why this cannot mutate — jsii marshals maps by value, so
+   * the old `void` + mutate signature only ever worked in Node.
+   *
+   * ```ts
+   * values = record.setDateIso(values, 'vencimento', '2026-03-15');
+   * ```
+   *
+   * Throws when the field name is unknown, the field has no `dateFormat`, or
+   * the input is malformed (wrong shape, month/day/time component out of range).
    */
   public setDateIso(
     values: { [name: string]: string },
     name: string,
     iso: string
-  ): void {
+  ): { [name: string]: string } {
+    return this.withValue(values, name, this.encodeDateIso(name, iso));
+  }
+
+  /** Encode an ISO date/time into the field's stored representation. */
+  private encodeDateIso(name: string, iso: string): string {
     const f = this.fieldByName(name);
     if (f.dateFormat === '') {
       throw new Error(`field has no date format: ${name}`);
     }
     if (iso === '') {
-      values[name] = '0';
-      return;
+      return '0';
     }
     if (f.dateFormat === 'ddMMyyyy' || f.dateFormat === 'ddMMyy') {
       const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(iso);
@@ -427,11 +450,9 @@ export class CnabRecord {
             `year out of range for ddMMyy field "${name}": ${year} (representable range is 1970-2069)`
           );
         }
-        values[name] = `${m[3]}${m[2]}${m[1].substring(2, 4)}`;
-      } else {
-        values[name] = `${m[3]}${m[2]}${m[1]}`;
+        return `${m[3]}${m[2]}${m[1].substring(2, 4)}`;
       }
-      return;
+      return `${m[3]}${m[2]}${m[1]}`;
     }
     if (f.dateFormat === 'HHmmss') {
       const m = /^([0-9]{2}):([0-9]{2}):([0-9]{2})$/.exec(iso);
@@ -443,12 +464,25 @@ export class CnabRecord {
       if (Number(m[1]) > 23 || Number(m[2]) > 59 || Number(m[3]) > 59) {
         throw new Error(`invalid time for field "${name}": "${iso}"`);
       }
-      values[name] = `${m[1]}${m[2]}${m[3]}`;
-      return;
+      return `${m[1]}${m[2]}${m[3]}`;
     }
     throw new Error(
       `unsupported date format "${f.dateFormat}" on field "${name}"`
     );
+  }
+
+  /** Copy `values` with one key replaced. Never mutates the input. */
+  private withValue(
+    values: { [name: string]: string },
+    name: string,
+    stored: string
+  ): { [name: string]: string } {
+    const out: { [name: string]: string } = {};
+    for (const k of Object.keys(values)) {
+      out[k] = values[k];
+    }
+    out[name] = stored;
+    return out;
   }
 
   private fieldByName(name: string): FieldSpec {

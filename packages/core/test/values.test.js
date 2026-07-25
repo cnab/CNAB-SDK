@@ -61,26 +61,26 @@ test('getDecimal throws for a non-digit stored value', () => {
 // --- setDecimal ---------------------------------------------------------
 
 test('setDecimal stores the raw implied-decimal digit string', () => {
-  const values = {};
-  segP.setDecimal(values, 'valor_titulo', '1500.00');
+  let values = {};
+  values = segP.setDecimal(values, 'valor_titulo', '1500.00');
   assert.strictEqual(values.valor_titulo, '150000');
 });
 
 test('setDecimal accepts a missing fractional part', () => {
-  const values = {};
-  segP.setDecimal(values, 'valor_titulo', '1500');
+  let values = {};
+  values = segP.setDecimal(values, 'valor_titulo', '1500');
   assert.strictEqual(values.valor_titulo, '150000');
 });
 
 test('setDecimal zero-pads a short fractional part', () => {
-  const values = {};
-  segP.setDecimal(values, 'valor_titulo', '1500.5');
+  let values = {};
+  values = segP.setDecimal(values, 'valor_titulo', '1500.5');
   assert.strictEqual(values.valor_titulo, '150050');
 });
 
 test('setDecimal normalizes zero', () => {
-  const values = {};
-  segP.setDecimal(values, 'valor_titulo', '0.00');
+  let values = {};
+  values = segP.setDecimal(values, 'valor_titulo', '0.00');
   assert.strictEqual(values.valor_titulo, '0');
 });
 
@@ -111,8 +111,8 @@ test('setDecimal throws for an unknown field name', () => {
 // --- decimal round-trip through toLine/parse ----------------------------
 
 test('decimal values round-trip through toLine and parse', () => {
-  const values = {};
-  segP.setDecimal(values, 'valor_titulo', '1234.56');
+  let values = {};
+  values = segP.setDecimal(values, 'valor_titulo', '1234.56');
   const line = segP.toLine(values);
   assert.strictEqual(line.substring(85, 100), '000000000123456');
   const parsed = segP.parse(line);
@@ -120,8 +120,8 @@ test('decimal values round-trip through toLine and parse', () => {
 });
 
 test('cnab400 decimal values round-trip through toLine and parse', () => {
-  const values = {};
-  det400.setDecimal(values, 'valor_titulo', '0.99');
+  let values = {};
+  values = det400.setDecimal(values, 'valor_titulo', '0.99');
   const parsed = det400.parse(det400.toLine(values));
   assert.strictEqual(det400.getDecimal(parsed, 'valor_titulo'), '0.99');
 });
@@ -171,46 +171,44 @@ test('getDateIso throws for an unknown field name', () => {
 // --- setDateIso ---------------------------------------------------------
 
 test('setDateIso stores ddMMyyyy raw tokens', () => {
-  const values = {};
-  segP.setDateIso(values, 'vencimento', '2026-07-15');
+  let values = {};
+  values = segP.setDateIso(values, 'vencimento', '2026-07-15');
   assert.strictEqual(values.vencimento, '15072026');
 });
 
 test('setDateIso stores ddMMyy raw tokens', () => {
-  const values = {};
-  det400.setDateIso(values, 'data_vencimento', '2026-07-15');
+  let values = {};
+  values = det400.setDateIso(values, 'data_vencimento', '2026-07-15');
   assert.strictEqual(values.data_vencimento, '150726');
-  det400.setDateIso(values, 'data_vencimento', '1970-01-02');
+  values = det400.setDateIso(values, 'data_vencimento', '1970-01-02');
   assert.strictEqual(values.data_vencimento, '020170');
 });
 
 test('setDateIso stores HHmmss raw tokens', () => {
-  const values = {};
-  header.setDateIso(values, 'hora_geracao', '10:30:00');
+  let values = {};
+  values = header.setDateIso(values, 'hora_geracao', '10:30:00');
   assert.strictEqual(values.hora_geracao, '103000');
 });
 
 test('setDateIso with empty string stores the unset (all zeros) value', () => {
-  const values = {};
-  segP.setDateIso(values, 'vencimento', '');
+  let values = {};
+  values = segP.setDateIso(values, 'vencimento', '');
   assert.strictEqual(segP.getDateIso(values, 'vencimento'), '');
   const line = segP.toLine(values);
   assert.strictEqual(line.substring(77, 85), '00000000');
 });
 
 test('set/get date are inverses through toLine and parse', () => {
-  const values = {};
-  segP.setDateIso(values, 'vencimento', '2026-07-05');
+  let values = {};
+  values = segP.setDateIso(values, 'vencimento', '2026-07-05');
   const parsed = segP.parse(segP.toLine(values));
   assert.strictEqual(segP.getDateIso(parsed, 'vencimento'), '2026-07-05');
 
-  const values400 = {};
-  det400.setDateIso(values400, 'data_vencimento', '1970-01-02');
+  const values400 = det400.setDateIso({}, 'data_vencimento', '1970-01-02');
   const parsed400 = det400.parse(det400.toLine(values400));
   assert.strictEqual(det400.getDateIso(parsed400, 'data_vencimento'), '1970-01-02');
 
-  const hv = {};
-  header.setDateIso(hv, 'hora_geracao', '00:05:09');
+  const hv = header.setDateIso({}, 'hora_geracao', '00:05:09');
   const parsedH = header.parse(header.toLine(hv));
   assert.strictEqual(header.getDateIso(parsedH, 'hora_geracao'), '00:05:09');
 });
@@ -247,4 +245,42 @@ test('setDateIso throws for a field with no date format', () => {
 
 test('setDateIso throws for an unknown field name', () => {
   assert.throws(() => segP.setDateIso({}, 'nope', '2026-07-15'), /field not found: nope/);
+});
+
+// --- the setters must not rely on mutation ------------------------------
+//
+// These exist because `setDecimal`/`setDateIso` used to return void and mutate
+// the map in place. That works in Node, where objects are passed by reference,
+// and silently does NOTHING in Python/Java/.NET, because jsii marshals maps by
+// value. Two documented public helpers were therefore inert in three of the
+// four languages the SDK ships, and no Node test could ever have caught it.
+// The equivalent assertions run against the real bindings in bindings/*.
+
+test('setDecimal returns a new map and leaves the input untouched', () => {
+  const input = { codigo_banco: '104' };
+  const out = segP.setDecimal(input, 'valor_titulo', '1500.00');
+  assert.strictEqual(out.valor_titulo, '150000');
+  assert.strictEqual(out.codigo_banco, '104', 'other keys are carried over');
+  assert.strictEqual(
+    input.valor_titulo,
+    undefined,
+    'input must not be mutated — a by-value binding would not see it'
+  );
+  assert.notStrictEqual(out, input, 'must be a distinct object');
+});
+
+test('setDateIso returns a new map and leaves the input untouched', () => {
+  const input = { codigo_banco: '104' };
+  const out = segP.setDateIso(input, 'vencimento', '2026-07-15');
+  assert.strictEqual(out.vencimento, '15072026');
+  assert.strictEqual(out.codigo_banco, '104');
+  assert.strictEqual(input.vencimento, undefined, 'input must not be mutated');
+});
+
+test('the setters compose without mutation', () => {
+  let v = {};
+  v = segP.setDecimal(v, 'valor_titulo', '1234.56');
+  v = segP.setDateIso(v, 'vencimento', '2026-07-15');
+  assert.strictEqual(v.valor_titulo, '123456');
+  assert.strictEqual(v.vencimento, '15072026');
 });

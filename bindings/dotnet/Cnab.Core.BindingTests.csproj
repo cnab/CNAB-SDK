@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Unit tests for the generated .NET binding of @cnab/core.
+
+    Runs against the NuGet package jsii-pacmak produced, resolved from a local
+    feed that CI points at packages/core/dist/dotnet. Not against the TypeScript
+    source: the point is to cover the projection (PascalCase members, IDictionary
+    marshalling, double for TS number, struct classes) which the Node suite
+    cannot see.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- Overridden by CI with the version actually built this commit. -->
+    <CnabVersion Condition="'$(CnabVersion)' == ''">0.1.0</CnabVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cnab.Core" Version="$(CnabVersion)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="xunit" Version="2.7.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7" />
+  </ItemGroup>
+
+</Project>
