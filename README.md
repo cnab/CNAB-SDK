@@ -5,6 +5,9 @@ A modern, multi-language SDK for Brazilian **CNAB 240/400** bank files
 `cnab-json` projects into a single monorepo with one engine and one verifiable
 spec.
 
+📖 **Documentation: [cnab.github.io](https://cnab.github.io/)** ·
+**[API reference](https://cnab.github.io/api/)**
+
 ## Supported languages and versions
 
 One TypeScript engine, projected to each language by
