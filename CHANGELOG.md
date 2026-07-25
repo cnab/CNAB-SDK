@@ -28,7 +28,7 @@ release pipeline tracked in issue #14.
   full standalone positioned record specs under `src/<layout>/<bank>/…`, per
   ADR 0003/0004. The compiler validates every bank record for full, gapless and
   non-overlapping line coverage and emits a language-neutral
-  `dist/spec.json` (currently 55 records, 6 code tables, 297 catalog fields).
+  `dist/spec.json` (currently 55 records, 6 code tables, 277 catalog fields).
 - **Engine** (`@cnab/core`), authored once in jsii-compatible TypeScript and
   published to Node/.NET/Python/Java (ADR 0002):
   - `CnabRecord` — `fromJson`, `parse`, `toLine`, `toLineWithOptions`,

@@ -9,12 +9,14 @@ name: Release (version + tag)
 #   1. A PR adds a changeset (`npx changeset`) describing the change.
 #   2. On merge to main, this workflow opens/updates a "Version Packages" PR
 #      that applies the bumps and rewrites the per-package changelogs.
-#   3. Merging THAT PR consumes the changesets. Nothing is tagged yet — see below.
+#   3. Merging THAT PR consumes the changesets. The `release` job below then
+#      tags `vX.Y.Z` and creates a GitHub Release with the built artifacts
+#      attached.
 #
-# NOT YET WIRED: tagging. `createGithubReleases` only takes effect when the
-# action is given a `publish:` command, which this workflow deliberately does not
-# have. So today step 3 is a no-op run, and no git tag or GitHub Release is
-# created. Wiring the tag is part of #36; until then, tags are manual.
+# Tagging deliberately does NOT go through `changesets/action`'s
+# `createGithubReleases`, because that only fires when the action is given a
+# `publish:` command — and publishing is exactly what we do not want here. The
+# `release` job below does the tagging itself instead.
 #
 # All three packages move in lockstep (`fixed` in .changeset/config.json).
 # That directory is REQUIRED — without it this job fails outright with
@@ -37,6 +39,9 @@ jobs:
   version:
     name: Open/refresh the version PR, or tag on merge
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.decide.outputs.version }}
+      should: ${{ steps.decide.outputs.should }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,15 +65,165 @@ jobs:
         with:
           # `version` applies pending changesets and rewrites changelogs.
           version: npx changeset version
-          # No `publish:` on purpose — see the header. Note this also means
-          # `createGithubReleases` below is inert; tagging is #36.
+          # No `publish:` on purpose — see the header. The `release` job does
+          # the tagging instead, so nothing here needs to reach a registry.
           title: 'chore: version packages'
           commit: 'chore: version packages'
-          createGithubReleases: true
+          # Inert without `publish:`; left false so it cannot be mistaken for
+          # the thing that creates the release. The `release` job does that.
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Decide whether this commit is a releasable state: versions bumped, no
+      # changesets left pending, and no tag for this version yet. Re-runs and
+      # ordinary pushes to main are therefore no-ops rather than errors.
+      - name: Decide whether to release
+        id: decide
+        run: |
+          version=$(node -p "require('./packages/core/package.json').version")
+          pending=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l)
+          if git rev-parse "v$version" >/dev/null 2>&1; then exists=true; else exists=false; fi
+          echo "version=$version"   >> "$GITHUB_OUTPUT"
+          echo "pending=$pending"   >> "$GITHUB_OUTPUT"
+          echo "exists=$exists"     >> "$GITHUB_OUTPUT"
+          if [ "$pending" -eq 0 ] && [ "$exists" = "false" ]; then
+            echo "should=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should=false" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "version: \`$version\`"
+            echo "pending changesets: $pending"
+            echo "tag \`v$version\` already exists: $exists"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Summary
         run: |
-          echo "published(tagged): ${{ steps.changesets.outputs.published }}" >> $GITHUB_STEP_SUMMARY
           echo "version PR: ${{ steps.changesets.outputs.pullRequestNumber }}" >> $GITHUB_STEP_SUMMARY
+
+  # ---------------------------------------------------------------------------
+  # Tag + GitHub Release. NO REGISTRY PUBLISHING HAPPENS HERE.
+  #
+  # This is the "release without publishing" mode: consumers get a tagged
+  # commit, notes from CHANGELOG.md, and every build artifact attached to the
+  # Release, but nothing is pushed to npm / PyPI / Maven Central / NuGet. Those
+  # are #37-#41, each behind its own approval-gated environment.
+  #
+  # Because the artifacts are the only way to consume this release, they are
+  # built here rather than copied from the CI run: the tarball attached to
+  # v0.1.0 must be built from exactly the commit being tagged.
+  # ---------------------------------------------------------------------------
+  release:
+    name: Tag + GitHub Release (no registry publishing)
+    needs: version
+    if: needs.version.outputs.should == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # pacmak shells out to each language toolchain, so they must be present
+      # even though we only build artifacts and never upload them anywhere.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+      - run: npm install
+
+      - name: Build spec, jsii assembly and language bindings
+        run: |
+          npm run build:spec
+          npm run build:jsii --workspace @cnab/core
+          cd packages/core
+          npx jsii-pacmak --targets python --targets java --targets dotnet
+
+      - name: Pack the npm tarballs
+        run: |
+          mkdir -p artifacts
+          for pkg in @cnab/core @cnab/spec @cnab/cli; do
+            npm pack --workspace "$pkg" --pack-destination artifacts
+          done
+
+      - name: Collect language artifacts
+        run: |
+          set -euo pipefail
+          # Flatten pacmak's per-language output into one directory. Java in
+          # particular nests jars several levels deep under a Maven layout.
+          #
+          # Each language is asserted separately and on purpose. These artifacts
+          # ARE the distribution -- nothing goes to a registry -- so a language
+          # silently contributing zero files must fail the release rather than
+          # ship a Release that quietly omits Java. A bare total-count check
+          # would not catch that: the npm tarballs alone would satisfy it.
+          collect() {
+            local label="$1" dir="$2"; shift 2
+            local before after
+            before=$(find artifacts -type f | wc -l)
+            find "$dir" -type f \( "$@" \) -exec cp {} artifacts/ \;
+            after=$(find artifacts -type f | wc -l)
+            if [ "$after" -le "$before" ]; then
+              echo "::error::$label produced no artifacts under $dir — refusing to " \
+                   "cut a release that silently omits a language binding"
+              exit 1
+            fi
+            echo "$label: $((after - before)) file(s)"
+          }
+          collect python packages/core/dist/python -name '*.whl' -o -name '*.tar.gz'
+          collect java   packages/core/dist/java   -name '*.jar'
+          collect dotnet packages/core/dist/dotnet -name '*.nupkg'
+          cp packages/core/.jsii artifacts/cnab-core.jsii
+          {
+            echo "### Release artifacts"
+            echo '```'
+            ls -1sh artifacts
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the release notes
+        id: notes
+        run: |
+          version="${{ needs.version.outputs.version }}"
+          {
+            node tools/changelog-section.mjs "$version"
+            echo
+            echo '---'
+            echo
+            echo '### Installing'
+            echo
+            echo '**Nothing is published to npm, PyPI, Maven Central or NuGet yet.**'
+            echo 'This release exists so the tagged commit and its build artifacts are'
+            echo 'downloadable; registry publishing is tracked in #14 (#37 npm · #38 PyPI ·'
+            echo '#39 Maven · #40 NuGet · #41 Go).'
+            echo
+            echo 'Attached below: the three npm tarballs, the Python wheel/sdist, the Java'
+            echo 'jars, the .NET package, and the `.jsii` assembly. Install a tarball'
+            echo 'directly, e.g. `npm install ./cnab-core-'"$version"'.tgz`.'
+            echo
+            echo 'This is a **0.x** release: the jsii assembly is `stability: experimental`'
+            echo 'and the public API may still change.'
+          } > RELEASE_NOTES.md
+          echo "Wrote $(wc -l < RELEASE_NOTES.md) lines of notes"
+
+      - name: Create tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.version.outputs.version }}"
+          # `gh release create` creates the tag at the target commit for us, so
+          # there is no separate `git tag && git push --tags`.
+          gh release create "v$version" \
+            --target "$GITHUB_SHA" \
+            --title "v$version" \
+            --notes-file RELEASE_NOTES.md \
+            artifacts/*
+          echo "Released v$version — no registries were published to." >> "$GITHUB_STEP_SUMMARY"
