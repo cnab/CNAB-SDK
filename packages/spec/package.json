@@ -1,6 +1,6 @@
 {
   "name": "@cnab/spec",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CNAB field catalog + full standalone record specs, compiled to neutral JSON",
   "license": "MIT",
   "type": "module",
