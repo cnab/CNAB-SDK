@@ -18,6 +18,13 @@ jobs:
       - name: Compile + validate spec, run all workspace tests
         run: npm test
 
+      # Actually build the tarballs and inspect their contents. Both packages
+      # once would have published without their `main` entry point; the fast
+      # declarative check inside `npm test` cannot catch a prepack that runs
+      # but fails to emit what `files` promises.
+      - name: Verify published tarball contents
+        run: npm run check:packaging
+
   jsii:
     name: jsii multi-language API check
     runs-on: ubuntu-latest

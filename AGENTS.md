@@ -133,3 +133,24 @@ Record keys look like `cnab240/104/sigcb/header_arquivo`.
 Pick an issue from EPIC **#2**. Each issue is a self-contained handoff (current
 state, files, steps, acceptance criteria). Suggested first: **#12** then **#6**,
 then **#9**, then the **#7 + #8** generation pair.
+
+## Regression guards (do not delete; understand before changing)
+
+Three invariants are enforced automatically because each one has already been
+broken once:
+
+- **Public API snapshot** — `packages/core/test/api-surface.json` is the
+  multi-language contract, extracted from the `.jsii` assembly (TS `private` is
+  erased at runtime, so the assembly, not `require()`, is the source of truth).
+  A diff means four published packages change. If intentional:
+  `node packages/core/test/generate-api-surface.cjs`, then review the diff as a
+  breaking-change review. The same test re-asserts the naming rules above.
+  `packages/core`'s `test` script runs `build:jsii` (not plain `tsc`) so the
+  assembly is always fresh and jsii-safety is checked on every local test run.
+- **Packaging** — `tools/check-packaging.mjs` runs in `npm test` (declarations:
+  `files`, `prepack`, `engines`, `main` coverage) and in CI with `--pack`
+  (`npm run check:packaging`, which builds the real tarballs and asserts
+  `lib/index.js`, `.jsii` and `dist/spec.json` are inside).
+- **CLI surface** — `packages/cli/test/surface.test.cjs` asserts every
+  documented command is really dispatched and vice versa, so the CLI cannot
+  silently fall behind the engine again.

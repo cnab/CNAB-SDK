@@ -27,7 +27,7 @@
     "build": "tsc -p tsconfig.json",
     "build:jsii": "jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
     "package": "jsii-pacmak",
-    "test": "tsc -p tsconfig.json && node --test"
+    "test": "npm run build:jsii && node --test"
   },
   "devDependencies": {
     "jsii": "^6.0.4",

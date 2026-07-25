@@ -1,0 +1,145 @@
+{
+  "BarcodeParams": {
+    "kind": "interface",
+    "members": [
+      "amountCents: string readonly",
+      "bankCode: string readonly",
+      "currencyCode: string readonly",
+      "dueDateIso: string readonly",
+      "freeField: string readonly"
+    ]
+  },
+  "Boleto": {
+    "kind": "class",
+    "members": [
+      "static barcode(options: BarcodeParams): string",
+      "static barcodeCheckDigit(barcode: string): number",
+      "static fatorVencimento(dateIso: string): string",
+      "static isValidBarcode(barcode: string): boolean",
+      "static linhaDigitavel(barcode: string): string",
+      "static linhaDigitavelFormatted(barcode: string): string",
+      "static parseLinhaDigitavel(linha: string): string"
+    ]
+  },
+  "CnabFile": {
+    "kind": "class",
+    "members": [
+      "parse(content: string): array<ParsedLine>",
+      "static detect(specJson: string, content: string): CnabFile",
+      "static detectScope(specJson: string, content: string): DetectedScope",
+      "static forBank(specJson: string, layout: string, bank: string, variant: string, direction: string): CnabFile"
+    ]
+  },
+  "CnabFileBuilder": {
+    "kind": "class",
+    "members": [
+      "addDetail(recordName: string, values: map<string>): void",
+      "endLote(trailerValues: map<string>): void",
+      "startLote(headerValues: map<string>): void",
+      "static forBank(specJson: string, layout: string, bank: string, variant: string, direction: string): CnabFileBuilder",
+      "toFileContent(trailerValues: map<string>): string",
+      "withHeader(values: map<string>): void"
+    ]
+  },
+  "CnabRecord": {
+    "kind": "class",
+    "members": [
+      "getDateIso(values: map<string>, name: string): string",
+      "getDecimal(values: map<string>, name: string): string",
+      "parse(line: string): map<string>",
+      "setDateIso(values: map<string>, name: string, iso: string): void",
+      "setDecimal(values: map<string>, name: string, decimalValue: string): void",
+      "spec: RecordSpec readonly",
+      "static fromJson(json: string): CnabRecord",
+      "toLine(values: map<string>): string",
+      "toLineWithOptions(values: map<string>, options: LineOptions): string",
+      "validate(line: string): ValidationResult"
+    ]
+  },
+  "CnabSpec": {
+    "kind": "class",
+    "members": [
+      "codeTableKeys(): array<string>",
+      "getCodeTable(key: string): map<string>",
+      "getRecord(key: string): CnabRecord",
+      "hasCodeTable(key: string): boolean",
+      "hasRecord(key: string): boolean",
+      "lookupCode(key: string, code: string): string",
+      "recordKeys(): array<string>",
+      "static fromJson(json: string): CnabSpec"
+    ]
+  },
+  "DetectedScope": {
+    "kind": "interface",
+    "members": [
+      "bank: string readonly",
+      "direction: string readonly",
+      "layout: string readonly",
+      "variant: string readonly"
+    ]
+  },
+  "FieldSpec": {
+    "kind": "interface",
+    "members": [
+      "dateFormat: string readonly",
+      "decimals: number readonly",
+      "defaultValue: string readonly",
+      "description: string readonly",
+      "end: number readonly",
+      "fieldType: FieldType readonly",
+      "name: string readonly",
+      "start: number readonly"
+    ]
+  },
+  "FieldType": {
+    "kind": "enum",
+    "members": [
+      "enum ALPHA",
+      "enum NUM",
+      "enum NUM_DECIMAL"
+    ]
+  },
+  "LineOptions": {
+    "kind": "interface",
+    "members": [
+      "stripNonDigits: boolean readonly",
+      "truncateOversized: boolean readonly"
+    ]
+  },
+  "Modulo": {
+    "kind": "class",
+    "members": [
+      "static mod10(digits: string): number",
+      "static mod11(digits: string): number",
+      "static mod11Boleto(digits: string): number"
+    ]
+  },
+  "ParsedLine": {
+    "kind": "interface",
+    "members": [
+      "fields: map<string> readonly",
+      "recordKey: string readonly",
+      "segment: string readonly",
+      "tipo: string readonly"
+    ]
+  },
+  "RecordSpec": {
+    "kind": "interface",
+    "members": [
+      "bank: string readonly",
+      "direction: string readonly",
+      "fields: array<FieldSpec> readonly",
+      "layout: string readonly",
+      "lineLength: number readonly",
+      "record: string readonly",
+      "variant: string readonly"
+    ]
+  },
+  "ValidationResult": {
+    "kind": "interface",
+    "members": [
+      "errors: array<string> readonly",
+      "valid: boolean readonly"
+    ]
+  }
+}
