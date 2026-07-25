@@ -20,7 +20,9 @@ packages/spec    field catalog + full standalone record specs -> compiled JSON
   src/<layout>/<bank>/[variant/][direction/]<record>.yml   full positioned records
   dist/spec.json                     compiled, language-neutral output (generated)
 packages/core    jsii engine: CnabRecord, CnabSpec, CnabFile (parse/build/validate)
-packages/cli     @cnab/cli — Node CLI (records | parse | build | validate)
+packages/cli     @cnab/cli — Node CLI (records | parse | build | validate |
+                 detect | parse-file | tables | code | boleto); reads/writes
+                 latin1 by default (--encoding, --crlf, --trailing-newline)
 tools/
   build-spec.mjs    compile + VALIDATE specs -> packages/spec/dist/spec.json
   migrate-legacy.mjs ONE-SHOT importer from ../cnab_yaml (do not re-run blindly)
@@ -36,6 +38,7 @@ CONTEXT.md          domain glossary
 npm install
 npm run build:spec   # compile + validate all specs; fails on coverage gaps/overlaps
 npm test             # build:spec + all workspace tests (node --test). KEEP GREEN.
+npm run report:spec  # coverage summary: records, code tables, bank matrix, goldens
 # Prove the public API stays multi-language compatible:
 cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies
 ```
@@ -62,7 +65,10 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 
 ## jsii gotchas (learned the hard way — keep them)
 
-- Method **`build` is prohibited** by jsii → the builder method is `toLine`.
+- Method **`build` is prohibited** by jsii → the builder method is `toLine`
+  (and `CnabFileBuilder`'s terminal method is `toFileContent`).
+- Method names **`setXxx` are prohibited** by jsii (Java setter conflict,
+  JSII5001) → `CnabFileBuilder.withHeader`, not `setHeader`.
 - **`type` is a Go reserved word** → the field-type property is `fieldType`.
 - `packages/core/tsconfig.json` uses **`module`/`moduleResolution: node16`** so
   both `tsc` (local) and jsii's bundled TS accept it (avoids `ignoreDeprecations`
@@ -92,13 +98,23 @@ cd packages/core && npx -y jsii@^6 --tsconfig tsconfig.json --validate-tsconfig 
 4. `node tools/build-spec.mjs` until coverage validation passes (no gaps/overlaps).
 5. Add/refresh golden tests (`packages/core/test/`); regenerate goldens with
    `node packages/core/test/generate-golden.cjs` after an intentional change.
+   Every **shipped** record gets a golden line automatically (a deterministic
+   case derived by `defaultCaseFor` in `test/cases.cjs`), so a new record only
+   needs the regeneration step — add a hand-written case in `cases.cjs` when you
+   can assert real positions/values, which is far more valuable. Generic
+   round-trip invariants for all shipped records live in `test/property.test.js`.
 6. `npm test` green; commit.
 
 ## Engine API (current)
 
 - `CnabRecord.fromJson(json)` → `parse(line)`, `toLine(values)`, `validate(line)`, `spec`.
+  `toLine` is **strict** (throws on oversized / non-digit values); the lenient
+  legacy behaviour is opt-in via `toLineWithOptions(values, LineOptions)`.
 - `CnabSpec.fromJson(json)` → `recordKeys()`, `hasRecord(key)`, `getRecord(key)`.
 - `CnabFile.forBank(specJson, layout, bank, variant, direction)` → `parse(content): ParsedLine[]`.
+- `CnabFileBuilder.forBank(specJson, layout, bank, variant, direction)` →
+  `withHeader`, `startLote`/`addDetail`/`endLote` (cnab240), `addDetail` (cnab400),
+  `toFileContent(trailerValues)`. Control fields auto-computed per ADR 0007.
 
 Record keys look like `cnab240/104/sigcb/header_arquivo`.
 
@@ -117,3 +133,24 @@ Record keys look like `cnab240/104/sigcb/header_arquivo`.
 Pick an issue from EPIC **#2**. Each issue is a self-contained handoff (current
 state, files, steps, acceptance criteria). Suggested first: **#12** then **#6**,
 then **#9**, then the **#7 + #8** generation pair.
+
+## Regression guards (do not delete; understand before changing)
+
+Three invariants are enforced automatically because each one has already been
+broken once:
+
+- **Public API snapshot** — `packages/core/test/api-surface.json` is the
+  multi-language contract, extracted from the `.jsii` assembly (TS `private` is
+  erased at runtime, so the assembly, not `require()`, is the source of truth).
+  A diff means four published packages change. If intentional:
+  `node packages/core/test/generate-api-surface.cjs`, then review the diff as a
+  breaking-change review. The same test re-asserts the naming rules above.
+  `packages/core`'s `test` script runs `build:jsii` (not plain `tsc`) so the
+  assembly is always fresh and jsii-safety is checked on every local test run.
+- **Packaging** — `tools/check-packaging.mjs` runs in `npm test` (declarations:
+  `files`, `prepack`, `engines`, `main` coverage) and in CI with `--pack`
+  (`npm run check:packaging`, which builds the real tarballs and asserts
+  `lib/index.js`, `.jsii` and `dist/spec.json` are inside).
+- **CLI surface** — `packages/cli/test/surface.test.cjs` asserts every
+  documented command is really dispatched and vice versa, so the CLI cannot
+  silently fall behind the engine again.

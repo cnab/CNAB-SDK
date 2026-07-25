@@ -10,7 +10,11 @@
     "src",
     "dist"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "prepack": "node ../../tools/build-spec.mjs",
     "build": "node ../../tools/build-spec.mjs"
   }
 }

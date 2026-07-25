@@ -14,13 +14,23 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "stability": "experimental",
+  "files": [
+    "lib",
+    "README.md",
+    ".jsii"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "prepack": "npm run build:jsii",
     "build": "tsc -p tsconfig.json",
     "build:jsii": "jsii --tsconfig tsconfig.json --validate-tsconfig minimal --no-fix-peer-dependencies",
     "package": "jsii-pacmak",
-    "test": "tsc -p tsconfig.json && node --test"
+    "test": "npm run build:jsii && node --test"
   },
   "devDependencies": {
+    "jsii": "^6.0.4",
     "typescript": "~5.5.4"
   },
   "jsii": {
