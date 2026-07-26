@@ -49,6 +49,42 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      # Decide whether THIS COMMIT is a releasable state, before anything can
+      # touch the working tree: versions bumped, no changesets left pending, and
+      # no tag for this version yet. Ordinary pushes and re-runs are no-ops.
+      #
+      # ORDER IS LOad-BEARING. This step must run BEFORE changesets/action.
+      # That action executes `npx changeset version` in this same working tree,
+      # which bumps package.json and deletes the consumed changeset files
+      # locally, even though those edits belong to the version PR and not to
+      # this commit. Reading the tree afterwards therefore describes a commit
+      # that does not exist yet.
+      #
+      # That is exactly what shipped v0.2.0 wrong: on commit 2dded41 (manifests
+      # 0.1.0, one changeset pending) this step ran second, read the mutated
+      # tree as version=0.2.0 / pending=0, and tagged v0.2.0 on a 0.1.0 tree —
+      # so the release carried artifacts all named 0.1.0. Worse, the real 0.2.0
+      # could then never release, because the tag it wanted already existed.
+      - name: Decide whether to release
+        id: decide
+        run: |
+          version=$(node -p "require('./packages/core/package.json').version")
+          pending=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l)
+          if git rev-parse "v$version" >/dev/null 2>&1; then exists=true; else exists=false; fi
+          echo "version=$version"   >> "$GITHUB_OUTPUT"
+          echo "pending=$pending"   >> "$GITHUB_OUTPUT"
+          echo "exists=$exists"     >> "$GITHUB_OUTPUT"
+          if [ "$pending" -eq 0 ] && [ "$exists" = "false" ]; then
+            echo "should=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should=false" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "version: \`$version\`"
+            echo "pending changesets: $pending"
+            echo "tag \`v$version\` already exists: $exists"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - run: npm install
 
       # Guard: never cut a release from a red tree. The full suite also runs the
@@ -74,29 +110,6 @@ jobs:
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Decide whether this commit is a releasable state: versions bumped, no
-      # changesets left pending, and no tag for this version yet. Re-runs and
-      # ordinary pushes to main are therefore no-ops rather than errors.
-      - name: Decide whether to release
-        id: decide
-        run: |
-          version=$(node -p "require('./packages/core/package.json').version")
-          pending=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l)
-          if git rev-parse "v$version" >/dev/null 2>&1; then exists=true; else exists=false; fi
-          echo "version=$version"   >> "$GITHUB_OUTPUT"
-          echo "pending=$pending"   >> "$GITHUB_OUTPUT"
-          echo "exists=$exists"     >> "$GITHUB_OUTPUT"
-          if [ "$pending" -eq 0 ] && [ "$exists" = "false" ]; then
-            echo "should=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should=false" >> "$GITHUB_OUTPUT"
-          fi
-          {
-            echo "version: \`$version\`"
-            echo "pending changesets: $pending"
-            echo "tag \`v$version\` already exists: $exists"
-          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Summary
         run: |
@@ -138,6 +151,22 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0'
+      # Belt and braces: the gate ran in another job against another checkout,
+      # so re-assert here that the commit being tagged really carries the
+      # version we are about to tag it with. Without this, v0.2.0 was tagged on
+      # a tree whose package.json said 0.1.0, and every attached artifact was
+      # named 0.1.0 — a release that looks fine until someone downloads it.
+      - name: The checked-out tree must match the version being released
+        run: |
+          want="${{ needs.version.outputs.version }}"
+          got=$(node -p "require('./packages/core/package.json').version")
+          if [ "$want" != "$got" ]; then
+            echo "::error::refusing to tag v$want on a tree whose version is $got" \
+                 "(commit $GITHUB_SHA)"
+            exit 1
+          fi
+          echo "confirmed: $GITHUB_SHA is version $got"
+
       - run: npm install
 
       - name: Build spec, jsii assembly and language bindings
