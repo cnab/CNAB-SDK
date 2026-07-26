@@ -63,19 +63,47 @@ const KNOWN_FILLS = {
   // SIGCB segment T shrinks codigo_cedente (24-29), nosso_numero (42-56) and
   // numero_documento (59-69); the freed positions are reserved in SIGCB.
   'cnab240/104/sigcb/retorno/detalhe_segmento_t': [
-    { ref: 'reservado_caixa_t1', pos: [30, 35], picture: '9(6)', default: '0', desc: 'Reserved (SIGCB) — verify against Caixa manual' },
-    { ref: 'reservado_caixa_t2', pos: [38, 41], picture: '9(4)', default: '0', desc: 'Reserved (SIGCB) — verify against Caixa manual' },
-    { ref: 'reservado_caixa_t3', pos: [57, 57], picture: '9(1)', default: '0', desc: 'Reserved (SIGCB) — verify against Caixa manual' },
-    { ref: 'reservado_caixa_t4', pos: [70, 73], picture: '9(4)', default: '0', desc: 'Reserved (SIGCB) — verify against Caixa manual' },
+    {
+      ref: 'reservado_caixa_t1',
+      pos: [30, 35],
+      picture: '9(6)',
+      default: '0',
+      desc: 'Reserved (SIGCB) — verify against Caixa manual',
+    },
+    {
+      ref: 'reservado_caixa_t2',
+      pos: [38, 41],
+      picture: '9(4)',
+      default: '0',
+      desc: 'Reserved (SIGCB) — verify against Caixa manual',
+    },
+    {
+      ref: 'reservado_caixa_t3',
+      pos: [57, 57],
+      picture: '9(1)',
+      default: '0',
+      desc: 'Reserved (SIGCB) — verify against Caixa manual',
+    },
+    {
+      ref: 'reservado_caixa_t4',
+      pos: [70, 73],
+      picture: '9(4)',
+      default: '0',
+      desc: 'Reserved (SIGCB) — verify against Caixa manual',
+    },
   ],
   // BB 001 relocates agencia_cobradora to 18-22, leaving 169-173 reserved.
   'cnab400/001/retorno/detalhe': [
-    { ref: 'reservado_bb_d1', pos: [169, 173], picture: '9(5)', default: '0', desc: 'Reserved (BB) — verify against Banco do Brasil manual' },
+    {
+      ref: 'reservado_bb_d1',
+      pos: [169, 173],
+      picture: '9(5)',
+      default: '0',
+      desc: 'Reserved (BB) — verify against Banco do Brasil manual',
+    },
   ],
   // Re-add the valor_outras_despesas field lost to the 237 duplicate-key bug.
-  'cnab400/237/retorno/detalhe': [
-    { ref: 'valor_outras_despesas', pos: [189, 201] },
-  ],
+  'cnab400/237/retorno/detalhe': [{ ref: 'valor_outras_despesas', pos: [189, 201] }],
 };
 
 // --- helpers ---------------------------------------------------------------
@@ -249,7 +277,9 @@ for (const file of files) {
   }
 
   // own fields (apply known renames for legacy duplicate-key collisions)
-  const renames = KNOWN_RENAMES[[layout, bank, variant, direction, record].filter(Boolean).join('/')] || {};
+  const renames =
+    KNOWN_RENAMES[[layout, bank, variant, direction, record].filter(Boolean).join('/')] ||
+    {};
   const ownFields = {};
   for (const [name, v] of Object.entries(file.doc)) {
     if (isFieldObject(v)) ownFields[renames[name] || name] = v;
@@ -268,8 +298,7 @@ for (const file of files) {
     // bank fields (authoritative), minus known drops
     const bankFields = Object.entries(ownFields).filter(([n]) => !drops.has(n));
     const bankRanges = bankFields.map(([, v]) => v.pos);
-    const overlaps = (pos) =>
-      bankRanges.some(([s, e]) => !(pos[1] < s || pos[0] > e));
+    const overlaps = (pos) => bankRanges.some(([s, e]) => !(pos[1] < s || pos[0] > e));
     // generic fields the bank neither redefines (by name) nor overlaps (by pos)
     const inheritedFields = Object.entries(baseline).filter(
       ([n, v]) => !bankNames.has(n) && !overlaps(v.pos)
@@ -301,7 +330,15 @@ for (const file of files) {
   outputs.push({
     outKey,
     outPath: path.join(SRC_OUT, ...segs) + '.yml',
-    meta: { layout, bank, variant, direction, record, lineLength, template: bank === 'generic' },
+    meta: {
+      layout,
+      bank,
+      variant,
+      direction,
+      record,
+      lineLength,
+      template: bank === 'generic',
+    },
     fields,
   });
 }
@@ -316,7 +353,9 @@ for (const [name, e] of Object.entries(catalog)) {
   else if (types.includes('num')) chosenType = 'num';
   else if (types.includes('alpha')) chosenType = 'alpha';
   if (e.types.size > 1 && !(e.types.has('num') && e.types.has('num_decimal'))) {
-    conflicts.push(`type conflict for "${name}": ${[...e.types].join(', ')} -> using ${chosenType}`);
+    conflicts.push(
+      `type conflict for "${name}": ${[...e.types].join(', ')} -> using ${chosenType}`
+    );
   }
   // representative picture matching chosen type
   let picture = [...e.pictures].find((p) => {
@@ -324,11 +363,18 @@ for (const [name, e] of Object.entries(catalog)) {
     return chosenType === 'num_decimal' ? t === 'num_decimal' : t === chosenType;
   });
   if (!picture) {
-    picture = chosenType === 'num_decimal' ? `9(1)V9(${e.decimals})` : chosenType === 'num' ? '9(1)' : 'X(1)';
+    picture =
+      chosenType === 'num_decimal'
+        ? `9(1)V9(${e.decimals})`
+        : chosenType === 'num'
+          ? '9(1)'
+          : 'X(1)';
   }
   const dateFormats = [...e.dateFormats];
   if (dateFormats.length > 1) {
-    conflicts.push(`date_format variants for "${name}": ${dateFormats.join(', ')} (default first; others overridden per record)`);
+    conflicts.push(
+      `date_format variants for "${name}": ${dateFormats.join(', ')} (default first; others overridden per record)`
+    );
   }
   catalogResolved[name] = {
     picture,
@@ -386,13 +432,18 @@ function dumpRecord(out) {
 
 function dumpCodeTable(t) {
   const m = t.meta;
-  const metaLines = ['meta:', `  layout: ${m.layout}`, `  bank: ${JSON.stringify(m.bank)}`];
+  const metaLines = [
+    'meta:',
+    `  layout: ${m.layout}`,
+    `  bank: ${JSON.stringify(m.bank)}`,
+  ];
   if (m.variant) metaLines.push(`  variant: ${m.variant}`);
   if (m.direction) metaLines.push(`  direction: ${m.direction}`);
   metaLines.push(`  record: ${m.record}`);
   metaLines.push('  kind: code_table');
   const codeLines = ['codes:'];
-  for (const [k, v] of Object.entries(t.codes)) codeLines.push(`  ${JSON.stringify(k)}: ${JSON.stringify(v)}`);
+  for (const [k, v] of Object.entries(t.codes))
+    codeLines.push(`  ${JSON.stringify(k)}: ${JSON.stringify(v)}`);
   return metaLines.join('\n') + '\n' + codeLines.join('\n') + '\n';
 }
 
@@ -402,7 +453,7 @@ let catalogText =
   '# CNAB field-library catalog (generated by tools/migrate-legacy.mjs, then\n' +
   '# hand-maintained). Maps canonical field name -> SEMANTICS only:\n' +
   '#   picture: conveys TYPE and decimals (9=num, X=alpha, V9(n)=num_decimal).\n' +
-  '#           The field SIZE comes from each record\'s pos, not the picture.\n' +
+  "#           The field SIZE comes from each record's pos, not the picture.\n" +
   '#   date_format: optional strftime; converted to neutral tokens at build.\n' +
   '#   description: short human description.\n' +
   '# Never contains positions. See docs/adr/0003.\n\n';

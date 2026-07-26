@@ -44,10 +44,7 @@ test('lookupCode normalizes leading zeros against legacy unpadded keys', () => {
 });
 
 test('lookupCode returns empty string for an unknown code', () => {
-  assert.strictEqual(
-    spec.lookupCode('cnab400/104/retorno/codigo_ocorrencia', '77'),
-    ''
-  );
+  assert.strictEqual(spec.lookupCode('cnab400/104/retorno/codigo_ocorrencia', '77'), '');
 });
 
 test('getCodeTable throws for a missing table key', () => {

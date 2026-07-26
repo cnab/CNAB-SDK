@@ -83,7 +83,11 @@ test('CnabFile.forBankBundled() parses a line end to end without any spec string
   const parsed = file.parse(line);
 
   assert.strictEqual(parsed.length, 1);
-  assert.strictEqual(parsed[0].recordKey, key, 'line was not classified as its own record');
+  assert.strictEqual(
+    parsed[0].recordKey,
+    key,
+    'line was not classified as its own record'
+  );
 
   // The parsed values round-trip back to the exact same line.
   assert.strictEqual(fromFile.getRecord(key).toLine(parsed[0].fields), line);

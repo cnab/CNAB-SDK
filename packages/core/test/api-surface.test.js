@@ -41,10 +41,14 @@ test('no public member uses a jsii-prohibited name', () => {
     for (const m of type.members) {
       const name = m.replace(/^(static |enum )/, '').replace(/[(:].*$/, '');
       if (name === 'build') {
-        offenders.push(`${typeName}.${name} — "build" is prohibited by jsii (use toLine/toFileContent)`);
+        offenders.push(
+          `${typeName}.${name} — "build" is prohibited by jsii (use toLine/toFileContent)`
+        );
       }
       if (name === 'type') {
-        offenders.push(`${typeName}.${name} — "type" is a Go reserved word (use fieldType)`);
+        offenders.push(
+          `${typeName}.${name} — "type" is a Go reserved word (use fieldType)`
+        );
       }
       if (/^set[A-Z]/.test(name) && !m.startsWith('static ')) {
         // setDecimal/setDateIso take the value map as their first argument, so
@@ -55,7 +59,9 @@ test('no public member uses a jsii-prohibited name', () => {
           new RegExp(`^${prop.charAt(0).toLowerCase()}${prop.slice(1)}:`).test(other)
         );
         if (clashes) {
-          offenders.push(`${typeName}.${name} — collides with property ${prop} (JSII5001)`);
+          offenders.push(
+            `${typeName}.${name} — collides with property ${prop} (JSII5001)`
+          );
         }
       }
     }
@@ -80,7 +86,13 @@ test('the documented entry points are all present', () => {
   // would break every README/example even if the snapshot were regenerated.
   const required = {
     CnabRecord: ['static fromJson', 'parse', 'toLine', 'toLineWithOptions', 'validate'],
-    CnabSpec: ['static fromJson', 'recordKeys', 'getRecord', 'getCodeTable', 'lookupCode'],
+    CnabSpec: [
+      'static fromJson',
+      'recordKeys',
+      'getRecord',
+      'getCodeTable',
+      'lookupCode',
+    ],
     CnabFile: ['static forBank', 'static detect', 'static detectScope', 'parse'],
     CnabFileBuilder: ['static forBank', 'withHeader', 'addDetail', 'toFileContent'],
     Modulo: ['static mod10', 'static mod11', 'static mod11Boleto'],

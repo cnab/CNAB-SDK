@@ -17,9 +17,7 @@ function loadSpecJson() {
     specPath = null;
   }
   if (!specPath || !fs.existsSync(specPath)) {
-    fail(
-      'compiled spec not found. Run `npm run build:spec` at the repo root first.'
-    );
+    fail('compiled spec not found. Run `npm run build:spec` at the repo root first.');
   }
   // The compiled spec is ASCII/UTF-8 JSON — unrelated to the --encoding of
   // the CNAB data files the CLI reads and writes.

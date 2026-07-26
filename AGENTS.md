@@ -75,6 +75,9 @@ all three on every push.
 - Method names **`setXxx` are prohibited** by jsii (Java setter conflict,
   JSII5001) → `CnabFileBuilder.withHeader`, not `setHeader`.
 - **`type` is a Go reserved word** → the field-type property is `fieldType`.
+- **`params` is a C# reserved word** (JSII5018) → name struct arguments
+  `options`, as `Boleto.barcode` and `BrCode.encode` do. jsii warns rather
+  than fails here, so it is easy to merge; treat the warning as an error.
 - `packages/core/tsconfig.json` uses **`module`/`moduleResolution: node16`** so
   both `tsc` (local) and jsii's bundled TS accept it (avoids `ignoreDeprecations`
   version mismatch). Don't switch back to `module: commonjs` + `node`.
@@ -120,6 +123,11 @@ all three on every push.
 - `CnabFileBuilder.forBank(specJson, layout, bank, variant, direction)` →
   `withHeader`, `startLote`/`addDetail`/`endLote` (cnab240), `addDetail` (cnab400),
   `toFileContent(trailerValues)`. Control fields auto-computed per ADR 0007.
+- `Modulo` / `Boleto` — módulo 10/11, the 44-digit barcode and 47-digit linha
+  digitável.
+- `BrCode` — the PIX *copia e cola* payload: `encode(options)`, `decode(payload)`,
+  `crc16(payload)`, `isValid(payload)`. CRC-16/CCITT-FALSE; amounts cross as
+  decimal strings (ADR 0006).
 
 Record keys look like `cnab240/104/sigcb/header_arquivo`.
 

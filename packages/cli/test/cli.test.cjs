@@ -132,7 +132,9 @@ test('a single latin1 line round-trips byte-for-byte through parse and build', (
 
 test('--encoding utf8 reads and writes UTF-8', () => {
   const file = path.join(FIXTURES, 'utf8-remessa.txt');
-  const parsed = JSON.parse(run(['parse-file', '--file', file, '--encoding', 'utf8'], null, 'utf8'));
+  const parsed = JSON.parse(
+    run(['parse-file', '--file', file, '--encoding', 'utf8'], null, 'utf8')
+  );
   assert.strictEqual(parsed[0].fields.nome_empresa, 'JOSÉ DA SILVA & CIA LTDA');
 
   // and the same file read as latin1 (the default) is misaligned: the two
@@ -150,7 +152,11 @@ test('--encoding utf8 reads and writes UTF-8', () => {
 test('output is encoded with --encoding (latin1 by default)', () => {
   // --encoding drives both sides, so read each fixture in its own encoding:
   // the resulting *text* is identical, the resulting *bytes* are not.
-  const asLatin1 = runRaw(['parse-file', '--file', path.join(FIXTURES, 'latin1-remessa.txt')]);
+  const asLatin1 = runRaw([
+    'parse-file',
+    '--file',
+    path.join(FIXTURES, 'latin1-remessa.txt'),
+  ]);
   const asUtf8 = runRaw([
     'parse-file',
     '--file',
@@ -166,7 +172,9 @@ test('output is encoded with --encoding (latin1 by default)', () => {
 });
 
 test('CRLF input parses like LF input', () => {
-  const lf = JSON.parse(run(['parse-file', '--file', path.join(FIXTURES, 'latin1-remessa.txt')]));
+  const lf = JSON.parse(
+    run(['parse-file', '--file', path.join(FIXTURES, 'latin1-remessa.txt')])
+  );
   const crlf = JSON.parse(
     run(['parse-file', '--file', path.join(FIXTURES, 'latin1-crlf-remessa.txt')])
   );
@@ -176,7 +184,13 @@ test('CRLF input parses like LF input', () => {
   // ...and through the single-record commands too (the trailing CRLF must not
   // produce a 7th, empty line)
   const lines = JSON.parse(
-    run(['parse', '--record', RECORD, '--file', path.join(FIXTURES, 'latin1-crlf-remessa.txt')])
+    run([
+      'parse',
+      '--record',
+      RECORD,
+      '--file',
+      path.join(FIXTURES, 'latin1-crlf-remessa.txt'),
+    ])
   );
   assert.strictEqual(lines.length, 6);
   assert.strictEqual(lines[0].codigo_banco, '104');
@@ -217,9 +231,10 @@ test('--crlf and --trailing-newline shape the output', () => {
   assert.strictEqual(crlf.substring(240, 242), '\r\n');
   assert.ok(!crlf.endsWith('\n'));
 
-  const lfNl = runRaw(['build', '--record', RECORD, '--trailing-newline'], input).toString(
-    'latin1'
-  );
+  const lfNl = runRaw(
+    ['build', '--record', RECORD, '--trailing-newline'],
+    input
+  ).toString('latin1');
   assert.strictEqual(lfNl.length, 240 * 2 + 2);
   assert.ok(lfNl.endsWith('\n') && !lfNl.endsWith('\r\n'));
 
@@ -273,7 +288,12 @@ test('detect prints the detected scope as JSON', () => {
     direction: 'remessa',
   });
   // --pretty indents
-  const pretty = run(['detect', '--file', path.join(FIXTURES, 'latin1-remessa.txt'), '--pretty']);
+  const pretty = run([
+    'detect',
+    '--file',
+    path.join(FIXTURES, 'latin1-remessa.txt'),
+    '--pretty',
+  ]);
   assert.match(pretty, /\n {2}"layout": "cnab240"/);
 });
 
@@ -305,7 +325,12 @@ test('parse-file auto-detects the scope and parses every line', () => {
       'cnab240/104/sigcb/trailer_arquivo',
     ]
   );
-  assert.deepStrictEqual(Object.keys(parsed[0]), ['recordKey', 'tipo', 'segment', 'fields']);
+  assert.deepStrictEqual(Object.keys(parsed[0]), [
+    'recordKey',
+    'tipo',
+    'segment',
+    'fields',
+  ]);
   assert.strictEqual(parsed[2].tipo, '3');
   assert.strictEqual(parsed[2].segment, 'P');
   assert.strictEqual(parsed[2].fields.valor_titulo, '150000');
@@ -363,7 +388,10 @@ test('code prints a description and fails on unknown keys/codes', () => {
   const desc = run(['code', 'cnab400/104/retorno/codigo_ocorrencia', '02']).trim();
   assert.strictEqual(desc, 'Baixa Confirmada');
   // the lookup normalizes padding: "2" resolves like "02"
-  assert.strictEqual(run(['code', 'cnab400/104/retorno/codigo_ocorrencia', '2']).trim(), desc);
+  assert.strictEqual(
+    run(['code', 'cnab400/104/retorno/codigo_ocorrencia', '2']).trim(),
+    desc
+  );
 
   let threw = false;
   try {
@@ -464,7 +492,16 @@ test('boleto reports bad input clearly', () => {
 
   threw = false;
   try {
-    run(['boleto', 'barcode', '--bank', '104', '--due', '2026-08-30', '--amount', '150000']);
+    run([
+      'boleto',
+      'barcode',
+      '--bank',
+      '104',
+      '--due',
+      '2026-08-30',
+      '--amount',
+      '150000',
+    ]);
   } catch (e) {
     threw = true;
     assert.match(e.stderr.toString('latin1'), /missing --free/);
@@ -485,7 +522,14 @@ test('help documents the new commands and the latin1 default', () => {
   // help and diagnostics are always UTF-8, independently of --encoding
   const help = run(['help'], null, 'utf8');
   assert.ok(help.includes('JOSÉ, SÃO PAULO'));
-  for (const cmd of ['detect', 'parse-file', 'tables', 'code', 'boleto barcode', 'boleto parse']) {
+  for (const cmd of [
+    'detect',
+    'parse-file',
+    'tables',
+    'code',
+    'boleto barcode',
+    'boleto parse',
+  ]) {
     assert.ok(help.includes(cmd), `help should mention "${cmd}"`);
   }
   assert.match(help, /--encoding latin1\|utf8/);

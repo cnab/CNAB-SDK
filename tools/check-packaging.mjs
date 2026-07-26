@@ -214,5 +214,7 @@ if (problems.length) {
 }
 console.log(
   `check-packaging: OK — ${Object.keys(EXPECTED).length} packages` +
-    (withPack ? ' (tarball contents verified)' : ' (declarations only; use --pack for tarballs)')
+    (withPack
+      ? ' (tarball contents verified)'
+      : ' (declarations only; use --pack for tarballs)')
 );

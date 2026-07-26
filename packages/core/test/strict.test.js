@@ -91,7 +91,10 @@ test('decimal string on a numeric field throws and points at setDecimal', () => 
         `unhelpful message: ${err.message}`
       );
       assert.ok(err.message.includes('unsigned digit strings'), 'message omits the rule');
-      assert.ok(err.message.includes('setDecimal'), 'message does not point at setDecimal');
+      assert.ok(
+        err.message.includes('setDecimal'),
+        'message does not point at setDecimal'
+      );
       assert.ok(err.message.includes('stripNonDigits'), 'message omits the opt-out');
       return true;
     }

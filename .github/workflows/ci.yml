@@ -15,6 +15,14 @@ jobs:
         with:
           node-version: '22'
       - run: npm install
+
+      # Formatting is checked, never auto-fixed in CI: a job that rewrites the
+      # tree hides the diff from review. Run `npm run format` locally.
+      # Scoped to code — the spec YAML is hand-authored data in a deliberate
+      # compact style, see .prettierignore.
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Compile + validate spec, run all workspace tests
         run: npm test
 
@@ -38,16 +46,24 @@ jobs:
         with:
           node-version: '22'
       - run: npm install
-      # spec.generated.ts is gitignored; typedoc cannot resolve it without this.
-      - run: npm run build:spec
+      # `docs` builds the spec and the jsii assembly first: jsii-docgen reads the
+      # assembly, and spec.generated.ts is gitignored.
       - run: npm run docs
-      - name: The site must exist and contain the engine classes
+      - name: Every shipped language must have an API reference
         run: |
           test -f site/index.html
-          for c in CnabRecord CnabSpec CnabFile CnabFileBuilder Boleto Modulo; do
-            test -f "site/classes/$c.html" || { echo "::error::missing docs for $c"; exit 1; }
+          for lang in typescript python java csharp; do
+            test -f "site/$lang/index.html" \
+              || { echo "::error::missing API reference for $lang"; exit 1; }
           done
-          echo "docs: $(find site -type f | wc -l) files" >> "$GITHUB_STEP_SUMMARY"
+          # The whole point is that each page carries ITS OWN language's
+          # signatures. Before jsii-docgen the site documented four languages
+          # with TypeScript's API, so assert the projected spellings appear.
+          grep -q "set_decimal" site/python/API.python.md \
+            || { echo "::error::python docs do not use snake_case"; exit 1; }
+          grep -q "SetDecimal" site/csharp/API.csharp.md \
+            || { echo "::error::csharp docs do not use PascalCase"; exit 1; }
+          echo "docs: $(find site -type f | wc -l) files across 4 languages" >> "$GITHUB_STEP_SUMMARY"
 
   jsii:
     name: jsii multi-language API check

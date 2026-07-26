@@ -110,9 +110,7 @@ export class CnabFileBuilder {
       throw new Error(`unknown layout: ${layout}`);
     }
     const spec = CnabSpec.fromJson(specJson);
-    const prefix = variant
-      ? `${layout}/${bank}/${variant}/`
-      : `${layout}/${bank}/`;
+    const prefix = variant ? `${layout}/${bank}/${variant}/` : `${layout}/${bank}/`;
     const byName: { [record: string]: CnabRecord } = {};
     for (const key of spec.recordKeys()) {
       if (!key.startsWith(prefix)) {
@@ -128,17 +126,13 @@ export class CnabFileBuilder {
       // On a name collision prefer the record whose direction matches exactly.
       if (
         !existing ||
-        (direction !== '' &&
-          dir === direction &&
-          existing.spec.direction !== direction)
+        (direction !== '' && dir === direction && existing.spec.direction !== direction)
       ) {
         byName[name] = rec;
       }
     }
     if (Object.keys(byName).length === 0) {
-      throw new Error(
-        `no records found for scope ${prefix} (direction "${direction}")`
-      );
+      throw new Error(`no records found for scope ${prefix} (direction "${direction}")`);
     }
     return new CnabFileBuilder(layout, byName);
   }
@@ -175,10 +169,7 @@ export class CnabFileBuilder {
   private readonly _details: PendingDetail[];
   private _loteOpen: boolean;
 
-  private constructor(
-    layout: string,
-    byName: { [record: string]: CnabRecord }
-  ) {
+  private constructor(layout: string, byName: { [record: string]: CnabRecord }) {
     this._layout = layout;
     this._byName = byName;
     this._headerValues = {};
@@ -202,7 +193,9 @@ export class CnabFileBuilder {
    */
   public startLote(headerValues: { [name: string]: string }): void {
     if (this._layout !== 'cnab240') {
-      throw new Error(`startLote is only available for cnab240 (layout is ${this._layout})`);
+      throw new Error(
+        `startLote is only available for cnab240 (layout is ${this._layout})`
+      );
     }
     if (this._loteOpen) {
       throw new Error('a lote is already open: close it with endLote first');
@@ -221,10 +214,7 @@ export class CnabFileBuilder {
    * e.g. `detalhe_segmento_p` (CNAB240) or `detalhe` (CNAB400). Throws when
    * the name is unknown in this scope or (CNAB240) when no lote is open.
    */
-  public addDetail(
-    recordName: string,
-    values: { [name: string]: string }
-  ): void {
+  public addDetail(recordName: string, values: { [name: string]: string }): void {
     const rec = this.record(recordName);
     const detail: PendingDetail = { rec, values: copyValues(values) };
     if (this._layout === 'cnab240') {
@@ -244,14 +234,15 @@ export class CnabFileBuilder {
    */
   public endLote(trailerValues: { [name: string]: string }): void {
     if (this._layout !== 'cnab240') {
-      throw new Error(`endLote is only available for cnab240 (layout is ${this._layout})`);
+      throw new Error(
+        `endLote is only available for cnab240 (layout is ${this._layout})`
+      );
     }
     if (!this._loteOpen) {
       throw new Error('no lote is open: call startLote before endLote');
     }
     this.record('trailer_lote'); // fail early when the scope has no trailer_lote
-    this._lotes[this._lotes.length - 1].trailerValues =
-      copyValues(trailerValues);
+    this._lotes[this._lotes.length - 1].trailerValues = copyValues(trailerValues);
     this._loteOpen = false;
   }
 
@@ -331,10 +322,7 @@ export class CnabFileBuilder {
       fv['qtde_lotes'] = pad(this._lotes.length, 6);
     }
     totalRegistros += 1; // trailer_arquivo itself
-    if (
-      hasField(trailer, 'qtde_registros') &&
-      !userSupplied(fv, 'qtde_registros')
-    ) {
+    if (hasField(trailer, 'qtde_registros') && !userSupplied(fv, 'qtde_registros')) {
       fv['qtde_registros'] = pad(totalRegistros, 6);
     }
     lines.push(trailer.toLine(fv));
@@ -369,9 +357,7 @@ export class CnabFileBuilder {
     const rec = this._byName[name];
     if (!rec) {
       throw new Error(
-        `unknown record "${name}" in this scope (available: ${Object.keys(
-          this._byName
-        )
+        `unknown record "${name}" in this scope (available: ${Object.keys(this._byName)
           .sort()
           .join(', ')})`
       );

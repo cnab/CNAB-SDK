@@ -94,9 +94,7 @@ function generateValues(rec, rnd) {
   for (const f of rec.spec.fields) {
     const width = f.end - f.start + 1;
     values[f.name] =
-      f.fieldType === FieldType.ALPHA
-        ? alphaValue(rnd, width)
-        : numericValue(rnd, width);
+      f.fieldType === FieldType.ALPHA ? alphaValue(rnd, width) : numericValue(rnd, width);
   }
   return values;
 }

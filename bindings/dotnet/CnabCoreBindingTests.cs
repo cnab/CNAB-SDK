@@ -386,5 +386,84 @@ namespace Cnab.Core.BindingTests
                 () => CnabFile.DetectScope(CnabSpec.BundledJson(), BuildSampleFile(false)));
             Assert.Contains("direction", e.Message);
         }
+
+        // --- BR Code (PIX copia e cola) ---------------------------------------
+
+        [Fact]
+        public void Crc16ReproducesTheCanonicalCheckValue()
+        {
+            Assert.Equal("29B1", BrCode.Crc16("123456789"));
+        }
+
+        private static string SamplePayload()
+        {
+            return BrCode.Encode(new BrCodeParams
+            {
+                PixKey = "fulano@example.com",
+                MerchantName = "FULANO DE TAL",
+                MerchantCity = "BRASILIA",
+                Amount = "10.00",
+            });
+        }
+
+        [Fact]
+        public void BrCodeEncodeProducesAValidPayload()
+        {
+            var p = SamplePayload();
+            Assert.StartsWith("000201", p);
+            Assert.Contains("BR.GOV.BCB.PIX", p);
+            Assert.True(BrCode.IsValid(p));
+        }
+
+        [Fact]
+        public void BrCodeOptionalStructFieldsMayBeOmitted()
+        {
+            var p = BrCode.Encode(new BrCodeParams
+            {
+                PixKey = "fulano@example.com",
+                MerchantName = "FULANO DE TAL",
+                MerchantCity = "BRASILIA",
+            });
+            Assert.Equal("", BrCode.Decode(p).Amount);
+        }
+
+        [Fact]
+        public void BrCodeRoundTripsThroughTheBinding()
+        {
+            var p = BrCode.Encode(new BrCodeParams
+            {
+                PixKey = "123e4567-e12b-12d1-a456-426655440000",
+                MerchantName = "LOJA EXEMPLO",
+                MerchantCity = "RIO DE JANEIRO",
+                Amount = "1500.00",
+                Txid = "INV0001",
+            });
+            var f = BrCode.Decode(p);
+            Assert.Equal("123e4567-e12b-12d1-a456-426655440000", f.PixKey);
+            Assert.Equal("1500.00", f.Amount);
+            Assert.Equal("INV0001", f.Txid);
+            Assert.True(f.CrcValid);
+        }
+
+        [Fact]
+        public void BrCodeRejectsANonDecimalAmount()
+        {
+            Assert.ThrowsAny<Exception>(() => BrCode.Encode(new BrCodeParams
+            {
+                PixKey = "fulano@example.com",
+                MerchantName = "FULANO",
+                MerchantCity = "BRASILIA",
+                Amount = "10,00",
+            }));
+        }
+
+        [Fact]
+        public void BrCodeDetectsTampering()
+        {
+            var p = SamplePayload();
+            var tampered = p.Replace("540510.00", "540590.00");
+            Assert.NotEqual(p, tampered);
+            Assert.False(BrCode.IsValid(tampered));
+        }
     }
 }
