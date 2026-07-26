@@ -22,7 +22,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+// Namespace import, not a default import: js-yaml 5 dropped the default export
+// and is named-exports-only. This form resolves `load`/`dump` under both 4 and
+// 5, so the major bump is a lockfile change rather than a code change.
+import * as yaml from 'js-yaml';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
