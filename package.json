@@ -19,13 +19,14 @@
     "test": "npm run build:spec && node tools/check-packaging.mjs && npm run test --workspaces --if-present",
     "check:packaging": "node tools/check-packaging.mjs --pack",
     "report:spec": "node tools/spec-report.mjs",
-    "docs": "typedoc",
+    "docs": "npm run build:spec && npm run build:jsii --workspace @cnab/core && node tools/build-api-docs.mjs",
     "docs:serve": "npx --yes http-server site -p 8080",
     "version:packages": "changeset version && npm install --package-lock-only"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
     "js-yaml": "^4.1.0",
-    "typedoc": "^0.26.11"
+    "jsii-docgen": "^10.12.4",
+    "marked": "^12.0.2"
   }
 }
