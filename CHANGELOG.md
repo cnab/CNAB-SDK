@@ -16,6 +16,68 @@ The SDK stays on **0.x** deliberately: the jsii assembly is
 `stability: experimental`, `toLine` recently became strict, and catalog field
 names may still move as the remaining ADR 0008 cleanup lands.
 
+## [0.3.0] — 2026-07-26
+
+> [!WARNING]
+> **0.3.0 supersedes 0.2.0. Do not use `v0.2.0`.**
+> Its GitHub Release was tagged on a commit whose manifests still said `0.1.0`,
+> so every artifact attached to it (`cnab-core-0.1.0.tgz`,
+> `cnab_core-0.1.0-py3-none-any.whl`, `Cnab.Core.0.1.0.nupkg`, …) is a **0.1.0
+> build**. It does not contain the changes its own notes describe. The release
+> is left in place rather than deleted, and 0.3.0 is the first release that
+> genuinely carries the 0.2.0 work below.
+
+### Changed
+
+- **BREAKING: `CnabRecord.setDecimal` and `CnabRecord.setDateIso` return the
+  updated value map instead of mutating their argument.** Carried over from the
+  withdrawn 0.2.0 — this is its first working release. They previously returned
+  `void` and wrote into the map in place, which works only in Node. jsii
+  marshals maps **by value**, so in Python, Java and .NET the mutation was
+  applied to a copy discarded the moment the call returned: two documented parts
+  of the typed-value API (ADR 0006) were non-functional in three of the four
+  languages the SDK ships, while all 185 Node tests passed throughout.
+
+  ```diff
+  - record.setDecimal(values, 'valor_titulo', '1500.00');
+  + values = record.setDecimal(values, 'valor_titulo', '1500.00');
+  ```
+
+  The input map is left untouched, so both helpers are pure and compose.
+
+### Added
+
+- **Per-language unit test suites** under `bindings/`, run against the
+  **generated** bindings rather than the TypeScript source — 47 pytest (Python),
+  35 JUnit 5 (Java) and 39 xUnit (.NET), in a `fail-fast: false` CI matrix. Also
+  carried over from the withdrawn 0.2.0. They found the defect above; no amount
+  of Node testing could have.
+- **Documentation site** at [cnab.github.io](https://cnab.github.io/) with the
+  TypeDoc API reference at [/api/](https://cnab.github.io/api/), plus a
+  per-language support matrix (Node ≥ 18, Python ≥ 3.10, Java 8, .NET 6.0) and
+  the fact that the non-Node bindings require **Node.js at runtime**, since jsii
+  runs the engine in an embedded `node` process.
+
+### Fixed
+
+- **The release gate tagged the wrong commit.** `decide` ran *after*
+  `changesets/action`, which executes `changeset version` in the same working
+  tree — bumping manifests and deleting consumed changesets locally. The gate
+  read that mutated tree and so described a commit that did not exist yet, which
+  is how `v0.2.0` was tagged onto a `0.1.0` tree. It now runs before anything can
+  mutate the tree, and the release job independently re-asserts that the commit
+  it is tagging really carries that version.
+- **`package-lock.json` drifted from the manifests.** `changeset version`
+  rewrites `package.json` but not the lockfile, and version PRs receive no CI at
+  all (pushes made with `GITHUB_TOKEN` do not trigger workflows), so `main` had
+  manifests at 0.2.0 and a lockfile at 0.1.0. `npm ci` tolerated it, so nothing
+  broke; the lockfile was simply wrong. `check-packaging` now asserts they match.
+- **The docs site never published.** All 8 runs of the old `pages.yml` failed:
+  Pages was never enabled on the repo, and `configure-pages` cannot enable it
+  because `pages: write` authorises *deploying to* an existing site, not
+  *creating* one. Publishing moved to `cnab.github.io`, which serves from its
+  default branch with no admin step; CI still builds the site on every PR.
+
 ## [0.2.0] — 2026-07-25
 
 ### Changed
