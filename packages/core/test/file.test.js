@@ -30,7 +30,10 @@ test('parses a whole Caixa 104 SIGCB remessa file (record detection)', () => {
   const parsed = file.parse(content);
 
   assert.strictEqual(parsed.length, keys.length);
-  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  assert.deepStrictEqual(
+    parsed.map((p) => p.recordKey),
+    keys
+  );
   // segment lines carry their segment code
   assert.strictEqual(parsed[2].segment, 'P');
   assert.strictEqual(parsed[3].segment, 'R');
@@ -49,7 +52,10 @@ test('parses a whole Itaú 341 CNAB400 retorno file', () => {
   const parsed = file.parse(content);
 
   assert.strictEqual(parsed.length, 3);
-  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  assert.deepStrictEqual(
+    parsed.map((p) => p.recordKey),
+    keys
+  );
   assert.strictEqual(parsed[0].tipo, '0');
   assert.strictEqual(parsed[1].tipo, '1');
   assert.strictEqual(parsed[2].tipo, '9');
@@ -72,7 +78,10 @@ test('parses a whole Caixa 104 SIGCB retorno file (T/U detection)', () => {
   const parsed = file.parse(content);
 
   assert.strictEqual(parsed.length, keys.length);
-  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  assert.deepStrictEqual(
+    parsed.map((p) => p.recordKey),
+    keys
+  );
   // segment T and U retorno lines are classified via their defaults
   assert.strictEqual(parsed[2].tipo, '3');
   assert.strictEqual(parsed[2].segment, 'T');
@@ -93,7 +102,10 @@ test('unclassifiable line yields an empty recordKey', () => {
 });
 
 test('forBank rejects an unknown layout', () => {
-  assert.throws(() => CnabFile.forBank(specJson, 'cnab999', '104', '', ''), /unknown layout/);
+  assert.throws(
+    () => CnabFile.forBank(specJson, 'cnab999', '104', '', ''),
+    /unknown layout/
+  );
 });
 
 test('detectScope identifies a 104 CNAB240 SIGCB remessa file', () => {
@@ -135,7 +147,10 @@ test('detectScope/detect identify a 104 CNAB240 SIGCB retorno file', () => {
   });
   // the convenience factory builds a working parser from the detected scope
   const parsed = CnabFile.detect(specJson, content).parse(content);
-  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  assert.deepStrictEqual(
+    parsed.map((p) => p.recordKey),
+    keys
+  );
 });
 
 test('detectScope/detect identify an Itaú 341 CNAB400 retorno file', () => {
@@ -156,12 +171,18 @@ test('detectScope/detect identify an Itaú 341 CNAB400 retorno file', () => {
     direction: 'retorno',
   });
   const parsed = CnabFile.detect(specJson, content).parse(content);
-  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  assert.deepStrictEqual(
+    parsed.map((p) => p.recordKey),
+    keys
+  );
 });
 
 test('detect throws a clear error on garbage content', () => {
   assert.throws(() => CnabFile.detect(specJson, 'Z'.repeat(240)), /cannot detect bank/);
-  assert.throws(() => CnabFile.detect(specJson, 'hello world'), /cannot detect CNAB layout/);
+  assert.throws(
+    () => CnabFile.detect(specJson, 'hello world'),
+    /cannot detect CNAB layout/
+  );
   assert.throws(() => CnabFile.detect(specJson, '\n\n'), /no non-empty lines/);
   // valid bank code but no direction indicator at position 143
   const junk = `104${'X'.repeat(237)}`;
@@ -187,7 +208,10 @@ test('a leading UTF-8 BOM does not shift positions in detectScope/parse', () => 
     direction: 'remessa',
   });
   const parsed = CnabFile.detect(specJson, withBom).parse(withBom);
-  assert.deepStrictEqual(parsed.map((p) => p.recordKey), keys);
+  assert.deepStrictEqual(
+    parsed.map((p) => p.recordKey),
+    keys
+  );
   // positions are intact: the BOM did not become part of codigo_banco
   assert.strictEqual(parsed[0].fields.codigo_banco, '104');
   assert.deepStrictEqual(parsed, CnabFile.detect(specJson, content).parse(content));

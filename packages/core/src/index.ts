@@ -239,10 +239,7 @@ export class CnabRecord {
     return this.buildLine(values, options);
   }
 
-  private buildLine(
-    values: { [name: string]: string },
-    options: LineOptions
-  ): string {
+  private buildLine(values: { [name: string]: string }, options: LineOptions): string {
     let line = '';
     for (const f of this._spec.fields) {
       const provided = Object.prototype.hasOwnProperty.call(values, f.name)
@@ -386,9 +383,7 @@ export class CnabRecord {
       const t = digits.padStart(6, '0');
       return `${t.substring(0, 2)}:${t.substring(2, 4)}:${t.substring(4, 6)}`;
     }
-    throw new Error(
-      `unsupported date format "${f.dateFormat}" on field "${name}"`
-    );
+    throw new Error(`unsupported date format "${f.dateFormat}" on field "${name}"`);
   }
 
   /**
@@ -466,9 +461,7 @@ export class CnabRecord {
       }
       return `${m[1]}${m[2]}${m[3]}`;
     }
-    throw new Error(
-      `unsupported date format "${f.dateFormat}" on field "${name}"`
-    );
+    throw new Error(`unsupported date format "${f.dateFormat}" on field "${name}"`);
   }
 
   /** Copy `values` with one key replaced. Never mutates the input. */
@@ -751,9 +744,7 @@ export class CnabFile {
       throw new Error(`unknown layout: ${layout}`);
     }
     const spec = CnabSpec.fromJson(specJson);
-    const prefix = variant
-      ? `${layout}/${bank}/${variant}/`
-      : `${layout}/${bank}/`;
+    const prefix = variant ? `${layout}/${bank}/${variant}/` : `${layout}/${bank}/`;
     const byDisc: { [disc: string]: CnabRecord } = {};
     const keyByDisc: { [disc: string]: string } = {};
     for (const key of spec.recordKeys()) {
@@ -833,8 +824,7 @@ export class CnabFile {
       );
     }
 
-    const bank =
-      layout === 'cnab240' ? first.substring(0, 3) : first.substring(76, 79);
+    const bank = layout === 'cnab240' ? first.substring(0, 3) : first.substring(76, 79);
     if (!/^[0-9]{3}$/.test(bank)) {
       throw new Error(
         `cannot detect bank: "${bank}" at positions ${
@@ -1041,7 +1031,12 @@ export class CnabFile {
         out.push({ recordKey: '', tipo, segment, fields: {} });
         continue;
       }
-      out.push({ recordKey: this._keyByDisc[disc], tipo, segment, fields: rec.parse(line) });
+      out.push({
+        recordKey: this._keyByDisc[disc],
+        tipo,
+        segment,
+        fields: rec.parse(line),
+      });
     }
     return out;
   }

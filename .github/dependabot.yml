@@ -1,0 +1,56 @@
+# Dependabot — keep the dependency surface small and current.
+#
+# Added because a HIGH severity js-yaml advisory (GHSA-52cp-r559-cp3m) sat
+# unnoticed while `npm install` printed "3 high severity vulnerabilities" on
+# every single run. Nobody reads that line. A pull request is harder to ignore.
+#
+# js-yaml matters more than its "devDependency" label suggests: tools/build-spec.mjs
+# parses every file under packages/spec/src with it, so a crafted spec file in a
+# pull request is a real path to that advisory.
+
+version: 2
+updates:
+  # Root workspace: covers packages/core, packages/spec and packages/cli, since
+  # npm workspaces share one lockfile.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ['delivery']
+    groups:
+      # One PR for the routine noise, so real signal is not buried in it.
+      dev-dependencies:
+        dependency-type: development
+        update-types: ['minor', 'patch']
+    ignore:
+      # jsii and its toolchain are pinned deliberately: the compiler version is
+      # part of the published contract (prepack builds the assembly with it), and
+      # an unreviewed bump can change every language projection at once. Upgrade
+      # these by hand, with the api-surface snapshot diff reviewed.
+      - dependency-name: jsii
+      - dependency-name: jsii-pacmak
+      - dependency-name: jsii-docgen
+
+  # The Actions used by ci.yml, release.yml and the docs job.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: ['ops']
+    groups:
+      actions:
+        patterns: ['*']
+
+  # The .NET binding test project. Python and Java pull the SDK from a local
+  # feed built in CI, so there is nothing for Dependabot to bump there.
+  - package-ecosystem: nuget
+    directory: /bindings/dotnet
+    schedule:
+      interval: monthly
+    labels: ['quality']
+    ignore:
+      # Resolved from the local pacmak output, never from nuget.org.
+      - dependency-name: Cnab.Core

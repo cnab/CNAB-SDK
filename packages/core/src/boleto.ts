@@ -193,7 +193,8 @@ export class Boleto {
     assertDigits('freeField', options.freeField, 25);
     const fator = Boleto.fatorVencimento(options.dueDateIso);
     const amount = options.amountCents.padStart(10, '0');
-    const withoutDv = options.bankCode + options.currencyCode + fator + amount + options.freeField;
+    const withoutDv =
+      options.bankCode + options.currencyCode + fator + amount + options.freeField;
     const dv = Modulo.mod11Boleto(withoutDv);
     return withoutDv.substring(0, 4) + String(dv) + withoutDv.substring(4);
   }
@@ -329,7 +330,12 @@ export class Boleto {
       );
     }
     const barcode =
-      field1.substring(0, 4) + dvGeral + fatorAmount + field1.substring(4) + field2 + field3;
+      field1.substring(0, 4) +
+      dvGeral +
+      fatorAmount +
+      field1.substring(4) +
+      field2 +
+      field3;
     if (!Boleto.isValidBarcode(barcode)) {
       throw new Error(
         `linha digitável general check digit mismatch: expected ${Boleto.barcodeCheckDigit(

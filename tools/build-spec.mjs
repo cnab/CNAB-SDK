@@ -131,7 +131,9 @@ export function buildAliasIndex(catalog) {
       continue;
     }
     if (!Array.isArray(declared)) {
-      errors.push(`catalog field "${name}": "aliases" must be a list, got ${JSON.stringify(declared)}`);
+      errors.push(
+        `catalog field "${name}": "aliases" must be a list, got ${JSON.stringify(declared)}`
+      );
       aliasesByName[name] = [];
       continue;
     }
@@ -172,7 +174,9 @@ export function buildAliasIndex(catalog) {
     if (bucket) bucket.push(name);
     else byNormalized.set(norm, [name]);
   }
-  for (const [norm, names] of [...byNormalized].sort((a, b) => a[0].localeCompare(b[0]))) {
+  for (const [norm, names] of [...byNormalized].sort((a, b) =>
+    a[0].localeCompare(b[0])
+  )) {
     if (names.length < 2) continue;
     const allowed = ALLOWED_NAME_COLLISIONS[norm];
     const sorted = [...names].sort();
@@ -232,7 +236,8 @@ function validateCoverage(key, lineLength, fields, strict) {
       continue;
     }
     if (f.start > cursor) {
-      if (strict) errors.push(`gap at positions ${cursor}..${f.start - 1} (before "${f.name}")`);
+      if (strict)
+        errors.push(`gap at positions ${cursor}..${f.start - 1} (before "${f.name}")`);
     } else if (f.start < cursor) {
       errors.push(
         `overlap at positions ${f.start}..${Math.min(cursor - 1, f.end)} ("${f.name}" collides with previous field)`
@@ -257,7 +262,9 @@ function main() {
   // canonical naming: resolve aliases and reject new spelling collisions
   const { aliasOf, aliasesByName, errors: namingErrors } = buildAliasIndex(catalog);
   if (namingErrors.length) {
-    console.error('Canonical field naming FAILED (see docs/adrs/0008-canonical-field-naming.md):');
+    console.error(
+      'Canonical field naming FAILED (see docs/adrs/0008-canonical-field-naming.md):'
+    );
     console.error(namingErrors.map((e) => `  ${e}`).join('\n'));
     process.exit(1);
   }

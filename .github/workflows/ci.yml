@@ -15,6 +15,14 @@ jobs:
         with:
           node-version: '22'
       - run: npm install
+
+      # Formatting is checked, never auto-fixed in CI: a job that rewrites the
+      # tree hides the diff from review. Run `npm run format` locally.
+      # Scoped to code — the spec YAML is hand-authored data in a deliberate
+      # compact style, see .prettierignore.
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Compile + validate spec, run all workspace tests
         run: npm test
 

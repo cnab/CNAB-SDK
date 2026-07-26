@@ -11,13 +11,7 @@ const specJson = fs.readFileSync(
 );
 
 test('builds a full Caixa 104 SIGCB CNAB240 remessa file', () => {
-  const builder = CnabFileBuilder.forBank(
-    specJson,
-    'cnab240',
-    '104',
-    'sigcb',
-    'remessa'
-  );
+  const builder = CnabFileBuilder.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa');
   builder.withHeader({
     codigo_banco: '104',
     codigo_inscricao: '2',
@@ -107,13 +101,9 @@ test('builds a full Caixa 104 SIGCB CNAB240 remessa file', () => {
   assert.strictEqual(lines[7].substring(23, 29), '000008');
 
   // round-trip: the file parser classifies every line
-  const parsed = CnabFile.forBank(
-    specJson,
-    'cnab240',
-    '104',
-    'sigcb',
-    'remessa'
-  ).parse(content);
+  const parsed = CnabFile.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa').parse(
+    content
+  );
   assert.strictEqual(parsed.length, 8);
   for (const p of parsed) {
     assert.notStrictEqual(p.recordKey, '');
@@ -138,13 +128,7 @@ test('builds a full Caixa 104 SIGCB CNAB240 remessa file', () => {
 });
 
 test('user-supplied trailer counters win over auto-computation (cnab240)', () => {
-  const builder = CnabFileBuilder.forBank(
-    specJson,
-    'cnab240',
-    '104',
-    'sigcb',
-    'remessa'
-  );
+  const builder = CnabFileBuilder.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa');
   builder.withHeader({ codigo_banco: '104' });
   builder.startLote({ codigo_banco: '104' });
   builder.addDetail('detalhe_segmento_p', { codigo_banco: '104' });
@@ -160,13 +144,7 @@ test('user-supplied trailer counters win over auto-computation (cnab240)', () =>
 });
 
 test('builds a full Itaú 341 CNAB400 remessa file', () => {
-  const builder = CnabFileBuilder.forBank(
-    specJson,
-    'cnab400',
-    '341',
-    '',
-    'remessa'
-  );
+  const builder = CnabFileBuilder.forBank(specJson, 'cnab400', '341', '', 'remessa');
   builder.withHeader({
     agencia: '1234',
     conta: '56789',
@@ -210,13 +188,9 @@ test('builds a full Itaú 341 CNAB400 remessa file', () => {
   assert.deepStrictEqual(seqs, ['000001', '000002', '000003', '000004']);
 
   // round-trip: the file parser classifies every line
-  const parsed = CnabFile.forBank(
-    specJson,
-    'cnab400',
-    '341',
-    '',
-    'remessa'
-  ).parse(content);
+  const parsed = CnabFile.forBank(specJson, 'cnab400', '341', '', 'remessa').parse(
+    content
+  );
   assert.strictEqual(parsed.length, 4);
   for (const p of parsed) {
     assert.notStrictEqual(p.recordKey, '');
@@ -233,13 +207,7 @@ test('builds a full Itaú 341 CNAB400 remessa file', () => {
 });
 
 test('addDetail with an unknown record name throws', () => {
-  const builder = CnabFileBuilder.forBank(
-    specJson,
-    'cnab240',
-    '104',
-    'sigcb',
-    'remessa'
-  );
+  const builder = CnabFileBuilder.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa');
   builder.startLote({});
   assert.throws(
     () => builder.addDetail('detalhe_segmento_z', {}),
@@ -248,26 +216,11 @@ test('addDetail with an unknown record name throws', () => {
 });
 
 test('addDetail before startLote throws on cnab240', () => {
-  const builder = CnabFileBuilder.forBank(
-    specJson,
-    'cnab240',
-    '104',
-    'sigcb',
-    'remessa'
-  );
-  assert.throws(
-    () => builder.addDetail('detalhe_segmento_p', {}),
-    /no lote is open/
-  );
+  const builder = CnabFileBuilder.forBank(specJson, 'cnab240', '104', 'sigcb', 'remessa');
+  assert.throws(() => builder.addDetail('detalhe_segmento_p', {}), /no lote is open/);
 });
 
 test('startLote throws on cnab400', () => {
-  const builder = CnabFileBuilder.forBank(
-    specJson,
-    'cnab400',
-    '341',
-    '',
-    'remessa'
-  );
+  const builder = CnabFileBuilder.forBank(specJson, 'cnab400', '341', '', 'remessa');
   assert.throws(() => builder.startLote({}), /only available for cnab240/);
 });

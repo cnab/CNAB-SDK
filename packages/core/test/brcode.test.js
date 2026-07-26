@@ -54,7 +54,11 @@ test('crc16 agrees with an independent table-driven implementation', () => {
       seed = (seed * 1103515245 + 12345) & 0x7fffffff;
       s += alphabet[seed % alphabet.length];
     }
-    assert.strictEqual(BrCode.crc16(s), crc16TableDriven(s), `mismatch for ${JSON.stringify(s)}`);
+    assert.strictEqual(
+      BrCode.crc16(s),
+      crc16TableDriven(s),
+      `mismatch for ${JSON.stringify(s)}`
+    );
   }
 });
 
@@ -76,7 +80,10 @@ const BASE = {
 
 test('encode produces a payload with the expected EMV skeleton', () => {
   const p = BrCode.encode(BASE);
-  assert.ok(p.startsWith('000201'), `payload should start with 000201, got ${p.slice(0, 12)}`);
+  assert.ok(
+    p.startsWith('000201'),
+    `payload should start with 000201, got ${p.slice(0, 12)}`
+  );
   assert.ok(p.includes('BR.GOV.BCB.PIX'), 'missing the PIX GUI');
   assert.ok(p.includes('5303986'), 'missing currency 986');
   assert.ok(p.includes('5802BR'), 'missing country BR');
@@ -125,7 +132,11 @@ test('encode rejects an invalid txid', () => {
 });
 
 test('accents are folded rather than emitted raw', () => {
-  const p = BrCode.encode({ ...BASE, merchantName: 'JOSÉ DA SILVA', merchantCity: 'SÃO PAULO' });
+  const p = BrCode.encode({
+    ...BASE,
+    merchantName: 'JOSÉ DA SILVA',
+    merchantCity: 'SÃO PAULO',
+  });
   const f = BrCode.decode(p);
   assert.strictEqual(f.merchantName, 'JOSE DA SILVA');
   assert.strictEqual(f.merchantCity, 'SAO PAULO');
@@ -208,7 +219,11 @@ test('isValid rejects a tampered payload', () => {
 
 test('isValid is a predicate: false, not a throw, for junk', () => {
   for (const junk of ['', 'x', 'not a brcode', '0002', '000201']) {
-    assert.strictEqual(BrCode.isValid(junk), false, `expected false for ${JSON.stringify(junk)}`);
+    assert.strictEqual(
+      BrCode.isValid(junk),
+      false,
+      `expected false for ${JSON.stringify(junk)}`
+    );
   }
 });
 

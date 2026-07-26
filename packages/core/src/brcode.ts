@@ -219,8 +219,16 @@ export class BrCode {
       throw new Error('pixKey is required');
     }
     const key = sanitizeText('pixKey', pixKey, 77);
-    const name = sanitizeText('merchantName', options.merchantName || '', MAX_MERCHANT_NAME);
-    const city = sanitizeText('merchantCity', options.merchantCity || '', MAX_MERCHANT_CITY);
+    const name = sanitizeText(
+      'merchantName',
+      options.merchantName || '',
+      MAX_MERCHANT_NAME
+    );
+    const city = sanitizeText(
+      'merchantCity',
+      options.merchantCity || '',
+      MAX_MERCHANT_CITY
+    );
     if (name === '') {
       throw new Error('merchantName is required');
     }

@@ -164,7 +164,9 @@ fs.writeFileSync(
 );
 
 if (generated !== LANGUAGES.length) {
-  console.error(`build-api-docs: expected ${LANGUAGES.length} languages, wrote ${generated}`);
+  console.error(
+    `build-api-docs: expected ${LANGUAGES.length} languages, wrote ${generated}`
+  );
   process.exit(1);
 }
 console.log(

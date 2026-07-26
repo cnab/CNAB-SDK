@@ -58,9 +58,9 @@ test('every implemented command is documented in help', () => {
 });
 
 test('every command listed in help is actually implemented', () => {
-  const documented = [...new Set(
-    [...help.matchAll(/^\s{2}cnab ([a-z-]+)/gm)].map((m) => m[1])
-  )].filter((c) => c !== 'help');
+  const documented = [
+    ...new Set([...help.matchAll(/^\s{2}cnab ([a-z-]+)/gm)].map((m) => m[1])),
+  ].filter((c) => c !== 'help');
   const missing = documented.filter((c) => !isImplemented(c));
   assert.deepStrictEqual(missing, [], 'help documents commands the CLI rejects');
 });
@@ -69,12 +69,21 @@ test('the engine-parity commands are present', () => {
   // Explicit list: these are the ones the CLI was missing before, so a
   // regression here is the exact failure we are guarding against.
   for (const cmd of ['detect', 'parse-file', 'tables', 'code', 'boleto']) {
-    assert.ok(isImplemented(cmd), `CLI lost the "${cmd}" command — it is part of engine parity`);
+    assert.ok(
+      isImplemented(cmd),
+      `CLI lost the "${cmd}" command — it is part of engine parity`
+    );
   }
 });
 
 test('help documents the global I/O options', () => {
-  for (const flag of ['--encoding', '--out', '--crlf', '--trailing-newline', '--pretty']) {
+  for (const flag of [
+    '--encoding',
+    '--out',
+    '--crlf',
+    '--trailing-newline',
+    '--pretty',
+  ]) {
     assert.ok(help.includes(flag), `help does not document ${flag}`);
   }
   // latin1 being the default is a correctness-relevant promise, not a detail:

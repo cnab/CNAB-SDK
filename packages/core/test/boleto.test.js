@@ -135,11 +135,41 @@ test('parseLinhaDigitavel: plain and formatted parse back to the barcode', () =>
 // ---------------------------------------------------------------------------
 
 const ROUND_TRIP_CASES = [
-  { bankCode: '104', currencyCode: '9', dueDateIso: '2024-12-31', amountCents: '1', freeField: '0000000000000000000000001' },
-  { bankCode: '104', currencyCode: '9', dueDateIso: '2025-02-22', amountCents: '9999999999', freeField: '9999999999999999999999999' },
-  { bankCode: '341', currencyCode: '9', dueDateIso: '1997-10-08', amountCents: '150000', freeField: '1750012345671234567000000' },
-  { bankCode: '341', currencyCode: '9', dueDateIso: '2026-07-18', amountCents: '0', freeField: '0000000000000000000000000' },
-  { bankCode: '001', currencyCode: '9', dueDateIso: '2000-07-03', amountCents: '250099', freeField: '5024136798102030405060708' },
+  {
+    bankCode: '104',
+    currencyCode: '9',
+    dueDateIso: '2024-12-31',
+    amountCents: '1',
+    freeField: '0000000000000000000000001',
+  },
+  {
+    bankCode: '104',
+    currencyCode: '9',
+    dueDateIso: '2025-02-22',
+    amountCents: '9999999999',
+    freeField: '9999999999999999999999999',
+  },
+  {
+    bankCode: '341',
+    currencyCode: '9',
+    dueDateIso: '1997-10-08',
+    amountCents: '150000',
+    freeField: '1750012345671234567000000',
+  },
+  {
+    bankCode: '341',
+    currencyCode: '9',
+    dueDateIso: '2026-07-18',
+    amountCents: '0',
+    freeField: '0000000000000000000000000',
+  },
+  {
+    bankCode: '001',
+    currencyCode: '9',
+    dueDateIso: '2000-07-03',
+    amountCents: '250099',
+    freeField: '5024136798102030405060708',
+  },
 ];
 
 for (const params of ROUND_TRIP_CASES) {
@@ -166,28 +196,49 @@ for (const params of ROUND_TRIP_CASES) {
 
 test('parseLinhaDigitavel: corrupting a field digit throws (mod10 mismatch)', () => {
   const corrupted = '2' + KNOWN_LINHA.substring(1); // field 1 first digit 1 -> 2
-  assert.throws(() => Boleto.parseLinhaDigitavel(corrupted), /field 1 check digit mismatch/);
+  assert.throws(
+    () => Boleto.parseLinhaDigitavel(corrupted),
+    /field 1 check digit mismatch/
+  );
 });
 
 test('parseLinhaDigitavel: corrupting field 5 throws (general DV mismatch)', () => {
   // index 33 is the first fator digit, covered only by the general mod11 DV
   const corrupted = KNOWN_LINHA.substring(0, 33) + '2' + KNOWN_LINHA.substring(34);
-  assert.throws(() => Boleto.parseLinhaDigitavel(corrupted), /general check digit mismatch/);
+  assert.throws(
+    () => Boleto.parseLinhaDigitavel(corrupted),
+    /general check digit mismatch/
+  );
 });
 
 test('parseLinhaDigitavel: wrong length or non-digits throw', () => {
-  assert.throws(() => Boleto.parseLinhaDigitavel(KNOWN_LINHA.substring(0, 46)), /47 digits/);
+  assert.throws(
+    () => Boleto.parseLinhaDigitavel(KNOWN_LINHA.substring(0, 46)),
+    /47 digits/
+  );
   assert.throws(() => Boleto.parseLinhaDigitavel(KNOWN_LINHA + '0'), /47 digits/);
   assert.throws(() => Boleto.parseLinhaDigitavel('x'.repeat(47)), /47 digits/);
 });
 
 test('barcode: invalid params throw with clear messages', () => {
   const ok = ROUND_TRIP_CASES[0];
-  assert.throws(() => Boleto.barcode({ ...ok, bankCode: '10' }), /bankCode must be exactly 3 digits/);
-  assert.throws(() => Boleto.barcode({ ...ok, currencyCode: '99' }), /currencyCode must be exactly 1 digit/);
-  assert.throws(() => Boleto.barcode({ ...ok, amountCents: '12345678901' }), /amountCents must have at most 10 digits/);
+  assert.throws(
+    () => Boleto.barcode({ ...ok, bankCode: '10' }),
+    /bankCode must be exactly 3 digits/
+  );
+  assert.throws(
+    () => Boleto.barcode({ ...ok, currencyCode: '99' }),
+    /currencyCode must be exactly 1 digit/
+  );
+  assert.throws(
+    () => Boleto.barcode({ ...ok, amountCents: '12345678901' }),
+    /amountCents must have at most 10 digits/
+  );
   assert.throws(() => Boleto.barcode({ ...ok, amountCents: '12.50' }), /only digits/);
-  assert.throws(() => Boleto.barcode({ ...ok, freeField: '123' }), /freeField must be exactly 25 digits/);
+  assert.throws(
+    () => Boleto.barcode({ ...ok, freeField: '123' }),
+    /freeField must be exactly 25 digits/
+  );
 });
 
 test('isValidBarcode / linhaDigitavel: reject a wrong general DV', () => {

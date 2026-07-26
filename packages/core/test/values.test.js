@@ -25,7 +25,10 @@ const header = spec.getRecord('cnab240/104/sigcb/header_arquivo');
 // --- getDecimal ---------------------------------------------------------
 
 test('getDecimal inserts the implied decimal separator', () => {
-  assert.strictEqual(segP.getDecimal({ valor_titulo: '150000' }, 'valor_titulo'), '1500.00');
+  assert.strictEqual(
+    segP.getDecimal({ valor_titulo: '150000' }, 'valor_titulo'),
+    '1500.00'
+  );
   assert.strictEqual(segP.getDecimal({ valor_titulo: '1' }, 'valor_titulo'), '0.01');
   assert.strictEqual(segP.getDecimal({ valor_titulo: '99' }, 'valor_titulo'), '0.99');
   assert.strictEqual(segP.getDecimal({ valor_titulo: '100' }, 'valor_titulo'), '1.00');
@@ -129,32 +132,62 @@ test('cnab400 decimal values round-trip through toLine and parse', () => {
 // --- getDateIso ---------------------------------------------------------
 
 test('getDateIso converts ddMMyyyy to YYYY-MM-DD', () => {
-  assert.strictEqual(segP.getDateIso({ vencimento: '15072026' }, 'vencimento'), '2026-07-15');
+  assert.strictEqual(
+    segP.getDateIso({ vencimento: '15072026' }, 'vencimento'),
+    '2026-07-15'
+  );
 });
 
 test('getDateIso re-pads values whose leading zeros were normalized away', () => {
   // parse strips leading zeros from numeric fields: '05072026' -> '5072026'
-  assert.strictEqual(segP.getDateIso({ vencimento: '5072026' }, 'vencimento'), '2026-07-05');
+  assert.strictEqual(
+    segP.getDateIso({ vencimento: '5072026' }, 'vencimento'),
+    '2026-07-05'
+  );
 });
 
 test('getDateIso converts ddMMyy with the 70 century pivot', () => {
-  assert.strictEqual(det400.getDateIso({ data_vencimento: '150770' }, 'data_vencimento'), '1970-07-15');
-  assert.strictEqual(det400.getDateIso({ data_vencimento: '150799' }, 'data_vencimento'), '1999-07-15');
-  assert.strictEqual(det400.getDateIso({ data_vencimento: '150769' }, 'data_vencimento'), '2069-07-15');
-  assert.strictEqual(det400.getDateIso({ data_vencimento: '150726' }, 'data_vencimento'), '2026-07-15');
+  assert.strictEqual(
+    det400.getDateIso({ data_vencimento: '150770' }, 'data_vencimento'),
+    '1970-07-15'
+  );
+  assert.strictEqual(
+    det400.getDateIso({ data_vencimento: '150799' }, 'data_vencimento'),
+    '1999-07-15'
+  );
+  assert.strictEqual(
+    det400.getDateIso({ data_vencimento: '150769' }, 'data_vencimento'),
+    '2069-07-15'
+  );
+  assert.strictEqual(
+    det400.getDateIso({ data_vencimento: '150726' }, 'data_vencimento'),
+    '2026-07-15'
+  );
   // parse-normalized ddMMyy value ('020170' -> '20170')
-  assert.strictEqual(det400.getDateIso({ data_vencimento: '20170' }, 'data_vencimento'), '1970-01-02');
+  assert.strictEqual(
+    det400.getDateIso({ data_vencimento: '20170' }, 'data_vencimento'),
+    '1970-01-02'
+  );
 });
 
 test('getDateIso converts HHmmss to HH:mm:ss', () => {
-  assert.strictEqual(header.getDateIso({ hora_geracao: '103000' }, 'hora_geracao'), '10:30:00');
-  assert.strictEqual(header.getDateIso({ hora_geracao: '235959' }, 'hora_geracao'), '23:59:59');
+  assert.strictEqual(
+    header.getDateIso({ hora_geracao: '103000' }, 'hora_geracao'),
+    '10:30:00'
+  );
+  assert.strictEqual(
+    header.getDateIso({ hora_geracao: '235959' }, 'hora_geracao'),
+    '23:59:59'
+  );
 });
 
 test('getDateIso returns empty string for all-zeros (unset) values', () => {
   assert.strictEqual(segP.getDateIso({ vencimento: '0' }, 'vencimento'), '');
   assert.strictEqual(segP.getDateIso({ vencimento: '00000000' }, 'vencimento'), '');
-  assert.strictEqual(det400.getDateIso({ data_vencimento: '000000' }, 'data_vencimento'), '');
+  assert.strictEqual(
+    det400.getDateIso({ data_vencimento: '000000' }, 'data_vencimento'),
+    ''
+  );
 });
 
 test('getDateIso throws for a field with no date format', () => {
@@ -214,13 +247,22 @@ test('set/get date are inverses through toLine and parse', () => {
 });
 
 test('setDateIso throws on malformed input', () => {
-  assert.throws(() => segP.setDateIso({}, 'vencimento', '2026-7-15'), /malformed ISO date/);
-  assert.throws(() => segP.setDateIso({}, 'vencimento', '15/07/2026'), /malformed ISO date/);
+  assert.throws(
+    () => segP.setDateIso({}, 'vencimento', '2026-7-15'),
+    /malformed ISO date/
+  );
+  assert.throws(
+    () => segP.setDateIso({}, 'vencimento', '15/07/2026'),
+    /malformed ISO date/
+  );
   assert.throws(() => segP.setDateIso({}, 'vencimento', 'garbage'), /malformed ISO date/);
   assert.throws(() => segP.setDateIso({}, 'vencimento', '2026-13-01'), /invalid date/);
   assert.throws(() => segP.setDateIso({}, 'vencimento', '2026-00-10'), /invalid date/);
   assert.throws(() => segP.setDateIso({}, 'vencimento', '2026-01-32'), /invalid date/);
-  assert.throws(() => header.setDateIso({}, 'hora_geracao', '10:30'), /malformed ISO time/);
+  assert.throws(
+    () => header.setDateIso({}, 'hora_geracao', '10:30'),
+    /malformed ISO time/
+  );
   assert.throws(() => header.setDateIso({}, 'hora_geracao', '24:00:00'), /invalid time/);
   assert.throws(() => header.setDateIso({}, 'hora_geracao', '10:60:00'), /invalid time/);
 });

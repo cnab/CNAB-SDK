@@ -177,7 +177,10 @@ const DATE_SAMPLES = { ddMMyyyy: '26062026', ddMMyy: '260626', HHmmss: '103000' 
 function syntheticValue(recordKey, field) {
   const width = field.end - field.start + 1;
   if (field.type === 'alpha') {
-    const text = field.name.toUpperCase().replace(/[^A-Z]+/g, ' ').trim();
+    const text = field.name
+      .toUpperCase()
+      .replace(/[^A-Z]+/g, ' ')
+      .trim();
     return text.substring(0, width);
   }
   if (field.dateFormat && DATE_SAMPLES[field.dateFormat]) {
