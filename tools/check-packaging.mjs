@@ -148,6 +148,30 @@ for (const [dep, pinned] of Object.entries(cliPkg.dependencies || {})) {
   }
 }
 
+// `changeset version` rewrites package.json but NOT package-lock.json, and the
+// version PR it opens gets no CI (pushes made with GITHUB_TOKEN do not trigger
+// workflows), so the drift reaches main unnoticed: 0.2.0 landed with a lockfile
+// still saying 0.1.0. `npm ci` tolerates it — workspace packages are resolved
+// from disk — so nothing failed; the lockfile was just quietly wrong, and every
+// later `npm install` produced phantom diff noise. Run `npm install` to fix.
+const lockPath = path.join(ROOT, 'package-lock.json');
+if (fs.existsSync(lockPath)) {
+  const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+  for (const [name, spec] of Object.entries(EXPECTED)) {
+    const entry = (lock.packages || {})[spec.dir];
+    if (!entry) {
+      problems.push(`package-lock.json has no entry for ${spec.dir}`);
+      continue;
+    }
+    if (entry.version !== versions[name]) {
+      problems.push(
+        `package-lock.json says ${spec.dir} is ${entry.version} but package.json ` +
+          `says ${versions[name]} — run \`npm install\` and commit the lockfile`
+      );
+    }
+  }
+}
+
 // --- authoritative check (CI) ----------------------------------------------
 
 if (withPack) {
