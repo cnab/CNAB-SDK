@@ -100,7 +100,18 @@ jobs:
         uses: changesets/action@v1
         with:
           # `version` applies pending changesets and rewrites changelogs.
-          version: npx changeset version
+          #
+          # `changeset version` rewrites every package.json but leaves
+          # package-lock.json untouched, so the version PR used to land with a
+          # lockfile still naming the previous version. `--package-lock-only`
+          # refreshes the lock without touching node_modules, so the bump and
+          # its lockfile travel in the same commit.
+          #
+          # This is not cosmetic: check-packaging asserts the lockfile matches
+          # the manifests, and it runs inside the `npm test` that gates this very
+          # workflow — so without this, the release job fails on its own version
+          # PR. It did, on the 0.3.0 PR.
+          version: npx changeset version && npm install --package-lock-only
           # No `publish:` on purpose — see the header. The `release` job does
           # the tagging instead, so nothing here needs to reach a registry.
           title: 'chore: version packages'
