@@ -43,10 +43,10 @@ jobs:
       version: ${{ steps.decide.outputs.version }}
       should: ${{ steps.decide.outputs.should }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # changesets needs history to diff against baseBranch
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       # Decide whether THIS COMMIT is a releasable state, before anything can
@@ -148,22 +148,22 @@ jobs:
     if: needs.version.outputs.should == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       # pacmak shells out to each language toolchain, so they must be present
       # even though we only build artifacts and never upload them anywhere.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '8.0'
       # Belt and braces: the gate ran in another job against another checkout,
