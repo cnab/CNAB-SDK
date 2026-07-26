@@ -16,6 +16,73 @@ The SDK stays on **0.x** deliberately: the jsii assembly is
 `stability: experimental`, `toLine` recently became strict, and catalog field
 names may still move as the remaining ADR 0008 cleanup lands.
 
+## [0.4.0] — 2026-07-26
+
+### Added
+
+- **`BrCode` — the PIX "copia e cola" payload.** PIX was absent from the SDK
+  entirely, which for a Brazilian cobrança library in 2026 is a disqualifier:
+  the hybrid boleto is the default product at every major bank. `BrCode.encode`
+  builds the EMVCo Merchant-Presented Mode payload, `decode` parses one back,
+  and `isValid` verifies its checksum.
+
+  ```ts
+  const payload = BrCode.encode({
+    pixKey: 'fulano@example.com',
+    merchantName: 'FULANO DE TAL',
+    merchantCity: 'BRASILIA',
+    amount: '10.00', // decimal string, never a float (ADR 0006)
+  });
+  ```
+
+  The CRC is the part that is easy to get subtly wrong, and a wrong one yields a
+  QR that **scans fine and is then rejected by the bank** — the same
+  undetectable-until-production class as the old `toLine` truncation. So
+  `BrCode.crc16` (CRC-16/CCITT-FALSE) is pinned to the canonical
+  `"123456789" → 29B1` check value, cross-checked against an independently
+  written table-driven implementation over 2000 generated inputs, and asserted
+  to cover the `6304` tag header itself — an implementation that omits the
+  header validates against its own output while failing everywhere else.
+
+  Accented names are folded to ASCII (`JOSÉ` → `JOSE`) rather than emitted raw.
+  Covered by the Python, Java and .NET binding suites as well as the Node tests.
+  Part of #59; closes #69.
+
+- **`CONTRIBUTING.md` and `SECURITY.md`.** The security policy states the scope
+  that actually applies here: the library makes no network calls and holds no
+  credentials, so the interesting failure mode is not RCE but **silent data
+  corruption** — a truncated `valor_titulo` produces a file the bank accepts and
+  pays wrong. That is treated as security-class rather than as an ordinary bug.
+- **Dependabot**, weekly for npm and GitHub Actions and monthly for NuGet. The
+  jsii toolchain is deliberately excluded: it is pinned so CI validates against
+  the same compiler `prepack` publishes with.
+- **Prettier**, with CI checking formatting and never rewriting it. Scoped to
+  code — the spec YAML is hand-authored data in a compact flow style that reads
+  as a table of positions, and expanding it would make reviewing a position
+  change harder rather than easier.
+
+### Changed
+
+- **The API reference is now generated per language.** It was built with
+  typedoc, which reads TypeScript source and knows nothing about the jsii
+  projections — so four of the five languages the site advertises were being
+  documented with TypeScript's API. A Python reader was told to call
+  `setDecimal(values, name, decimalValue)`; their method is `set_decimal`. A C#
+  reader the same; theirs is `SetDecimal`. Replaced with `jsii-docgen`, run once
+  per target against the `.jsii` assembly the bindings are actually built from,
+  so each page carries its own language's spellings and cannot drift from what
+  ships. CI asserts one page per language and greps for the projected spellings.
+
+### Fixed
+
+- **`js-yaml` advisory GHSA-52cp-r559-cp3m (HIGH).** A direct dependency of
+  `tools/build-spec.mjs`, the script that compiles the spec. Bumped 4.2.0 →
+  4.3.0. Every `npm install` had been reporting it for weeks and nobody read the
+  line; Dependabot above exists so that the next one is not found the same way.
+- **`tools/spec-report.mjs` was undiffable.** It contained two raw NUL bytes,
+  used as composite map-key separators, so git classified the whole file as
+  binary and silently refused to show its changes. Written as escapes now.
+
 ## [0.3.0] — 2026-07-26
 
 > [!WARNING]

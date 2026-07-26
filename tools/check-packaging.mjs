@@ -148,6 +148,28 @@ for (const [dep, pinned] of Object.entries(cliPkg.dependencies || {})) {
   }
 }
 
+// The release job builds its notes from the root CHANGELOG (via
+// tools/changelog-section.mjs) and refuses to tag a release whose body would be
+// empty. That requirement was only enforced at the very end of the release job,
+// i.e. AFTER the version PR had already been merged to main -- so 0.4.0 merged,
+// the release job ran, and died at the last step before creating the tag.
+// Checking it here moves the failure to something you can run before merging.
+//
+// Only enforced once the version is actually being cut: a feature branch sits at
+// the CURRENT released version, which naturally already has a section.
+if (fs.existsSync(path.join(ROOT, 'CHANGELOG.md'))) {
+  const version = versions['@cnab/core'];
+  const md = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
+  const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (!new RegExp(`^##\\s+\\[?${escaped}\\]?(\\s|$)`, 'm').test(md)) {
+    problems.push(
+      `CHANGELOG.md has no "## [${version}]" section — the release job builds ` +
+        `its notes from it and will fail after the version PR is merged. Add ` +
+        `the section in the same PR that bumps the version.`
+    );
+  }
+}
+
 // `changeset version` rewrites package.json but NOT package-lock.json, and the
 // version PR it opens gets no CI (pushes made with GITHUB_TOKEN do not trigger
 // workflows), so the drift reaches main unnoticed: 0.2.0 landed with a lockfile
