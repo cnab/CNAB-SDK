@@ -21,6 +21,40 @@
       "static parseLinhaDigitavel(linha: string): string"
     ]
   },
+  "BrCode": {
+    "kind": "class",
+    "members": [
+      "static crc16(payload: string): string",
+      "static decode(payload: string): BrCodeFields",
+      "static encode(options: BrCodeParams): string",
+      "static isValid(payload: string): boolean"
+    ]
+  },
+  "BrCodeFields": {
+    "kind": "interface",
+    "members": [
+      "amount: string readonly",
+      "crc: string readonly",
+      "crcValid: boolean readonly",
+      "description: string readonly",
+      "merchantCity: string readonly",
+      "merchantName: string readonly",
+      "pixKey: string readonly",
+      "txid: string readonly"
+    ]
+  },
+  "BrCodeParams": {
+    "kind": "interface",
+    "members": [
+      "amount: string readonly optional",
+      "description: string readonly optional",
+      "merchantCity: string readonly",
+      "merchantName: string readonly",
+      "pixKey: string readonly",
+      "singleUse: boolean readonly optional",
+      "txid: string readonly optional"
+    ]
+  },
   "CnabFile": {
     "kind": "class",
     "members": [

@@ -412,3 +412,72 @@ def test_detect_scope_refuses_to_guess_an_ambiguous_direction():
     with pytest.raises(Exception) as e:
         c.CnabFile.detect_scope(c.CnabSpec.bundled_json(), content)
     assert "direction" in str(e.value)
+
+
+# --- BR Code (PIX copia e cola) --------------------------------------------
+
+
+def test_crc16_canonical_check_value():
+    # CRC-16/CCITT-FALSE's published check value. Pins the algorithm across the
+    # jsii boundary, where a string→bytes marshalling slip would change it.
+    assert c.BrCode.crc16("123456789") == "29B1"
+
+
+def test_brcode_encode_and_validate():
+    payload = c.BrCode.encode(
+        pix_key="fulano@example.com",
+        merchant_name="FULANO DE TAL",
+        merchant_city="BRASILIA",
+        amount="10.00",
+    )
+    assert payload.startswith("000201")
+    assert "BR.GOV.BCB.PIX" in payload
+    assert c.BrCode.is_valid(payload) is True
+
+
+def test_brcode_round_trips_through_the_binding():
+    payload = c.BrCode.encode(
+        pix_key="123e4567-e12b-12d1-a456-426655440000",
+        merchant_name="LOJA EXEMPLO",
+        merchant_city="RIO DE JANEIRO",
+        amount="1500.00",
+        txid="INV0001",
+    )
+    f = c.BrCode.decode(payload)
+    assert f.pix_key == "123e4567-e12b-12d1-a456-426655440000"
+    assert f.amount == "1500.00"
+    assert f.txid == "INV0001"
+    assert f.crc_valid is True
+
+
+def test_brcode_optional_struct_fields_may_be_omitted():
+    # amount/txid/description are optional in the struct; Python projects them
+    # as keyword args defaulting to None.
+    payload = c.BrCode.encode(
+        pix_key="fulano@example.com",
+        merchant_name="FULANO DE TAL",
+        merchant_city="BRASILIA",
+    )
+    assert c.BrCode.decode(payload).amount == ""
+
+
+def test_brcode_rejects_a_non_decimal_amount():
+    with pytest.raises(Exception):
+        c.BrCode.encode(
+            pix_key="fulano@example.com",
+            merchant_name="FULANO",
+            merchant_city="BRASILIA",
+            amount="10,00",
+        )
+
+
+def test_brcode_detects_tampering():
+    payload = c.BrCode.encode(
+        pix_key="fulano@example.com",
+        merchant_name="FULANO DE TAL",
+        merchant_city="BRASILIA",
+        amount="10.00",
+    )
+    tampered = payload.replace("540510.00", "540590.00")
+    assert tampered != payload
+    assert c.BrCode.is_valid(tampered) is False

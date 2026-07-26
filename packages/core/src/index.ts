@@ -1049,3 +1049,5 @@ export class CnabFile {
 
 export * from './boleto';
 export * from './builder';
+
+export * from './brcode';

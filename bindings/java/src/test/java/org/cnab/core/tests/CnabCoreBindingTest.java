@@ -3,6 +3,7 @@ package org.cnab.core.tests;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,6 +15,9 @@ import java.util.Map;
 
 import org.cnab.core.BarcodeParams;
 import org.cnab.core.Boleto;
+import org.cnab.core.BrCode;
+import org.cnab.core.BrCodeFields;
+import org.cnab.core.BrCodeParams;
 import org.cnab.core.CnabFile;
 import org.cnab.core.CnabFileBuilder;
 import org.cnab.core.CnabRecord;
@@ -406,5 +410,76 @@ class CnabCoreBindingTest {
             RuntimeException.class,
             () -> CnabFile.detectScope(CnabSpec.bundledJson(), buildSampleFile(false)));
         assertTrue(e.getMessage().contains("direction"), e.getMessage());
+    }
+
+    // --- BR Code (PIX copia e cola) ---------------------------------------
+
+    @Test
+    @DisplayName("crc16 reproduces the canonical CCITT-FALSE check value")
+    void brCodeCrc16CanonicalVector() {
+        assertEquals("29B1", BrCode.crc16("123456789"));
+    }
+
+    private static String samplePayload() {
+        return BrCode.encode(BrCodeParams.builder()
+            .pixKey("fulano@example.com")
+            .merchantName("FULANO DE TAL")
+            .merchantCity("BRASILIA")
+            .amount("10.00")
+            .build());
+    }
+
+    @Test
+    void brCodeEncodeProducesAValidPayload() {
+        String p = samplePayload();
+        assertTrue(p.startsWith("000201"), p);
+        assertTrue(p.contains("BR.GOV.BCB.PIX"), p);
+        assertTrue(BrCode.isValid(p));
+    }
+
+    @Test
+    @DisplayName("optional struct fields may be omitted in the builder")
+    void brCodeOptionalFieldsMayBeOmitted() {
+        String p = BrCode.encode(BrCodeParams.builder()
+            .pixKey("fulano@example.com")
+            .merchantName("FULANO DE TAL")
+            .merchantCity("BRASILIA")
+            .build());
+        assertEquals("", BrCode.decode(p).getAmount());
+    }
+
+    @Test
+    void brCodeRoundTripsThroughTheBinding() {
+        String p = BrCode.encode(BrCodeParams.builder()
+            .pixKey("123e4567-e12b-12d1-a456-426655440000")
+            .merchantName("LOJA EXEMPLO")
+            .merchantCity("RIO DE JANEIRO")
+            .amount("1500.00")
+            .txid("INV0001")
+            .build());
+        BrCodeFields f = BrCode.decode(p);
+        assertAll(
+            () -> assertEquals("123e4567-e12b-12d1-a456-426655440000", f.getPixKey()),
+            () -> assertEquals("1500.00", f.getAmount()),
+            () -> assertEquals("INV0001", f.getTxid()),
+            () -> assertTrue(f.getCrcValid()));
+    }
+
+    @Test
+    void brCodeRejectsANonDecimalAmount() {
+        assertThrows(RuntimeException.class, () -> BrCode.encode(BrCodeParams.builder()
+            .pixKey("fulano@example.com")
+            .merchantName("FULANO")
+            .merchantCity("BRASILIA")
+            .amount("10,00")
+            .build()));
+    }
+
+    @Test
+    void brCodeDetectsTampering() {
+        String p = samplePayload();
+        String tampered = p.replace("540510.00", "540590.00");
+        assertNotEquals(p, tampered);
+        assertFalse(BrCode.isValid(tampered));
     }
 }
