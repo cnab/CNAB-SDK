@@ -20,7 +20,8 @@
     "check:packaging": "node tools/check-packaging.mjs --pack",
     "report:spec": "node tools/spec-report.mjs",
     "docs": "typedoc",
-    "docs:serve": "npx --yes http-server site -p 8080"
+    "docs:serve": "npx --yes http-server site -p 8080",
+    "version:packages": "changeset version && npm install --package-lock-only"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",

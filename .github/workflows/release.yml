@@ -99,19 +99,23 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          # `version` applies pending changesets and rewrites changelogs.
+          # Applies pending changesets, rewrites changelogs AND refreshes the
+          # lockfile. The chaining lives in the `version:packages` npm script,
+          # not here, and that matters:
           #
-          # `changeset version` rewrites every package.json but leaves
-          # package-lock.json untouched, so the version PR used to land with a
-          # lockfile still naming the previous version. `--package-lock-only`
-          # refreshes the lock without touching node_modules, so the bump and
-          # its lockfile travel in the same commit.
+          # changesets/action does NOT run this through a shell. It splits the
+          # string and execs it, so `&&` arrives as a literal argument instead
+          # of chaining. Written inline as
+          #   npx changeset version && npm install --package-lock-only
+          # it became `npx changeset version '&&' npm install ...`, which changed
+          # nothing at all: the action then saw an empty `git status`, committed
+          # nothing, and force-pushed plain `main` over the version branch,
+          # silently destroying the 0.3.0 bump.
           #
-          # This is not cosmetic: check-packaging asserts the lockfile matches
-          # the manifests, and it runs inside the `npm test` that gates this very
-          # workflow — so without this, the release job fails on its own version
-          # PR. It did, on the 0.3.0 PR.
-          version: npx changeset version && npm install --package-lock-only
+          # The lockfile half is required because `changeset version` rewrites
+          # package.json but not package-lock.json, and check-packaging asserts
+          # they agree inside the same `npm test` that gates this workflow.
+          version: npm run version:packages
           # No `publish:` on purpose — see the header. The `release` job does
           # the tagging instead, so nothing here needs to reach a registry.
           title: 'chore: version packages'
