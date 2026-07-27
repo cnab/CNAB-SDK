@@ -25,7 +25,8 @@ New to ADRs? See Michael Nygard's
 | [0005](0005-build-and-jsii-toolchain.md) | Build & jsii toolchain conventions | Accepted |
 | [0006](0006-typed-value-representation.md) | Typed value representation: decimal strings & ISO dates | Accepted |
 | [0007](0007-file-builder-control-fields.md) | File builder control fields by name convention | Accepted |
-| [0008](0008-canonical-field-naming.md) | Canonical field naming: one spelling per concept | Proposed |
+| [0008](0008-canonical-field-naming.md) | Canonical field naming: one spelling per concept | Accepted |
+| [0009](0009-go-module-distribution.md) | Go module distribution: a separate `cnab/cnab-core-go` repo | Proposed |
 
 ## Decisions expected soon (tracked in issues, ADR to be written when decided)
 

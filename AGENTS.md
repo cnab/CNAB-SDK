@@ -75,6 +75,14 @@ all three on every push.
 - Method names **`setXxx` are prohibited** by jsii (Java setter conflict,
   JSII5001) → `CnabFileBuilder.withHeader`, not `setHeader`.
 - **`type` is a Go reserved word** → the field-type property is `fieldType`.
+- The **JSII5018 reserved-word check does not depend on your configured
+  targets**: `isReservedName` in jsii unions the C#/Java/Python/Go word lists
+  and runs unconditionally. So `type` was already flagged years before `go` was
+  a target, and adding `go` to `jsii.targets` introduced **zero** new warnings.
+  Don't expect turning on a language to reveal naming problems — it won't. What
+  a new target *does* buy you is `jsii-pacmak`, which for Go runs
+  `go mod tidy` + `go build ./...` on the generated module, so a projection that
+  cannot compile fails there and nowhere earlier.
 - **`params` is a C# reserved word** (JSII5018) → name struct arguments
   `options`, as `Boleto.barcode` and `BrCode.encode` do. jsii warns rather
   than fails here, so it is easy to merge; treat the warning as an error.

@@ -108,15 +108,21 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '8.0'
+      # Go: pacmak runs `go mod tidy` + `go build ./...` on the generated
+      # module itself, so having the toolchain here is what turns "go is a
+      # configured target" into "the Go projection actually compiles".
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
       - run: npm install
       - name: Build spec + jsii assembly
         run: npm run build:spec && npm run build:jsii --workspace @cnab/core
       # Generating the bindings is the only thing that proves the API is
       # *projectable* in practice rather than just in principle. We generate
       # and smoke-test them; we do NOT publish (that is #14 and its children).
-      - name: jsii-pacmak (python, java, dotnet)
+      - name: jsii-pacmak (python, java, dotnet, go)
         working-directory: packages/core
-        run: npx jsii-pacmak --targets python --targets java --targets dotnet
+        run: npx jsii-pacmak --targets python --targets java --targets dotnet --targets go
       - name: Smoke-test the generated Python wheel
         run: |
           python -m venv /tmp/cnabvenv
