@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Cnab.Core;
 using Xunit;
 
@@ -385,6 +386,124 @@ namespace Cnab.Core.BindingTests
             var e = Assert.ThrowsAny<Exception>(
                 () => CnabFile.DetectScope(CnabSpec.BundledJson(), BuildSampleFile(false)));
             Assert.Contains("direction", e.Message);
+        }
+
+        // --- ParseToJson (the large-file path) --------------------------------
+        //
+        // `Parse` returns one ParsedLine per line and jsii marshals each one,
+        // with its ~40-key field map, individually — milliseconds per line, so
+        // a real retorno takes minutes. `ParseToJson` is one crossing of one
+        // string that the host decodes itself with System.Text.Json (ADR 0009).
+        // These tests exist to pin that the projection hands back an
+        // *undecoded* string; nothing in the Node suite could see it change.
+
+        private string Retorno400()
+        {
+            var lines = new List<string>
+            {
+                _spec.GetRecord("cnab400/341/retorno/header_arquivo").ToLine(Map()),
+            };
+            for (var i = 0; i < 3; i++)
+            {
+                lines.Add(_det400.ToLine(Map(
+                    "nosso_numero", $"1234{i}",
+                    "nome_sacado", $"CLIENTE {i}")));
+            }
+            lines.Add(_spec.GetRecord("cnab400/341/retorno/trailer_arquivo").ToLine(Map()));
+            return string.Join("\n", lines) + "\n";
+        }
+
+        [Fact]
+        public void ParseToJsonReturnsAnUndecodedString()
+        {
+            var payload = CnabFile.ForBankBundled("cnab400", "341", "", "retorno")
+                .ParseToJson(Retorno400());
+            Assert.StartsWith("[{", payload);
+            Assert.EndsWith("}]", payload);
+            using var doc = JsonDocument.Parse(payload);
+            Assert.Equal(JsonValueKind.Array, doc.RootElement.ValueKind);
+        }
+
+        [Fact]
+        public void ParseToJsonIsExactlyParseSerialized()
+        {
+            var file = CnabFile.ForBankBundled("cnab400", "341", "", "retorno");
+            var content = Retorno400();
+
+            using var doc = JsonDocument.Parse(file.ParseToJson(content));
+            var rows = doc.RootElement;
+            var objects = file.Parse(content);
+            Assert.Equal(5, rows.GetArrayLength());
+            Assert.Equal(objects.Length, rows.GetArrayLength());
+
+            for (var i = 0; i < objects.Length; i++)
+            {
+                var row = rows[i];
+                var obj = objects[i];
+                // camelCase keys: this is a data format, not a projected type,
+                // so it does NOT use the language's PascalCase convention.
+                Assert.Equal(obj.RecordKey, row.GetProperty("recordKey").GetString());
+                Assert.Equal(obj.Tipo, row.GetProperty("tipo").GetString());
+                Assert.Equal(obj.Segment, row.GetProperty("segment").GetString());
+
+                var fields = row.GetProperty("fields");
+                Assert.Equal(obj.Fields.Count, fields.EnumerateObject().Count());
+                foreach (var kv in obj.Fields)
+                {
+                    Assert.Equal(kv.Value, fields.GetProperty(kv.Key).GetString());
+                }
+            }
+
+            Assert.Equal(Det400Key, rows[1].GetProperty("recordKey").GetString());
+            Assert.Equal("12340", rows[1].GetProperty("fields").GetProperty("nosso_numero").GetString());
+            Assert.Equal("CLIENTE 0", rows[1].GetProperty("fields").GetProperty("nome_sacado").GetString());
+        }
+
+        [Fact]
+        public void ParseToJsonEscapesValuesSoThePayloadStaysDecodable()
+        {
+            var line = _det400.ToLine(Map("nome_sacado", "JOSE \"ZE\" \\ SILVA"));
+            using var doc = JsonDocument.Parse(
+                CnabFile.ForBankBundled("cnab400", "341", "", "retorno").ParseToJson(line));
+            Assert.Equal(
+                "JOSE \"ZE\" \\ SILVA",
+                doc.RootElement[0].GetProperty("fields").GetProperty("nome_sacado").GetString());
+        }
+
+        [Fact]
+        public void ParseToJsonOfChunksEqualsTheWholeFile()
+        {
+            // The recipe for large files is to feed ParseToJson a few thousand
+            // lines at a time; correct only because classification is per-line.
+            var file = CnabFile.ForBankBundled("cnab400", "341", "", "retorno");
+            var content = Retorno400();
+            using var wholeDoc = JsonDocument.Parse(file.ParseToJson(content));
+            var whole = wholeDoc.RootElement;
+
+            var lines = content.Split('\n').Where(l => l.Length > 0).ToArray();
+            var chunked = new List<string>();
+            for (var i = 0; i < lines.Length; i += 2)
+            {
+                var part = string.Join("\n", lines.Skip(i).Take(2));
+                using var pageDoc = JsonDocument.Parse(file.ParseToJson(part));
+                foreach (var row in pageDoc.RootElement.EnumerateArray())
+                {
+                    chunked.Add(row.GetRawText());
+                }
+            }
+
+            Assert.Equal(whole.GetArrayLength(), chunked.Count);
+            for (var i = 0; i < chunked.Count; i++)
+            {
+                Assert.Equal(whole[i].GetRawText(), chunked[i]);
+            }
+        }
+
+        [Fact]
+        public void ParseToJsonReturnsAnEmptyArrayForEmptyContent()
+        {
+            Assert.Equal("[]",
+                CnabFile.ForBankBundled("cnab400", "341", "", "retorno").ParseToJson(""));
         }
 
         // --- BR Code (PIX copia e cola) ---------------------------------------

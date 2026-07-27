@@ -26,6 +26,7 @@
          run against the artifact from this commit rather than a stale one. -->
     <cnab.version>0.1.0</cnab.version>
     <junit.version>5.10.2</junit.version>
+    <jackson.version>2.17.1</jackson.version>
   </properties>
 
   <dependencies>
@@ -38,6 +39,18 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!--
+      Test-scope only. `CnabFile.parseToJson` returns a JSON document that the
+      HOST is expected to decode with its own parser (ADR 0009) — asserting on
+      the raw string would test something no consumer does, so the suite decodes
+      it the way a Java consumer would. Java has no JSON parser in the JDK.
+    -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -52,6 +52,15 @@ could have found it; only executing the generated binding could. The methods now
 return the updated map (ADR 0006), and each suite pins that with an explicit
 "does not mutate its input" test.
 
+The second case, added with [ADR 0010](../docs/adrs/0010-large-file-parsing-across-the-jsii-boundary.md):
+`CnabFile.parseToJson` returns a JSON *string* precisely so that the jsii
+runtime treats it as one opaque scalar instead of marshalling one object per
+line. Node cannot tell the difference — it never sees the string form. Each
+suite therefore decodes the payload with its own language's JSON parser
+(`json`, Jackson, `System.Text.Json`) and asserts it equals what `parse`
+returned, field by field. Java's `jackson-databind` test dependency exists only
+for this; the JDK has no JSON parser.
+
 Other things only these suites can catch: naming drift in the projections
 (`snake_case` / `camelCase` / `PascalCase`), struct construction (Python kwargs,
 Java `Builder`, C# object initialisers), enum projection, `number` → `Number` /

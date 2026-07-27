@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -410,6 +413,116 @@ class CnabCoreBindingTest {
             RuntimeException.class,
             () -> CnabFile.detectScope(CnabSpec.bundledJson(), buildSampleFile(false)));
         assertTrue(e.getMessage().contains("direction"), e.getMessage());
+    }
+
+    // --- parseToJson (the large-file path) ---------------------------------
+    //
+    // `parse` returns one ParsedLine per line and jsii marshals each one, with
+    // its ~40-key field map, individually. That costs milliseconds per line
+    // outside Node, so a real retorno is measured in minutes. `parseToJson` is
+    // one crossing of one string that the host decodes itself (ADR 0009).
+    // These tests are what proves the projection returns an *undecoded*
+    // String — if the jsii runtime ever started interpreting it, the whole
+    // point would be lost and nothing in the Node suite would notice.
+
+    private static final ObjectMapper JSON = new ObjectMapper();
+
+    private static String retorno400() {
+        CnabRecord detalhe = spec.getRecord(DET_400);
+        StringBuilder sb = new StringBuilder();
+        sb.append(spec.getRecord("cnab400/341/retorno/header_arquivo").toLine(map())).append('\n');
+        for (int i = 0; i < 3; i++) {
+            sb.append(detalhe.toLine(map(
+                "nosso_numero", "1234" + i,
+                "nome_sacado", "CLIENTE " + i))).append('\n');
+        }
+        sb.append(spec.getRecord("cnab400/341/retorno/trailer_arquivo").toLine(map())).append('\n');
+        return sb.toString();
+    }
+
+    @Test
+    @DisplayName("parseToJson returns an undecoded JSON String")
+    void parseToJsonReturnsAString() throws Exception {
+        String payload =
+            CnabFile.forBankBundled("cnab400", "341", "", "retorno").parseToJson(retorno400());
+        assertTrue(payload.startsWith("[{"), payload.substring(0, Math.min(40, payload.length())));
+        assertTrue(payload.endsWith("}]"));
+        assertTrue(JSON.readTree(payload).isArray());
+    }
+
+    @Test
+    @DisplayName("parseToJson is exactly parse, serialized")
+    void parseToJsonMatchesParse() throws Exception {
+        CnabFile file = CnabFile.forBankBundled("cnab400", "341", "", "retorno");
+        String content = retorno400();
+
+        JsonNode rows = JSON.readTree(file.parseToJson(content));
+        List<ParsedLine> objects = file.parse(content);
+        assertEquals(5, rows.size());
+        assertEquals(objects.size(), rows.size());
+
+        for (int i = 0; i < objects.size(); i++) {
+            JsonNode row = rows.get(i);
+            ParsedLine obj = objects.get(i);
+            // camelCase keys: this is a data format, not a projected struct, so
+            // it does NOT follow the language's naming convention.
+            assertEquals(obj.getRecordKey(), row.get("recordKey").asText());
+            assertEquals(obj.getTipo(), row.get("tipo").asText());
+            assertEquals(obj.getSegment(), row.get("segment").asText());
+            Map<String, String> fields = obj.getFields();
+            assertEquals(fields.size(), row.get("fields").size());
+            for (Map.Entry<String, String> e : fields.entrySet()) {
+                assertEquals(e.getValue(), row.get("fields").get(e.getKey()).asText(),
+                    "field " + e.getKey());
+            }
+        }
+
+        assertEquals(DET_400, rows.get(1).get("recordKey").asText());
+        assertEquals("12340", rows.get(1).get("fields").get("nosso_numero").asText());
+        assertEquals("CLIENTE 0", rows.get(1).get("fields").get("nome_sacado").asText());
+    }
+
+    @Test
+    @DisplayName("parseToJson escapes alpha values so the payload stays decodable")
+    void parseToJsonEscapesValues() throws Exception {
+        String line = spec.getRecord(DET_400).toLine(map("nome_sacado", "JOSE \"ZE\" \\ SILVA"));
+        JsonNode rows = JSON.readTree(
+            CnabFile.forBankBundled("cnab400", "341", "", "retorno").parseToJson(line));
+        assertEquals("JOSE \"ZE\" \\ SILVA", rows.get(0).get("fields").get("nome_sacado").asText());
+    }
+
+    @Test
+    @DisplayName("parseToJson of chunks equals the whole file")
+    void parseToJsonChunksEqualWhole() throws Exception {
+        // The recipe for large files is to feed parseToJson a few thousand lines
+        // at a time; it is correct only because classification is per-line.
+        CnabFile file = CnabFile.forBankBundled("cnab400", "341", "", "retorno");
+        String content = retorno400();
+        JsonNode whole = JSON.readTree(file.parseToJson(content));
+
+        List<String> lines = new ArrayList<>();
+        for (String l : content.split("\n")) {
+            if (!l.isEmpty()) {
+                lines.add(l);
+            }
+        }
+        List<JsonNode> chunked = new ArrayList<>();
+        for (int i = 0; i < lines.size(); i += 2) {
+            String part = String.join("\n", lines.subList(i, Math.min(i + 2, lines.size())));
+            JSON.readTree(file.parseToJson(part)).forEach(chunked::add);
+        }
+
+        assertEquals(whole.size(), chunked.size());
+        for (int i = 0; i < chunked.size(); i++) {
+            assertEquals(whole.get(i), chunked.get(i));
+        }
+    }
+
+    @Test
+    @DisplayName("parseToJson returns an empty array for empty content")
+    void parseToJsonEmpty() {
+        assertEquals("[]",
+            CnabFile.forBankBundled("cnab400", "341", "", "retorno").parseToJson(""));
     }
 
     // --- BR Code (PIX copia e cola) ---------------------------------------

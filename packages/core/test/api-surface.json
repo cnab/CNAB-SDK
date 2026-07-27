@@ -59,6 +59,7 @@
     "kind": "class",
     "members": [
       "parse(content: string): array<ParsedLine>",
+      "parseToJson(content: string): string",
       "static detect(specJson: string, content: string): CnabFile",
       "static detectScope(specJson: string, content: string): DetectedScope",
       "static forBank(specJson: string, layout: string, bank: string, variant: string, direction: string): CnabFile",
