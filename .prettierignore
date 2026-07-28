@@ -1,4 +1,10 @@
 # Generated or vendored
+# Agent worktrees are full nested checkouts of this repo, so without this
+# `format:check` walks into them and reports THEIR generated files as
+# unformatted. Prettier does not read .gitignore, so ignoring them there is not
+# enough. This bites only at the repo root: an agent inside its own worktree
+# cannot see its sibling's, so the check passes there and fails here.
+.claude/
 package-lock.json
 site/
 lib/

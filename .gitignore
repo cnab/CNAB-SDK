@@ -27,3 +27,9 @@ bindings/dotnet/obj/
 __pycache__/
 *.pyc
 .pytest_cache/
+# Git worktrees created for parallel agents. Each is a FULL checkout of this
+# repo (~150 MB, ~5k files apiece), so an unignored one shows up as thousands of
+# untracked files and invites exactly the wrong reflex: `git add -A`. Scoped to
+# worktrees/ rather than all of .claude/ so project-level config such as
+# .claude/settings.json can still be committed if this repo ever wants it.
+.claude/worktrees/
