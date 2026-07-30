@@ -130,6 +130,40 @@ function size(field: FieldSpec): number {
 }
 
 /**
+ * Normalize a raw fixed-width slice into the value `parse` returns: alpha
+ * fields are right-trimmed, numerics lose their left zero padding (an
+ * all-zero/all-blank field becomes `"0"`).
+ *
+ * Module-level so that `CnabRecord.parse` and `CnabFile.parseToJson` cannot
+ * drift apart — the JSON fast path must produce byte-identical values to the
+ * object path or it is a different API, not a faster one.
+ */
+function normalizeRaw(f: FieldSpec, raw: string): string {
+  if (f.fieldType === FieldType.ALPHA) {
+    return raw.replace(/\s+$/, '');
+  }
+  const stripped = raw.replace(/^0+/, '');
+  return stripped === '' ? '0' : stripped;
+}
+
+/**
+ * Characters that force a slow-path JSON escape: quote, backslash, C0
+ * controls, and surrogate code units (an astral character must be emitted as
+ * a pair and a lone surrogate must be escaped, both of which
+ * `JSON.stringify` gets right).
+ */
+const JSON_NEEDS_ESCAPE = /["\\\u0000-\u001f\ud800-\udfff]/;
+
+/**
+ * Quote a string as a JSON scalar. CNAB alpha fields are overwhelmingly plain
+ * ASCII, so the common case skips `JSON.stringify` entirely — at ~9.4 million
+ * values for a 200k-line file that call overhead is measurable.
+ */
+function jsonString(value: string): string {
+  return JSON_NEEDS_ESCAPE.test(value) ? JSON.stringify(value) : `"${value}"`;
+}
+
+/**
  * A single CNAB record spec with operations to `parse`, `build` and `validate`
  * one fixed-width line.
  */
@@ -488,11 +522,7 @@ export class CnabRecord {
   }
 
   private normalize(f: FieldSpec, raw: string): string {
-    if (f.fieldType === FieldType.ALPHA) {
-      return raw.replace(/\s+$/, '');
-    }
-    const stripped = raw.replace(/^0+/, '');
-    return stripped === '' ? '0' : stripped;
+    return normalizeRaw(f, raw);
   }
 
   private format(f: FieldSpec, value: string, options: LineOptions): string {
@@ -708,6 +738,20 @@ interface Detect {
   readonly segEnd: number;
 }
 
+/**
+ * Everything the JSON fast path needs about one record, precomputed once so the
+ * per-line loop does no work that does not depend on the line. Internal: jsii
+ * only constrains the public API surface.
+ */
+interface JsonPlan {
+  /** The record key, already JSON-quoted. */
+  readonly keyJson: string;
+  /** The record's fields, in position order. */
+  readonly fields: FieldSpec[];
+  /** `"<name>":` per field, with the separating comma for all but the first. */
+  readonly namePrefixes: string[];
+}
+
 const LAYOUT_DETECT: { [layout: string]: Detect } = {
   cnab240: { tipoStart: 8, tipoEnd: 8, segStart: 14, segEnd: 14 },
   cnab400: { tipoStart: 1, tipoEnd: 1, segStart: 0, segEnd: 0 },
@@ -720,6 +764,21 @@ const LAYOUT_DETECT: { [layout: string]: Detect } = {
  */
 function stripBom(content: string): string {
   return content.charCodeAt(0) === 0xfeff ? content.substring(1) : content;
+}
+
+/**
+ * Split file content into the non-empty lines every reader/parser works over:
+ * BOM dropped, LF and CRLF both accepted, blank lines discarded (a trailing
+ * newline is normal in a CNAB file and must not produce a phantom record).
+ */
+function splitLines(content: string): string[] {
+  const out: string[] = [];
+  for (const line of stripBom(content).split(/\r?\n/)) {
+    if (line.length !== 0) {
+      out.push(line);
+    }
+  }
+  return out;
 }
 
 /**
@@ -994,6 +1053,7 @@ export class CnabFile {
   private readonly _detect: Detect;
   private readonly _byDisc: { [disc: string]: CnabRecord };
   private readonly _keyByDisc: { [disc: string]: string };
+  private readonly _plans: { [disc: string]: JsonPlan };
 
   private constructor(
     detect: Detect,
@@ -1003,19 +1063,38 @@ export class CnabFile {
     this._detect = detect;
     this._byDisc = byDisc;
     this._keyByDisc = keyByDisc;
+    this._plans = {};
+    // One plan per record, built once: the JSON fast path must not re-quote a
+    // field name 200,000 times.
+    for (const disc of Object.keys(byDisc)) {
+      const fields = byDisc[disc].spec.fields;
+      const namePrefixes: string[] = [];
+      for (let i = 0; i < fields.length; i++) {
+        namePrefixes.push(`${i === 0 ? '' : ','}${JSON.stringify(fields[i].name)}:`);
+      }
+      this._plans[disc] = {
+        keyJson: JSON.stringify(keyByDisc[disc]),
+        fields,
+        namePrefixes,
+      };
+    }
   }
 
   /**
    * Parse a whole file's content into one `ParsedLine` per non-empty line.
    * A leading UTF-8 BOM (U+FEFF) is ignored, and both LF and CRLF line endings
    * are accepted.
+   *
+   * **This is the Node path.** Everywhere else, each returned `ParsedLine` and
+   * its ~40-key field map is marshalled across the jsii kernel individually, at
+   * a cost of milliseconds *per line* — a six-figure-line retorno takes
+   * minutes. Use `parseToJson` in Python/Java/.NET. See "Large files" in the
+   * package README, and ADR 0010, for the measurements.
    */
   public parse(content: string): ParsedLine[] {
+    const lines = splitLines(content);
     const out: ParsedLine[] = [];
-    for (const line of stripBom(content).split(/\r?\n/)) {
-      if (line.length === 0) {
-        continue;
-      }
+    for (const line of lines) {
       const tipo = line.substring(this._detect.tipoStart - 1, this._detect.tipoEnd);
       let segment = '';
       if (this._detect.segEnd > 0) {
@@ -1039,6 +1118,79 @@ export class CnabFile {
       });
     }
     return out;
+  }
+
+  /**
+   * Parse file content and return the result as a **single JSON string**: an
+   * array of objects shaped exactly like `ParsedLine` —
+   * `[{"recordKey":…,"tipo":…,"segment":…,"fields":{…}}]`, camelCase keys, the
+   * same values `parse` produces, in the same order.
+   *
+   * This exists because `parse` does not scale outside Node. jsii marshals
+   * every returned `ParsedLine` and its field map across the kernel
+   * individually, so 200,000 lines is 200,000 crossings and Python/Java/.NET
+   * spend *minutes* rebuilding objects. This is **one** crossing of one string,
+   * decoded by the host's own native, in-process JSON parser.
+   *
+   * ```python
+   * import json
+   * rows = json.loads(cnab_file.parse_to_json(content))
+   * rows[0]["fields"]["nosso_numero"]
+   * ```
+   *
+   * **Feed it a few thousand lines at a time.** The jsii boundary degrades
+   * sharply on large strings *in both directions*, so one call carrying a whole
+   * 200,000-line file is several times slower than twenty calls carrying
+   * 10,000 lines each — and it also forces both runtimes to hold the entire
+   * result at once. Because classification is per line and carries no state,
+   * splitting the file into chunks of whole lines is exactly equivalent to one
+   * call. ADR 0010 has the numbers and a worked example per language.
+   *
+   * Line handling is identical to `parse`: a leading UTF-8 BOM is ignored, both
+   * LF and CRLF are accepted, empty lines are skipped, and an unclassifiable
+   * line yields an empty `recordKey` and an empty `fields` object.
+   */
+  public parseToJson(content: string): string {
+    const lines = splitLines(content);
+    const chunks: string[] = [];
+    let buffer = '[';
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const tipo = line.substring(this._detect.tipoStart - 1, this._detect.tipoEnd);
+      let segment = '';
+      if (this._detect.segEnd > 0) {
+        segment = line.substring(this._detect.segStart - 1, this._detect.segEnd);
+      }
+      let disc = `${tipo}|${segment}`;
+      let plan = this._plans[disc];
+      if (!plan && segment !== '') {
+        disc = `${tipo}|`;
+        plan = this._plans[disc];
+      }
+      let entry = `{"recordKey":${plan ? plan.keyJson : '""'},"tipo":${jsonString(
+        tipo
+      )},"segment":${jsonString(segment)},"fields":{`;
+      if (plan) {
+        const fields = plan.fields;
+        const prefixes = plan.namePrefixes;
+        for (let f = 0; f < fields.length; f++) {
+          const spec = fields[f];
+          entry +=
+            prefixes[f] +
+            jsonString(normalizeRaw(spec, line.substring(spec.start - 1, spec.end)));
+        }
+      }
+      entry += '}}';
+      buffer += i === 0 ? entry : `,${entry}`;
+      // Flush periodically: assembling the result from a bounded number of
+      // medium strings beats one rope 200,000 concatenations deep.
+      if (buffer.length > 1048576) {
+        chunks.push(buffer);
+        buffer = '';
+      }
+    }
+    chunks.push(`${buffer}]`);
+    return chunks.join('');
   }
 }
 

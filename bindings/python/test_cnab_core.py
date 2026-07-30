@@ -14,6 +14,8 @@ Keep the assertions aligned with `packages/core/test/values.test.js` and friends
 so a divergence between languages shows up as a failure rather than as a gap.
 """
 
+import json
+
 import pytest
 
 import cnab_core as c
@@ -412,6 +414,99 @@ def test_detect_scope_refuses_to_guess_an_ambiguous_direction():
     with pytest.raises(Exception) as e:
         c.CnabFile.detect_scope(c.CnabSpec.bundled_json(), content)
     assert "direction" in str(e.value)
+
+
+# --- parse_to_json (the large-file path) -----------------------------------
+#
+# `parse` returns one ParsedLine per line and jsii marshals each one, with its
+# ~40-key field map, individually: ~1.5 ms per line here versus ~0.014 ms in
+# Node. `parse_to_json` is the whole reason a non-Node caller can process a real
+# retorno at all (ADR 0009), so its projection is worth pinning explicitly —
+# especially that it comes back as a plain `str` and NOT as something the jsii
+# runtime has already tried to decode.
+
+
+@pytest.fixture(scope="module")
+def retorno_400(spec):
+    """A small cnab400/341 retorno file: header + three detalhe + trailer."""
+    header = spec.get_record("cnab400/341/retorno/header_arquivo").to_line({})
+    trailer = spec.get_record("cnab400/341/retorno/trailer_arquivo").to_line({})
+    detalhe = spec.get_record(DET_400)
+    lines = [header]
+    for i in range(3):
+        lines.append(
+            detalhe.to_line({"nosso_numero": f"1234{i}", "nome_sacado": f"CLIENTE {i}"})
+        )
+    lines.append(trailer)
+    return "\n".join(lines) + "\n"
+
+
+def test_parse_to_json_returns_a_plain_string(retorno_400):
+    payload = c.CnabFile.for_bank_bundled("cnab400", "341", "", "retorno").parse_to_json(
+        retorno_400
+    )
+    # A `str`, not a list and not a dict: the point is that the jsii runtime
+    # treats it as one opaque scalar and does no per-line marshalling at all.
+    assert isinstance(payload, str)
+    assert payload.startswith("[{") and payload.endswith("}]")
+
+
+def test_parse_to_json_matches_parse_exactly(retorno_400):
+    cnab_file = c.CnabFile.for_bank_bundled("cnab400", "341", "", "retorno")
+    rows = json.loads(cnab_file.parse_to_json(retorno_400))
+    objects = cnab_file.parse(retorno_400)
+
+    assert len(rows) == len(objects) == 5
+    for row, obj in zip(rows, objects):
+        # The JSON keys are the TypeScript/camelCase spellings, NOT the
+        # snake_case the struct projection uses. That is deliberate and
+        # documented — it is a data format, not a projected type — so assert it
+        # rather than let a future "helpful" rename go unnoticed.
+        assert set(row) == {"recordKey", "tipo", "segment", "fields"}
+        assert row["recordKey"] == obj.record_key
+        assert row["tipo"] == obj.tipo
+        assert row["segment"] == obj.segment
+        assert row["fields"] == dict(obj.fields)
+
+    assert rows[1]["recordKey"] == DET_400
+    assert rows[1]["fields"]["nosso_numero"] == "12340"
+    assert rows[1]["fields"]["nome_sacado"] == "CLIENTE 0"
+
+
+def test_parse_to_json_handles_empty_and_unclassifiable_content():
+    cnab_file = c.CnabFile.for_bank_bundled("cnab400", "341", "", "retorno")
+    assert json.loads(cnab_file.parse_to_json("")) == []
+
+    rows = json.loads(cnab_file.parse_to_json("Z" * 400))
+    assert len(rows) == 1
+    assert rows[0]["recordKey"] == ""
+    assert rows[0]["fields"] == {}
+
+
+def test_parse_to_json_escapes_values_so_the_payload_stays_decodable(spec):
+    # Alpha fields carry arbitrary text. If the engine's hand-rolled JSON missed
+    # an escape the payload would fail to decode here and nowhere else — Node
+    # never sees the string form.
+    line = spec.get_record(DET_400).to_line({"nome_sacado": 'JOSE "ZE" \\ SILVA'})
+    rows = json.loads(
+        c.CnabFile.for_bank_bundled("cnab400", "341", "", "retorno").parse_to_json(line)
+    )
+    assert rows[0]["fields"]["nome_sacado"] == 'JOSE "ZE" \\ SILVA'
+
+
+def test_parse_to_json_of_chunks_equals_the_whole_file(retorno_400):
+    # The documented recipe for large files is to feed parse_to_json a few
+    # thousand lines at a time; it is only correct because classification is
+    # per-line and stateless. Pin that here too, in the language it matters for.
+    cnab_file = c.CnabFile.for_bank_bundled("cnab400", "341", "", "retorno")
+    whole = json.loads(cnab_file.parse_to_json(retorno_400))
+
+    lines = [l for l in retorno_400.split("\n") if l]
+    chunked = []
+    for i in range(0, len(lines), 2):
+        chunked.extend(json.loads(cnab_file.parse_to_json("\n".join(lines[i : i + 2]))))
+
+    assert chunked == whole
 
 
 # --- BR Code (PIX copia e cola) --------------------------------------------

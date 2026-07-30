@@ -67,6 +67,11 @@ all three on every push.
    a record field may override `picture`/`decimals`/`date_format`.
 5. **Build & jsii toolchain** ([ADR 0005](docs/adrs/0005-build-and-jsii-toolchain.md)):
    `tsc` for tests, `jsii` for the assembly; the gotchas below are recorded there.
+6. **Large files cross the boundary as JSON, in chunks**
+   ([ADR 0010](docs/adrs/0010-large-file-parsing-across-the-jsii-boundary.md)):
+   returning N objects means N kernel crossings (~1.4 ms/line outside Node), so
+   `CnabFile.parseToJson` returns the whole result as one string. Do not add a
+   paging or `string[]` API — both were measured and are *worse*.
 
 ## jsii gotchas (learned the hard way — keep them)
 
@@ -127,7 +132,11 @@ all three on every push.
   `toLine` is **strict** (throws on oversized / non-digit values); the lenient
   legacy behaviour is opt-in via `toLineWithOptions(values, LineOptions)`.
 - `CnabSpec.fromJson(json)` → `recordKeys()`, `hasRecord(key)`, `getRecord(key)`.
-- `CnabFile.forBank(specJson, layout, bank, variant, direction)` → `parse(content): ParsedLine[]`.
+- `CnabFile.forBank(specJson, layout, bank, variant, direction)` →
+  `parse(content): ParsedLine[]`, `parseToJson(content): string`. `parse` is the
+  Node path; everywhere else use `parseToJson`, a few thousand lines per call
+  (ADR 0010). Benchmarks: `tools/bench-parse.mjs` and `tools/bench_parse.py` —
+  committed, run by hand, deliberately not in CI.
 - `CnabFileBuilder.forBank(specJson, layout, bank, variant, direction)` →
   `withHeader`, `startLote`/`addDetail`/`endLote` (cnab240), `addDetail` (cnab400),
   `toFileContent(trailerValues)`. Control fields auto-computed per ADR 0007.

@@ -27,6 +27,7 @@ New to ADRs? See Michael Nygard's
 | [0007](0007-file-builder-control-fields.md) | File builder control fields by name convention | Accepted |
 | [0008](0008-canonical-field-naming.md) | Canonical field naming: one spelling per concept | Accepted |
 | [0009](0009-go-module-distribution.md) | Go module distribution: a separate `cnab/cnab-core-go` repo | Proposed |
+| [0010](0010-large-file-parsing-across-the-jsii-boundary.md) | Large-file parsing: one JSON crossing, fed in chunks | Accepted |
 
 ## Decisions expected soon (tracked in issues, ADR to be written when decided)
 

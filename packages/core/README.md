@@ -42,12 +42,102 @@ Node/.NET/Python/Java via [jsii](https://github.com/aws/jsii) (see
   parser scoped to one bank.
   - `parse(content)` → `ParsedLine[]` (auto-detects each line's record type from
     its discriminator positions: CNAB240 pos 8 + segment pos 14, CNAB400 pos 1).
+    **Node only for files of any size** — see "Large files" below.
+  - `parseToJson(content)` → the same result as **one JSON string**. The path
+    for Python/Java/.NET, and the one that keeps Node's heap flat.
 - `CnabFile.detectScope(json, content)` → `DetectedScope`
   (`{ layout, bank, variant, direction }`) inferred from the first line;
   `CnabFile.detect(json, content)` → a `CnabFile` already scoped to it.
 
 `parse` normalizes values (alpha right-trimmed, numerics left-stripped) so that
 `toLine(parse(line))` reproduces a well-formed line.
+
+## Large files — what this engine can and cannot do
+
+Real retorno files get big: a mid-size issuer's daily retorno is routinely six
+figures of lines. `parse` does not scale to that, and the reason is structural
+rather than a bug to be fixed later. Read this before you point the SDK at a
+production file. The numbers below are from `tools/bench-parse.mjs` and
+`tools/bench_parse.py` (committed, run by hand — they are slow); full analysis
+in [ADR 0010](../../docs/adrs/0010-large-file-parsing-across-the-jsii-boundary.md).
+
+**`parse` returns one object per line, and outside Node every one of those
+objects is marshalled across the jsii kernel individually.** That costs roughly
+1.4 ms *per line* in Python, Java and .NET — about 100x what Node pays — so a
+200,000-line file takes minutes. In Node the cost is memory instead: the parsed
+result retains ~6x the input size.
+
+| 200,000-line CNAB400 retorno (76 MB) | wall | memory |
+| --- | --- | --- |
+| Node, `parse` | 2.8 s | 615 MB retained |
+| Python, `parse` | **353 s** | — |
+| Python, `parseToJson` in one call | 37 s | 184 MB payload |
+| Python, `parseToJson` fed 2,000 lines at a time | **7.5 s** | bounded by the chunk |
+| Node, `parseToJson` fed 2,000 lines at a time | 4.5 s | **4 MB peak** |
+
+Those lines are built with default values, which understates the payload. On a
+file carrying real values (`--filled`) the same 200,000 lines take **9.1 s** in
+Python. Budget for that, not for 7.5 s.
+
+### The rule
+
+- **Small files (up to a few thousand lines):** use whatever is comfortable.
+  `parse` in Node; `parseToJson` outside it.
+- **Anything larger:** use `parseToJson`, and **feed it a few thousand lines at
+  a time**. Two thousand is a good default; throughput is flat between 2,000 and
+  10,000 and degrades above that.
+- **Do not** hand a whole large file to a single call in any language. The jsii
+  boundary degrades sharply on large strings *in both directions* — passing 76 MB
+  in costs ~18 s by itself, before any parsing.
+
+Chunking is exactly equivalent to one call: record classification is per line
+and carries no state, so the concatenation of the chunks' results is the
+whole-file result. Every language's test suite pins that.
+
+### `parseToJson`'s output
+
+A JSON array of objects shaped like `ParsedLine`, with **camelCase** keys — it
+is a data format, not a projected type, so it does not follow the host
+language's naming convention:
+
+```json
+[{ "recordKey": "cnab400/341/retorno/detalhe", "tipo": "1", "segment": "",
+   "fields": { "nosso_numero": "12345", "valor_titulo": "150000" } }]
+```
+
+Field names inside `fields` are the canonical spec names, unchanged. Values are
+identical to what `parse` produces. An unclassifiable line yields an empty
+`recordKey` and an empty `fields` object, exactly as with `parse`.
+
+```python
+import json
+lines = content.splitlines()
+cnab_file = CnabFile.for_bank_bundled("cnab400", "341", "", "retorno")
+for i in range(0, len(lines), 2000):
+    for row in json.loads(cnab_file.parse_to_json("\n".join(lines[i : i + 2000]))):
+        print(row["recordKey"], row["fields"]["nosso_numero"])
+```
+
+```ts
+// Node: `parse` is fine, but chunking parseToJson is what bounds the heap.
+const lines = content.split('\n');
+for (let i = 0; i < lines.length; i += 2000) {
+  for (const row of JSON.parse(file.parseToJson(lines.slice(i, i + 2000).join('\n')))) {
+    // ...
+  }
+}
+```
+
+Java (`ObjectMapper`/`JsonNode`) and .NET (`System.Text.Json`) follow the same
+shape; see the suites in [`bindings/`](../../bindings/README.md).
+
+### The honest ceiling
+
+Even at its best this is ~0.04 ms/line outside Node, because the jsii kernel
+serialises over stdio and nothing in this repo can change that. If you need to
+go faster than that, run the engine in Node. The input must also fit in one
+string in the host language before you chunk it, so streaming a file that does
+not fit in memory is not supported today.
 
 ## Encoding & line endings — the contract for callers
 

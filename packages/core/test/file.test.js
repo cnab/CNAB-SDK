@@ -217,6 +217,95 @@ test('a leading UTF-8 BOM does not shift positions in detectScope/parse', () => 
   assert.deepStrictEqual(parsed, CnabFile.detect(specJson, content).parse(content));
 });
 
+// --- parseToJson -----------------------------------------------------------
+// The JSON fast path exists so that non-Node callers pay one boundary crossing
+// instead of one per line (ADR 0009). Its whole value depends on it being the
+// *same* parse, so every test here asserts equivalence with `parse` rather than
+// asserting a hand-written expectation that could drift.
+
+test('parseToJson is exactly parse, serialized', () => {
+  const keys = [
+    'cnab240/104/sigcb/header_arquivo',
+    'cnab240/104/sigcb/header_lote',
+    'cnab240/104/sigcb/retorno/detalhe_segmento_t',
+    'cnab240/104/sigcb/retorno/detalhe_segmento_u',
+    'cnab240/104/sigcb/trailer_lote',
+  ];
+  const content = buildFile(keys, {
+    0: { codigo_banco: '104', codigo_remessa_retorno: '2' },
+    2: { nosso_numero: '000000000000001', valor_titulo: '000000000150000' },
+    3: { valor_pago: '000000000150000' },
+  });
+  const file = CnabFile.forBank(specJson, 'cnab240', '104', 'sigcb', 'retorno');
+
+  const rows = JSON.parse(file.parseToJson(content));
+  assert.deepStrictEqual(rows, JSON.parse(JSON.stringify(file.parse(content))));
+  // and the keys really are the documented camelCase ones
+  assert.deepStrictEqual(Object.keys(rows[0]), [
+    'recordKey',
+    'tipo',
+    'segment',
+    'fields',
+  ]);
+  assert.strictEqual(rows[2].fields.valor_titulo, '150000');
+});
+
+test('parseToJson handles BOM, CRLF, blank lines and unclassifiable lines', () => {
+  const keys = [
+    'cnab400/341/retorno/header_arquivo',
+    'cnab400/341/retorno/detalhe',
+    'cnab400/341/retorno/trailer_arquivo',
+  ];
+  const file = CnabFile.forBank(specJson, 'cnab400', '341', '', 'retorno');
+  const content = `﻿${buildFile(keys).split('\n').join('\r\n')}\r\n${'Z'.repeat(400)}\r\n\r\n`;
+
+  const rows = JSON.parse(file.parseToJson(content));
+  assert.deepStrictEqual(rows, JSON.parse(JSON.stringify(file.parse(content))));
+  assert.strictEqual(rows.length, 4);
+  assert.strictEqual(rows[3].recordKey, '');
+  assert.deepStrictEqual(rows[3].fields, {});
+});
+
+test('parseToJson returns [] for empty content', () => {
+  const file = CnabFile.forBank(specJson, 'cnab400', '341', '', 'retorno');
+  assert.strictEqual(file.parseToJson(''), '[]');
+  assert.strictEqual(file.parseToJson('\n\n'), '[]');
+});
+
+test('parseToJson escapes JSON metacharacters in alpha fields', () => {
+  // A real file can carry anything in an alpha field. Hand-rolled JSON that
+  // forgets to escape a quote or backslash produces a payload the host cannot
+  // decode — silently, only for the unlucky record.
+  const file = CnabFile.forBank(specJson, 'cnab400', '341', '', 'retorno');
+  const rec = spec.getRecord('cnab400/341/retorno/detalhe');
+  const nasty = 'a"b\\c\td ç';
+  const line = rec.toLine({ uso_empresa: nasty, nome_sacado: 'JOSÉ "ZÉ"' });
+  assert.strictEqual(line.length, 400);
+
+  const rows = JSON.parse(file.parseToJson(line));
+  assert.deepStrictEqual(rows, JSON.parse(JSON.stringify(file.parse(line))));
+  assert.strictEqual(rows[0].fields.uso_empresa, nasty);
+  assert.strictEqual(rows[0].fields.nome_sacado, 'JOSÉ "ZÉ"');
+});
+
+test('parseToJson of a chunk equals the matching slice of the whole file', () => {
+  // The documented recipe for large files is to feed parseToJson a few
+  // thousand lines at a time. That is only safe because classification is
+  // per-line and stateless — pin it.
+  const keys = ['cnab400/341/retorno/header_arquivo'].concat(
+    Array(9).fill('cnab400/341/retorno/detalhe')
+  );
+  const file = CnabFile.forBank(specJson, 'cnab400', '341', '', 'retorno');
+  const lines = buildFile(keys).split('\n');
+  const whole = JSON.parse(file.parseToJson(lines.join('\n')));
+
+  const chunked = [];
+  for (let i = 0; i < lines.length; i += 4) {
+    chunked.push(...JSON.parse(file.parseToJson(lines.slice(i, i + 4).join('\n'))));
+  }
+  assert.deepStrictEqual(chunked, whole);
+});
+
 test('CRLF line endings and a trailing newline parse like LF', () => {
   const keys = [
     'cnab240/104/sigcb/header_arquivo',
