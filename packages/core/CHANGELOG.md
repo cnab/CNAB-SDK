@@ -1,5 +1,46 @@
 # @cnab/core
 
+## 0.5.0
+
+### Minor Changes
+
+- 1ad04dc: Add `CnabFile.parseToJson(content)` so large files are usable outside Node.
+
+  `parse` returns one `ParsedLine` per line and jsii marshals each one — with its
+  ~40-key field map — across the kernel individually. A 200,000-line retorno is
+  200,000 crossings: ~280 s in Python, and the same in Java and .NET, which share
+  the kernel. In Node the cost is memory instead — the result retains ~6x the
+  input size (615 MB for a 76 MB file).
+
+  `parseToJson` returns the whole result as one JSON string, which the host
+  decodes with its own in-process parser. Fed a few thousand lines at a time — the
+  documented recipe, because the jsii boundary degrades sharply on large strings
+  in both directions — the same 200,000-line file takes **7.5 s in Python** and
+  peaks at **4 MB of Node heap**.
+
+  The output is an array of `ParsedLine`-shaped objects with camelCase keys and
+  values identical to `parse`. `parse` is unchanged and remains the Node path.
+  See ADR 0010 for the measurements, including the three rejected alternatives,
+  and `packages/core/README.md` for the documented limits.
+
+### Patch Changes
+
+- 41d1b6d: Add `go` to the jsii targets (`github.com/cnab/cnab-core-go`, package
+  `cnabcore`), so the published assembly declares a Go projection alongside
+  Python, Java and .NET.
+
+  **No public API changed.** The API snapshot in
+  `packages/core/test/api-surface.json` is byte-identical and no member was
+  renamed: jsii's JSII5018 reserved-word check already unions the Go keyword list
+  regardless of configured targets, which is why `type` became `fieldType` long
+  before Go was a target. Adding the target produced zero new jsii warnings.
+
+  The Go module is **not distributed yet** — creating `cnab/cnab-core-go` and
+  wiring the release push are issue #41 steps 2-3. Until then the SDK is still
+  Node/Python/Java/.NET. The distribution decision is recorded as
+  [ADR 0009](https://github.com/cnab/CNAB-SDK/blob/main/docs/adrs/0009-go-module-distribution.md)
+  with status Proposed.
+
 ## 0.4.0
 
 ### Minor Changes
