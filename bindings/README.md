@@ -12,6 +12,29 @@ PyPI / Maven Central / NuGet consumer actually receives.
 
 Go has no suite because there is no Go target configured yet — see #41.
 
+## Go
+
+`bindings/go` consumes the module `jsii-pacmak --targets go` generates, via a
+`replace` directive in its `go.mod` rather than a published version — there is
+no module to `go get` yet (#41 steps 2-3, [ADR 0009](../docs/adrs/0009-go-module-distribution.md)).
+That is the Go analogue of installing the built wheel.
+
+Worth knowing why this suite was added last and separately: pacmak already
+*compiled* the Go module, because it shells out to `go build` on its own output,
+so a projection that could not compile failed the pacmak job. Nothing ever *ran*
+it. Compiling proves the projection is well-formed, not that it behaves — which
+is precisely the gap that let `setDecimal` ship inert in three languages while
+every Node test passed.
+
+Go also has a failure mode the other three cannot: everything crosses as a
+pointer (`*string`, `*map[string]*string`), so "returned nil where a value was
+expected" is its own category. Several assertions exist only to pin that.
+
+```
+cd packages/core && npx jsii-pacmak --targets go
+cd bindings/go && go mod tidy && go test ./...
+```
+
 ## Why these exist
 
 `npm test` proves the **engine** is correct. It cannot prove the **projection**

@@ -51,6 +51,10 @@
       "dotnet": {
         "namespace": "Cnab.Core",
         "packageId": "Cnab.Core"
+      },
+      "go": {
+        "moduleName": "github.com/cnab/cnab-core-go",
+        "packageName": "cnabcore"
       }
     }
   }
