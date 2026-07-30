@@ -21,6 +21,7 @@
 package cnabcore_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -185,5 +186,124 @@ func TestWholeFileParsing(t *testing.T) {
 	got := (*rows)[1].RecordKey
 	if got == nil || *got != det400 {
 		t.Fatalf("second line classified as %q, want %s", derefOr(got), det400)
+	}
+}
+
+// --- parseToJson (ADR 0010) -------------------------------------------------
+//
+// `parse` returns one object per line and jsii marshals each across the kernel
+// individually, which is minutes for a real retorno outside Node. `ParseToJson`
+// makes that ONE crossing that the host decodes in-process. Mirrors the
+// assertions in the Python, Java and .NET suites so a divergence between
+// languages fails rather than quietly differing.
+
+type jsonRow struct {
+	RecordKey string            `json:"recordKey"`
+	Tipo      string            `json:"tipo"`
+	Segment   string            `json:"segment"`
+	Fields    map[string]string `json:"fields"`
+}
+
+func retorno400(t *testing.T, details int) string {
+	t.Helper()
+	spec := cnabcore.CnabSpec_Bundled()
+	hdr := spec.GetRecord(s("cnab400/341/retorno/header_arquivo")).ToLine(strMap(map[string]string{}))
+	det := spec.GetRecord(s(det400)).ToLine(strMap(map[string]string{}))
+	lines := []string{*hdr}
+	for i := 0; i < details; i++ {
+		lines = append(lines, *det)
+	}
+	return strings.Join(lines, "\n")
+}
+
+func TestParseToJsonIsExactlyParseSerialized(t *testing.T) {
+	content := retorno400(t, 3)
+	f := func() cnabcore.CnabFile {
+		return cnabcore.CnabFile_ForBankBundled(s("cnab400"), s("341"), s(""), s("retorno"))
+	}
+	rows := f().Parse(s(content))
+
+	var decoded []jsonRow
+	if err := json.Unmarshal([]byte(*f().ParseToJson(s(content))), &decoded); err != nil {
+		t.Fatalf("payload is not decodable JSON: %v", err)
+	}
+	if len(decoded) != len(*rows) {
+		t.Fatalf("row count differs: parse=%d parseToJson=%d", len(*rows), len(decoded))
+	}
+	compared := 0
+	for i, want := range *rows {
+		got := decoded[i]
+		if derefOr(want.RecordKey) != got.RecordKey {
+			t.Fatalf("row %d recordKey: %q vs %q", i, derefOr(want.RecordKey), got.RecordKey)
+		}
+		if len(*want.Fields) != len(got.Fields) {
+			t.Fatalf("row %d field count: %d vs %d", i, len(*want.Fields), len(got.Fields))
+		}
+		for k, v := range *want.Fields {
+			compared++
+			if got.Fields[k] != derefOr(v) {
+				t.Fatalf("row %d field %s: %q vs %q", i, k, derefOr(v), got.Fields[k])
+			}
+		}
+	}
+	if compared == 0 {
+		t.Fatal("compared no field values — the assertion would be vacuous")
+	}
+}
+
+func TestParseToJsonOfChunksEqualsTheWholeFile(t *testing.T) {
+	// Chunking is the documented recipe, not a workaround: it is what keeps the
+	// boundary cost down. Safe only because classification is per line and
+	// stateless, which is what this pins.
+	content := retorno400(t, 20)
+	lines := strings.Split(content, "\n")
+	f := func() cnabcore.CnabFile {
+		return cnabcore.CnabFile_ForBankBundled(s("cnab400"), s("341"), s(""), s("retorno"))
+	}
+
+	var whole []jsonRow
+	if err := json.Unmarshal([]byte(*f().ParseToJson(s(content))), &whole); err != nil {
+		t.Fatalf("whole-file payload undecodable: %v", err)
+	}
+	var chunked []jsonRow
+	for i := 0; i < len(lines); i += 7 {
+		end := i + 7
+		if end > len(lines) {
+			end = len(lines)
+		}
+		var part []jsonRow
+		if err := json.Unmarshal([]byte(*f().ParseToJson(s(strings.Join(lines[i:end], "\n")))), &part); err != nil {
+			t.Fatalf("chunk payload undecodable: %v", err)
+		}
+		chunked = append(chunked, part...)
+	}
+	if len(whole) != len(chunked) {
+		t.Fatalf("chunked row count %d != whole %d", len(chunked), len(whole))
+	}
+	for i := range whole {
+		if fmt.Sprint(whole[i]) != fmt.Sprint(chunked[i]) {
+			t.Fatalf("row %d differs between chunked and whole-file parsing", i)
+		}
+	}
+}
+
+func TestParseToJsonEscapesValuesSoThePayloadStaysDecodable(t *testing.T) {
+	// Hand-rolled JSON fails by emitting something that will not decode. A
+	// quote and a backslash in a real field is the cheapest way to catch it.
+	spec := cnabcore.CnabSpec_Bundled()
+	hdr := spec.GetRecord(s("cnab400/341/retorno/header_arquivo")).ToLine(strMap(map[string]string{}))
+	det := spec.GetRecord(s(det400)).ToLine(strMap(map[string]string{
+		"nome_sacado": `ACME "Q" \ LTDA`,
+	}))
+	content := strings.Join([]string{*hdr, *det}, "\n")
+
+	var rows []jsonRow
+	payload := cnabcore.CnabFile_ForBankBundled(s("cnab400"), s("341"), s(""), s("retorno")).ParseToJson(s(content))
+	if err := json.Unmarshal([]byte(*payload), &rows); err != nil {
+		t.Fatalf("escaping is broken — payload will not decode: %v", err)
+	}
+	got := strings.TrimSpace(rows[1].Fields["nome_sacado"])
+	if got != `ACME "Q" \ LTDA` {
+		t.Fatalf("value did not survive escaping: %q", got)
 	}
 }
