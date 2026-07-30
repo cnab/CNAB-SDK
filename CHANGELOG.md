@@ -16,6 +16,75 @@ The SDK stays on **0.x** deliberately: the jsii assembly is
 `stability: experimental`, `toLine` recently became strict, and catalog field
 names may still move as the remaining ADR 0008 cleanup lands.
 
+## [0.5.0] — 2026-07-28
+
+### Added
+
+- **`CnabFile.parseToJson(content)` — whole-file parsing that is usable outside
+  Node.** `parse` returns one object per line, and jsii marshals each one, with
+  its ~40-key field map, across the kernel individually. A 200,000-line retorno
+  is 200,000 crossings. Measured, not estimated: **352 s in Python**. Java and
+  .NET share the same kernel, so four of the five shipped languages could not
+  process a routine retorno file at all. In Node the cost appeared as memory
+  instead — 625 MB retained for a 76 MB input.
+
+  `parseToJson` returns the entire result as one JSON document, which the host
+  decodes with its own in-process parser: one crossing rather than N.
+
+  ```python
+  rows = json.loads(f.parse_to_json(chunk))   # chunk = a few thousand lines
+  ```
+
+  **Feed it in chunks — that is the documented contract, not a workaround.** The
+  boundary degrades sharply on large strings in *both* directions, so a single
+  call carrying a whole 76 MB file spends ~18 s just transporting the input and
+  is only ~10x better than the old path; a few thousand lines at a time is
+  ~47x. The same 200,000-line file takes **8.5 s in Python** and peaks at 4 MB
+  of Node heap. Chunking is safe because line classification is per-line and
+  stateless, which every language's test suite now pins at several chunk sizes.
+
+  The three alternatives in #77 were each built and measured, and all are worse
+  than doing nothing clever: paging re-transports the input on every page
+  (192 s), a stateful reader costs 18.5 s just to open, and accepting a string
+  array is 7-10% slower than the same lines joined. So the public surface grows
+  by exactly one method. See [ADR 0010](docs/adrs/0010-large-file-parsing-across-the-jsii-boundary.md).
+
+- **Go is a configured jsii target**, and `bindings/go` is a real unit suite
+  rather than a smoke test. The module is **not distributed yet** — creating
+  `cnab/cnab-core-go` and wiring the release push remain open (#41 steps 2-3,
+  [ADR 0009](docs/adrs/0009-go-module-distribution.md), status Proposed) — so
+  the SDK still ships as Node/Python/Java/.NET.
+
+  Adding the target produced **zero** new jsii warnings and renamed nothing,
+  which contradicted the expectation in #41 and is worth recording: jsii's
+  reserved-word check takes only a name and unions the Go keyword list
+  unconditionally. It has never been target-gated. That is why `FieldType.type`
+  became `fieldType` long before Go was a target, and it means turning a
+  language on cannot reveal naming problems.
+
+  The gap that did need closing was different. `jsii-pacmak` already *compiled*
+  the Go module, but nothing ever *ran* it — and compiling proves a projection
+  is well-formed, not that it behaves. That distinction is not academic: it is
+  exactly how `setDecimal` shipped inert in three of four languages while every
+  Node test passed.
+
+### Changed
+
+- **The engine writes the JSON directly** rather than materialising objects and
+  serialising them, which is what keeps Node from allocating 200,000 objects it
+  would immediately discard. Escaping is centralised in one helper that defers
+  to `JSON.stringify` for anything non-trivial, and value normalisation is
+  shared with the object path so the two cannot drift.
+- `packages/core/README.md` now documents the real limits. It previously implied
+  the SDK handled any CNAB file in any language, and for four languages that was
+  not true.
+
+### Fixed
+
+- `.claude/` is excluded from both git and Prettier. Agent worktrees are full
+  nested checkouts of this repository, and Prettier does not read `.gitignore`,
+  so `format:check` walked into them and reported their generated files.
+
 ## [0.4.0] — 2026-07-26
 
 ### Added
