@@ -15,14 +15,17 @@ One TypeScript engine, projected to each language by
 
 | Language | Minimum version | Package | Tested in CI on | Unit tests |
 | --- | --- | --- | --- | --- |
-| **Node.js / TypeScript** | **18** (`engines`) | `@cnab/core`, `@cnab/spec`, `@cnab/cli` | 22 | 215 |
-| **Python** | **3.10** (`Requires-Python`) | `cnab-core` (module `cnab_core`) | 3.11 | 47 |
-| **Java** | **8** (compiled `source/target 1.8`) | `org.cnab:cnab-core` | 17 | 35 |
-| **.NET** | **6.0** (`net6.0`) | `Cnab.Core` | 8.0 | 39 |
-| **Go** | — | not generated yet — see [#41](https://github.com/cnab/CNAB-SDK/issues/41) | — | — |
+| **Node.js / TypeScript** | **18** (`engines`) | `@cnab/core`, `@cnab/spec`, `@cnab/cli` | 22 | 242 |
+| **Python** | **3.10** (`Requires-Python`) | `cnab-core` (module `cnab_core`) | 3.11 | 58 |
+| **Java** | **8** (compiled `source/target 1.8`) | `org.cnab:cnab-core` | 17 | 46 |
+| **.NET** | **6.0** (`net6.0`) | `Cnab.Core` | 8.0 | 50 |
+| **Go** | **1.25** | generated + tested, **not distributed** — [#41](https://github.com/cnab/CNAB-SDK/issues/41) | 1.25 | 11 |
 
 The minimums are what the **published artifacts declare**; the CI column is what
-is actually exercised on every push. Unit suites for the non-Node languages run
+is actually exercised on every push. Go is a configured jsii target whose
+binding suite runs in CI, but the module is **not published** — `go get` will
+not work until [#41](https://github.com/cnab/CNAB-SDK/issues/41) steps 2-3 land
+([ADR 0009](docs/adrs/0009-go-module-distribution.md)). Unit suites for the non-Node languages run
 against the *generated bindings*, not the TypeScript source — see
 [`bindings/`](bindings/README.md).
 
@@ -41,6 +44,32 @@ Built with jsii **6.0.5**; the jsii runtime libraries are pinned to
 **Nothing is published to npm, PyPI, Maven Central or NuGet yet.** Releases are
 cut as GitHub Releases with the artifacts attached; registry publishing is
 [#14](https://github.com/cnab/CNAB-SDK/issues/14).
+
+## Bank coverage
+
+**5 banks**, **55 records** (37 bank-specific + 18 generic FEBRABAN templates),
+**6 code tables** and **277 catalog fields**.
+
+| Bank | Code | CNAB 240 | CNAB 400 | remessa | retorno |
+| --- | --- | --- | --- | --- | --- |
+| Caixa Econômica Federal | `104` | ✅ (incl. SIGCB) | ✅ | ✅ | ✅ |
+| Banco do Brasil | `001` | ✅ | ✅ | ✅ | ✅ |
+| Santander | `033` | ✅ | — | ✅ | ⚠️ thin |
+| Itaú | `341` | — | ✅ | ✅ | ✅ |
+| Bradesco | `237` | — | ✅ | ❌ **none** | ✅ |
+
+**Read the remessa/retorno columns before planning around this table.** Coverage
+is not symmetric, and a bank being listed does not mean you can both read and
+write its files. Bradesco is **retorno-only** — there are no remessa records, so
+you cannot generate a Bradesco file today. Santander's retorno coverage is a
+single record.
+
+Every shipped record is verified by the compiler for full, gapless,
+non-overlapping line coverage, and has a golden-line test plus round-trip
+property tests. More banks are tracked in
+[#5](https://github.com/cnab/CNAB-SDK/issues/5); each one needs the bank's
+official manual, because a guessed position does not throw — it produces a
+plausible, wrong number.
 
 ## Layout
 
