@@ -16,7 +16,7 @@
     "build:spec": "node tools/build-spec.mjs && node tools/embed-spec.mjs",
     "build:core": "npm run build --workspace @cnab/core",
     "build": "npm run build:spec && npm run build:core",
-    "test": "npm run build:spec && node tools/check-packaging.mjs && npm run test --workspaces --if-present",
+    "test": "npm run build:spec && node tools/check-packaging.mjs && node tools/check-docs-claims.mjs && npm run test --workspaces --if-present",
     "check:packaging": "node tools/check-packaging.mjs --pack",
     "report:spec": "node tools/spec-report.mjs",
     "docs": "npm run build:spec && npm run build:jsii --workspace @cnab/core && node tools/build-api-docs.mjs",
