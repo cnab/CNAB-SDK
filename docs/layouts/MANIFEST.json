@@ -1,0 +1,299 @@
+{
+  "note": "Third-party mirrors of bank layout manuals, pinned by upstream commit and verified by sha256. Not vendored into git; run tools/fetch-layouts.sh to reconstruct.",
+  "documents": [
+    {
+      "path": "itau/cnab240-cobranca.pdf",
+      "bank": "341",
+      "bankName": "Itaú",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "Fevereiro 2016",
+      "bytes": 2171888,
+      "sha256": "a383f64b14729e21eb7257d892b99b5b728c6b547d6e5cc8a34fbb0263b3b848",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/itau/cnab240/cobranca/cobranca_cnab240.pdf"
+      },
+      "pages": 52,
+      "issue": 70
+    },
+    {
+      "path": "itau/cnab400-cobranca.pdf",
+      "bank": "341",
+      "bankName": "Itaú",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "Fevereiro 2016",
+      "bytes": 2586997,
+      "sha256": "f63a95817b5a4be6fd94d12edd2b54bc68f989ed6e43d3b89cea1268ffe881ec",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/itau/cnab400/cobranca/layout_cobranca_400bytes_cnab_itau.pdf"
+      },
+      "pages": 65
+    },
+    {
+      "path": "bradesco/cnab240-cobranca-mpo.pdf",
+      "bank": "237",
+      "bankName": "Bradesco",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "MP 4008.524.0339 v02 — 08/07/2013",
+      "bytes": 1611262,
+      "sha256": "18a3544d55f4538d5fab4b4080521d93be3c2e8813b81be5a332c19212656b9a",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/bradesco/cnab240/cobranca/4008-524-0339-02-mp-operacionais-troca-arquivos-240-posicoes.pdf"
+      },
+      "pages": 46,
+      "issue": 71
+    },
+    {
+      "path": "bradesco/cnab400-cobranca.pdf",
+      "bank": "237",
+      "bankName": "Bradesco",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "MP 4008.524.0121 v08 — 11/09/2013",
+      "bytes": 1165471,
+      "sha256": "e915cf8373b5c07b5528d37f88644f8f7e78c5cb746fbc8d478385525bb5c8d0",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/bradesco/cnab400/cobranca/4008-524-0121-08-layout-cobranca-versao-portugues.pdf"
+      },
+      "pages": 68
+    },
+    {
+      "path": "santander/cnab240-cobranca.pdf",
+      "bank": "033",
+      "bankName": "Santander",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "Setembro/2009",
+      "bytes": 119150,
+      "sha256": "f2876edadd92be0a9ac622f7e964b5c7533638e3c45c2ec4244c0d0c195ac67e",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/santander/cnab240/cobranca/Layout Cobranca - CNAB 240 - Multibanco.pdf"
+      },
+      "pages": 19
+    },
+    {
+      "path": "santander/cnab400-cobranca.pdf",
+      "bank": "033",
+      "bankName": "Santander",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "v2.17 — Outubro/2017",
+      "bytes": 668671,
+      "sha256": "1884a5bc832955c296c7658e2f4066a62ecd03ac50cd50819b0b839a2c24f6c7",
+      "source": {
+        "repo": "lucianoww/Layouts-Bancarios",
+        "commit": "e9cc9a8a77bf1db8dc5fdaca683fab941a8e7dcd",
+        "path": "SANTANDER - COBRANÇA - CNAB400.pdf"
+      },
+      "pages": 26,
+      "issue": 72
+    },
+    {
+      "path": "caixa/cnab240-cobranca-sigcb.pdf",
+      "bank": "104",
+      "bankName": "Caixa",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "SIGCB — 14/10/2015",
+      "bytes": 3440771,
+      "sha256": "3850608a3fe653d6253eaf45dbe9a6746a6f21935ee73932caadaed9a685256c",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/caixa/cnab240/cobranca/Manual_Leiaute_CNAB240_SIGCB.pdf"
+      },
+      "pages": 101
+    },
+    {
+      "path": "caixa/cnab400-cobranca-sigcb.pdf",
+      "bank": "104",
+      "bankName": "Caixa",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "SIGCB — undated",
+      "bytes": 227841,
+      "sha256": "1769e1bbf0344fa23d5382c2dde8b77339f453690921becd6620e88eaee7450c",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/caixa/cnab400/cobranca/LEIAUTE_CNAB_400_SIGCB_COBRANCA_CAIXA.pdf"
+      },
+      "pages": 27
+    },
+    {
+      "path": "bb/cnab240-cobranca-particularidades.pdf",
+      "bank": "001",
+      "bankName": "Banco do Brasil",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "CbrVer04BB — julho/2011",
+      "bytes": 167625,
+      "sha256": "ca34ac53075f6c220a565d64372e59c39b4ac05215d363068109c7e5c7f4d5df",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/bb/cnab240/cobranca/Particularidades_BB_Cnab240_CbrVer04BB.pdf"
+      },
+      "pages": 25,
+      "upstreamOfficial": "https://www.bb.com.br/docs/pub/emp/empl/dwn/CbrVer04BB.pdf"
+    },
+    {
+      "path": "bb/cnab240-cobranca-febraban-v0807.pdf",
+      "bank": "001",
+      "bankName": "Banco do Brasil",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "FEBRABAN V08.7 — 21/09/2012",
+      "bytes": 4171403,
+      "sha256": "a347a60656e19f49f07666cf35ceb11a5c017ced5c0c5b7b9f086e349f706688",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/bb/cnab240/cobranca/subcpadr12-layout padrao V 08 07 - 21.09 - V1.pdf"
+      },
+      "pages": 213
+    },
+    {
+      "path": "bb/cnab400-cobranca-remessa.pdf",
+      "bank": "001",
+      "bankName": "Banco do Brasil",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "CBR641 — Abril 2012",
+      "bytes": 230124,
+      "sha256": "7a6ddc259fce369687aac34b5d026f154f4b0914c647a6ffe82fe7abf7c86919",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/bb/cnab400/cobranca/remessa_Doc2627CBR641Pos7.pdf"
+      },
+      "pages": 20
+    },
+    {
+      "path": "bb/cnab400-cobranca-retorno.pdf",
+      "bank": "001",
+      "bankName": "Banco do Brasil",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "CBR643 — Jan/2014",
+      "bytes": 661327,
+      "sha256": "ef3e26e1bc557867bc9c19b26c62ae69a57e0f5783fe5169f28d27cd1216bcc6",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/bb/cnab400/cobranca/retorno_Doc2628CBR643Pos7.pdf"
+      },
+      "pages": 29
+    },
+    {
+      "path": "sicredi/cnab400-cobranca.pdf",
+      "bank": "748",
+      "bankName": "Sicredi",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "Maio/2014",
+      "bytes": 2439494,
+      "sha256": "ee48d61848f34ebcd792b3cc0c2f326b84a0be12a7c1452e8132fee1894a286e",
+      "source": {
+        "repo": "lucianoww/Layouts-Bancarios",
+        "commit": "e9cc9a8a77bf1db8dc5fdaca683fab941a8e7dcd",
+        "path": "SICREDI - COBRANÇA - CNAB400.pdf"
+      },
+      "pages": 62,
+      "issue": 74
+    },
+    {
+      "path": "banrisul/cnab400-cobranca.pdf",
+      "bank": "041",
+      "bankName": "Banrisul",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "undated",
+      "bytes": 715825,
+      "sha256": "3981fc3c6fbff8eed742099d4fee34d84e1bd52f2fc22715f5c822a8cf36f929",
+      "source": {
+        "repo": "lucianoww/Layouts-Bancarios",
+        "commit": "e9cc9a8a77bf1db8dc5fdaca683fab941a8e7dcd",
+        "path": "BANRISUL - COBRANÇA - CNAB400.pdf"
+      },
+      "pages": 41
+    },
+    {
+      "path": "safra/cnab400-cobranca.pdf",
+      "bank": "422",
+      "bankName": "Safra",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "Dezembro/2017",
+      "bytes": 472182,
+      "sha256": "a1184666f89880102fcac3610856e462cc33a8878139fa0ae9f4312fed396ca4",
+      "source": {
+        "repo": "lucianoww/Layouts-Bancarios",
+        "commit": "e9cc9a8a77bf1db8dc5fdaca683fab941a8e7dcd",
+        "path": "SAFRA - COBRANÇA - CNAB400.pdf"
+      },
+      "pages": 39
+    },
+    {
+      "path": "febraban/cnab240-padrao-v0910.pdf",
+      "bank": null,
+      "bankName": "FEBRABAN",
+      "format": "cnab240",
+      "service": "padrao",
+      "docVersion": "V09.1 — 19/10/2015",
+      "bytes": 1496359,
+      "sha256": "6d11db88d57dd0c3265a56e33d9e31edeb76105a5edf7b8577e6604a15cf2e81",
+      "source": {
+        "repo": "glauberportella/cnab-layouts",
+        "commit": "2c78c7d5281ff652def8398a9307a296352364fc",
+        "path": "docs/febraban/cnab240/subcpadr15-layout padrao V 09 10 - 19.10.pdf"
+      },
+      "pages": 214,
+      "upstreamOfficial": "https://cmsportal.febraban.org.br/Arquivos/documentos/PDF/Layout%20padrao%20CNAB240%20%20V%2010%2005%20-%2005_11_18.pdf"
+    },
+    {
+      "path": "febraban/cnab240-padrao-v86.pdf",
+      "bank": null,
+      "bankName": "FEBRABAN",
+      "format": "cnab240",
+      "service": "padrao",
+      "docVersion": "V08.6 — 05/01/2012",
+      "bytes": 4167110,
+      "sha256": "48731fa437e7e1bb813b54c5330f1235ca9ec9e7fdde1cde60395145994f0ee2",
+      "source": {
+        "repo": "eduardordm/cnab240",
+        "commit": "c86ad20af4a340bedf9a077b3c65161f7da96520",
+        "path": "docs/vendor/febraban/subcpadr12_layout_padrao_V86.pdf"
+      },
+      "pages": 215
+    },
+    {
+      "path": "sicoob/ATUALIZADO_Layouts_para_troca_de_informações.xls",
+      "bank": "756",
+      "bankName": "Sicoob",
+      "format": "cnab240+400",
+      "service": "cobranca",
+      "docVersion": "spreadsheet, last saved 2016-10-10 — Sicoob Cred-Acif (regional, NOT the official 756 manual)",
+      "bytes": 1075200,
+      "sha256": "14dde8e867e7f3efc152130beea9258e7085b137c5fb5365845c6067d72c0936",
+      "source": {
+        "repo": "fhferreira/Sicoob",
+        "commit": "a53bc59b7771182910cb184395e5c955f4e42dbe",
+        "path": "support/ATUALIZADO_Layouts_para_troca_de_informações.xls"
+      },
+      "issue": 73
+    }
+  ]
+}
