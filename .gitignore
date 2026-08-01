@@ -33,3 +33,7 @@ __pycache__/
 # worktrees/ rather than all of .claude/ so project-level config such as
 # .claude/settings.json can still be committed if this repo ever wants it.
 .claude/worktrees/
+
+# Bank layout manuals: fetched on demand, never committed.
+# node tools/fetch-layouts.mjs
+.layouts/
