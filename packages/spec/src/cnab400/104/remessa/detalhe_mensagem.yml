@@ -1,0 +1,29 @@
+meta:
+  layout: cnab400
+  bank: "104"
+  direction: remessa
+  record: detalhe_mensagem
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "2" }
+  - { ref: codigo_inscricao, pos: [2, 3] }
+  - { ref: numero_inscricao, pos: [4, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: codigo_cedente, pos: [22, 27] }
+  - { ref: brancos01, pos: [28, 31], default: "" }
+  - { ref: brancos02, pos: [32, 56], default: "" }
+  - { ref: modalidade_carteira, pos: [57, 58] }
+  - { ref: nosso_numero, pos: [59, 73] }
+  - { ref: brancos03, pos: [74, 106], default: "" }
+  - { ref: carteira, pos: [107, 108] }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
+  - { ref: brancos04, pos: [111, 139], default: "" }
+  - { ref: codigo_banco, pos: [140, 142], default: "104" }
+  - { ref: mensagem_1, pos: [143, 182] }
+  - { ref: mensagem_2, pos: [183, 222] }
+  - { ref: mensagem_3, pos: [223, 262] }
+  - { ref: mensagem_4, pos: [263, 302] }
+  - { ref: mensagem_5, pos: [303, 342] }
+  - { ref: mensagem_6, pos: [343, 382] }
+  - { ref: brancos05, pos: [383, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

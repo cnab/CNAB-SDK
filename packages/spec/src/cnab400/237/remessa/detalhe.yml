@@ -1,0 +1,56 @@
+meta:
+  layout: cnab400
+  bank: "237"
+  direction: remessa
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: agencia_debito, pos: [2, 6] }
+  - { ref: agencia_debito_dv, pos: [7, 7] }
+  - { ref: razao_conta_debito, pos: [8, 12] }
+  - { ref: conta_debito, pos: [13, 19] }
+  - { ref: conta_debito_dv, pos: [20, 20] }
+  - { ref: zeros01, pos: [21, 21], default: "0" }
+  - { ref: carteira, pos: [22, 24] }
+  - { ref: agencia, pos: [25, 29] }
+  - { ref: conta, pos: [30, 36] }
+  - { ref: conta_dac, pos: [37, 37] }
+  - { ref: uso_empresa, pos: [38, 62] }
+  - { ref: codigo_banco_debito, pos: [63, 65] }
+  - { ref: codigo_multa, pos: [66, 66] }
+  - { ref: valor_multa, pos: [67, 70] }
+  - { ref: nosso_numero, pos: [71, 81] }
+  - { ref: dac_nosso_numero, pos: [82, 82] }
+  - { ref: desconto_bonificacao_dia, pos: [83, 92] }
+  - { ref: identificacao_emissao, pos: [93, 93] }
+  - { ref: boleto_debito_automatico, pos: [94, 94] }
+  - { ref: uso_banco01, pos: [95, 104], default: "" }
+  - { ref: indicador_rateio, pos: [105, 105] }
+  - { ref: aviso_debito_automatico, pos: [106, 106] }
+  - { ref: brancos01, pos: [107, 108], default: "" }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
+  - { ref: numero_documento, pos: [111, 120] }
+  - { ref: vencimento, pos: [121, 126], date_format: "%d%m%y" }
+  - { ref: valor_titulo, pos: [127, 139] }
+  - { ref: codigo_do_banco, pos: [140, 142], default: "0" }
+  - { ref: agencia_cobradora, pos: [143, 147], default: "0" }
+  - { ref: especie, pos: [148, 149] }
+  - { ref: aceite, pos: [150, 150], default: "N" }
+  - { ref: data_emissao, pos: [151, 156], date_format: "%d%m%y" }
+  - { ref: instrucao1, pos: [157, 158] }
+  - { ref: instrucao2, pos: [159, 160] }
+  - { ref: juros_um_dia, pos: [161, 173] }
+  - { ref: desconto_ate, pos: [174, 179] }
+  - { ref: valor_desconto, pos: [180, 192] }
+  - { ref: valor_iof, pos: [193, 205] }
+  - { ref: abatimento, pos: [206, 218] }
+  - { ref: sacado_codigo_inscricao, pos: [219, 220] }
+  - { ref: sacado_numero_inscricao, pos: [221, 234] }
+  - { ref: nome, pos: [235, 274] }
+  - { ref: logradouro, pos: [275, 314] }
+  - { ref: mensagem_1, pos: [315, 326] }
+  - { ref: cep, pos: [327, 331] }
+  - { ref: cep_sufixo, pos: [332, 334] }
+  - { ref: sacador, pos: [335, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

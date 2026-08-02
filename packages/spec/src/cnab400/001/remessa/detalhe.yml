@@ -1,0 +1,57 @@
+meta:
+  layout: cnab400
+  bank: "001"
+  direction: remessa
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "7" }
+  - { ref: codigo_inscricao, pos: [2, 3] }
+  - { ref: numero_inscricao, pos: [4, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: agencia_dv, pos: [22, 22], picture: "X(01)" }
+  - { ref: conta_cedente, pos: [23, 30] }
+  - { ref: conta_cedente_dac, pos: [31, 31] }
+  - { ref: convenio, pos: [32, 38] }
+  - { ref: controle_participante, pos: [39, 63] }
+  - { ref: nosso_numero, pos: [64, 80] }
+  - { ref: numero_prestacao, pos: [81, 82], default: "0" }
+  - { ref: grupo_valor, pos: [83, 84], default: "0" }
+  - { ref: brancos01, pos: [85, 87], default: "" }
+  - { ref: indicativo_mensagem_sacador_avalista, pos: [88, 88], default: "" }
+  - { ref: prefixo_titulo, pos: [89, 91], default: "" }
+  - { ref: variacao_carteira, pos: [92, 94] }
+  - { ref: conta_caucao, pos: [95, 95], default: "0" }
+  - { ref: numero_bordero, pos: [96, 101], default: "0" }
+  - { ref: tipo_cobranca, pos: [102, 106], picture: "X(05)", default: "" }
+  - { ref: carteira, pos: [107, 108] }
+  - { ref: codigo_ocorrencia, pos: [109, 110], default: "01" }
+  - { ref: numero_documento, pos: [111, 120] }
+  - { ref: vencimento, pos: [121, 126], date_format: "%d%m%y" }
+  - { ref: valor_titulo, pos: [127, 139] }
+  - { ref: codigo_banco, pos: [140, 142], default: "001" }
+  - { ref: agencia_cobradora, pos: [143, 146], default: "0" }
+  - { ref: agencia_cobradora_dv, pos: [147, 147], picture: "X(01)", default: "" }
+  - { ref: especie, pos: [148, 149] }
+  - { ref: aceite, pos: [150, 150] }
+  - { ref: data_emissao, pos: [151, 156], date_format: "%d%m%y" }
+  - { ref: instrucao1, pos: [157, 158], picture: "9(02)", default: "0" }
+  - { ref: instrucao2, pos: [159, 160], picture: "9(02)", default: "0" }
+  - { ref: juros_um_dia, pos: [161, 173], default: "0" }
+  - { ref: desconto_ate, pos: [174, 179], default: "0" }
+  - { ref: valor_desconto, pos: [180, 192], default: "0" }
+  - { ref: valor_iof, pos: [193, 205], default: "0" }
+  - { ref: abatimento, pos: [206, 218], default: "0" }
+  - { ref: sacado_codigo_inscricao, pos: [219, 220] }
+  - { ref: sacado_numero_inscricao, pos: [221, 234] }
+  - { ref: nome_sacado, pos: [235, 271] }
+  - { ref: brancos02, pos: [272, 274], default: "" }
+  - { ref: logradouro, pos: [275, 314] }
+  - { ref: bairro, pos: [315, 326] }
+  - { ref: cep, pos: [327, 334] }
+  - { ref: cidade, pos: [335, 349] }
+  - { ref: estado, pos: [350, 351] }
+  - { ref: mensagem_sacador_avalista, pos: [352, 391], default: "" }
+  - { ref: prazo_protesto, pos: [392, 393], picture: "X(02)", default: "" }
+  - { ref: brancos03, pos: [394, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

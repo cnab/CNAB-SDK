@@ -1,0 +1,27 @@
+meta:
+  layout: cnab400
+  bank: "001"
+  direction: remessa
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "0" }
+  - { ref: tipo_operacao, pos: [2, 2], default: "1" }
+  - { ref: literal_remessa, pos: [3, 9], default: "REMESSA" }
+  - { ref: codigo_de_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 19], default: "COBRANCA" }
+  - { ref: brancos01, pos: [20, 26], default: "" }
+  - { ref: agencia, pos: [27, 30] }
+  - { ref: agencia_dv, pos: [31, 31], picture: "X(01)" }
+  - { ref: conta_cedente, pos: [32, 39] }
+  - { ref: conta_cedente_dac, pos: [40, 40] }
+  - { ref: zeros01, pos: [41, 46], default: "0" }
+  - { ref: nome_empresa, pos: [47, 76] }
+  - { ref: codigo_banco, pos: [77, 79], default: "001" }
+  - { ref: nome_banco, pos: [80, 94], default: "BANCODOBRASIL" }
+  - { ref: data_geracao, pos: [95, 100], date_format: "%d%m%y" }
+  - { ref: numero_sequencial_arquivo, pos: [101, 107] }
+  - { ref: brancos02, pos: [108, 129], default: "" }
+  - { ref: numero_convenio, pos: [130, 136] }
+  - { ref: brancos03, pos: [137, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400], default: "1" }

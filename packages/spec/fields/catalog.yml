@@ -98,6 +98,10 @@ boleto_dda:
   picture: "X(01)"
   description: "Nota 34 - Indicador De Boleto Dda"
 
+boleto_debito_automatico:
+  picture: "X(01)"
+  description: "Condição de registro do boleto quando há débito automático: 'N' = não registra na cobrança quando os dados do débito estiverem incorretos; diferente de 'N' = registra e emite o boleto."
+
 brancos01:
   picture: "X(20)"
   description: "Complemento De Registro"
@@ -453,6 +457,10 @@ desconto_ate:
   date_format: "%d%m%y"
   description: "Data limite para concessão do desconto."
 
+desconto_bonificacao_dia:
+  picture: "9(08)V9(2)"
+  description: "Valor do desconto/bonificação concedido por dia de antecipação do pagamento."
+
 dias_calculo:
   picture: "9(04)"
   description: "Nota 4"
@@ -485,6 +493,10 @@ forma_lancamento:
   picture: "9(2)"
   description: "Forma de Lançamento"
 
+grupo_valor:
+  picture: "9(2)"
+  description: "Grupo de valor do título (Banco do Brasil CNAB400 remessa) — preencher com zeros."
+
 hora_geracao:
   picture: "9(6)"
   date_format: "%H%M%S"
@@ -505,6 +517,10 @@ identificacao_emissao:
 identificacao_rejeicao:
   picture: "9(10)"
   description: "Motivos da ocorrência de retorno — até cinco códigos de dois dígitos."
+
+identificacao_sistema:
+  picture: "X(02)"
+  description: "Identificação do sistema de cobrança do banco no header do arquivo-remessa (Bradesco: 'MX')."
 
 identificador_carne:
   picture: "9(3)"
@@ -530,6 +546,10 @@ indicativo_debito_credito:
   picture: "9(01)"
   description: "Nota 11"
 
+indicativo_mensagem_sacador_avalista:
+  picture: "X(1)"
+  description: "Indica o conteúdo do campo de observações do registro detalhe: 'brancos' = mensagem livre a imprimir no boleto; 'A' = nome e CPF/CNPJ do sacador/avalista."
+
 informacao_sacado:
   picture: "X(10)"
   description: "Texto de observações destinado ao envio de informações do Cedente ao Sacado."
@@ -545,6 +565,10 @@ instrucao1:
 instrucao2:
   picture: "X(02)"
   description: "Segunda instrução de cobrança a ser executada pelo banco."
+
+instrucao3:
+  picture: "9(02)"
+  description: "Terceira instrução de cobrança a ser executada pelo banco."
 
 juros_um_dia:
   picture: "9(11)V9(2)"
@@ -596,6 +620,14 @@ mensagem_4:
 mensagem_5:
   picture: "X(47)"
   description: "Texto de observações destinado ao envio de mensagens livres, a serem impressas no boleto."
+
+mensagem_6:
+  picture: "X(40)"
+  description: "Texto de observações destinado ao envio de mensagens livres, a serem impressas no boleto."
+
+mensagem_sacador_avalista:
+  picture: "X(40)"
+  description: "Observações/mensagem a ser impressa no boleto ou, quando o indicativo correspondente for 'A', nome e CPF/CNPJ do sacador/avalista."
 
 modalidade_carteira:
   picture: "9(2)"
@@ -664,6 +696,10 @@ numero_banco:
   picture: "9(3)"
   description: "Código do banco cobrador/recebedor do título."
 
+numero_bordero:
+  picture: "9(6)"
+  description: "Número do borderô de cobrança (Banco do Brasil CNAB400 remessa) — preencher com zeros."
+
 numero_carteira:
   picture: "9(03)"
   description: "Número da carteira de cobrança."
@@ -697,6 +733,10 @@ numero_inscricao_empresa:
 numero_plano:
   picture: "9(3)"
   description: "Número do plano de parcelamento do carnê."
+
+numero_prestacao:
+  picture: "9(2)"
+  description: "Número da prestação do título (Banco do Brasil CNAB400 remessa) — preencher com zeros."
 
 numero_protocolo:
   picture: "X(10)"
@@ -756,7 +796,7 @@ posicao_relativa:
 
 prazo:
   picture: "9(02)"
-  description: ""
+  description: "Prazo em dias para a instrução indicada (protesto ou devolução, conforme o código da instrução)."
 
 prazo_baixa:
   picture: "9(3)"
@@ -833,6 +873,10 @@ qtdede_titulos_dup4:
 quantidade_parcela:
   picture: "9(3)"
   description: "Quantidade total de parcelas do carnê."
+
+razao_conta_debito:
+  picture: "9(5)"
+  description: "Razão (prefixo) da conta corrente do pagador a ser debitada no débito automático."
 
 remessa_teste:
   picture: "X(2)"
@@ -933,6 +977,10 @@ taxa_desconto:
 taxa_iof:
   picture: "9(05)"
   description: "Taxa de IOF incidente sobre o título."
+
+taxa_permanencia:
+  picture: "9(02)"
+  description: "Código do tipo da taxa de permanência (comissão de permanência): '00' = acata comissão por dia informada pelo beneficiário."
 
 tipo_cobranca:
   picture: "9(01)"
