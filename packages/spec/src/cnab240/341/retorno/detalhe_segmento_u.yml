@@ -1,0 +1,29 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  direction: retorno
+  record: detalhe_segmento_u
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "U" }
+  - { ref: uso_exclusivo_febraban_01, pos: [15, 15], default: "" }
+  - { ref: codigo_movimento, pos: [16, 17] }
+  - { ref: valor_acrescimos, pos: [18, 32] }
+  - { ref: valor_desconto, pos: [33, 47] }
+  - { ref: valor_abatimento, pos: [48, 62] }
+  - { ref: valor_iof, pos: [63, 77] }
+  - { ref: valor_pago, pos: [78, 92] }
+  - { ref: valor_liquido, pos: [93, 107] }
+  - { ref: zeros01, pos: [108, 137], default: "0" }
+  - { ref: data_de_ocorrencia, pos: [138, 145], date_format: "%d%m%Y" }
+  - { ref: data_credito, pos: [146, 153] }
+  - { ref: ocorrencia_sacado_codigo, pos: [154, 157] }
+  - { ref: ocorrencia_sacado_data, pos: [158, 165] }
+  - { ref: ocorrencia_sacado_valor, pos: [166, 180] }
+  - { ref: brancos01, pos: [181, 210], default: "" }
+  - { ref: zeros02, pos: [211, 233], default: "0" }
+  - { ref: brancos02, pos: [234, 240], default: "" }

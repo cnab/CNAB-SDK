@@ -1,0 +1,57 @@
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: remessa
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_inscricao, pos: [2, 3], picture: "9(02)" }
+  - { ref: numero_inscricao, pos: [4, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: conta, pos: [22, 29] }
+  - { ref: conta_cobranca, pos: [30, 37] }
+  - { ref: controle_participante, pos: [38, 62] }
+  - { ref: nosso_numero, pos: [63, 70] }
+  - { ref: data_desconto_02, pos: [71, 76], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: brancos01, pos: [77, 77], default: "" }
+  - { ref: codigo_multa, pos: [78, 78] }
+  - { ref: valor_multa, pos: [79, 82], picture: "9(2)V9(2)" }
+  - { ref: codigo_moeda, pos: [83, 84], default: "00" }
+  - { ref: qtde_moeda, pos: [85, 97] }
+  - { ref: brancos02, pos: [98, 101], default: "" }
+  - { ref: data_multa, pos: [102, 107], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: codigo_carteira, pos: [108, 108] }
+  - { ref: codigo_ocorrencia, pos: [109, 110], default: "01" }
+  - { ref: numero_documento, pos: [111, 120], picture: "X(10)" }
+  - { ref: vencimento, pos: [121, 126], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: valor_titulo, pos: [127, 139], picture: "9(11)V9(2)" }
+  - { ref: codigo_banco, pos: [140, 142], default: "033" }
+  - { ref: agencia_cobradora, pos: [143, 147], default: "0" }
+  - { ref: especie, pos: [148, 149] }
+  - { ref: aceite, pos: [150, 150], default: "N" }
+  - { ref: data_emissao, pos: [151, 156], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: instrucao1, pos: [157, 158], picture: "9(02)" }
+  - { ref: instrucao2, pos: [159, 160], picture: "9(02)" }
+  - { ref: juros_um_dia, pos: [161, 173] }
+  - { ref: desconto_ate, pos: [174, 179] }
+  - { ref: valor_desconto, pos: [180, 192], picture: "9(11)V9(2)" }
+  - { ref: valor_iof, pos: [193, 205], picture: "9(8)V9(5)" }
+  - { ref: abatimento, pos: [206, 218] }
+  - { ref: sacado_codigo_inscricao, pos: [219, 220], picture: "9(02)" }
+  - { ref: sacado_numero_inscricao, pos: [221, 234], picture: "9(14)" }
+  - { ref: nome_sacado, pos: [235, 274] }
+  - { ref: logradouro, pos: [275, 314] }
+  - { ref: bairro, pos: [315, 326], picture: "X(12)" }
+  - { ref: cep, pos: [327, 331], picture: "9(05)" }
+  - { ref: cep_sufixo, pos: [332, 334] }
+  - { ref: cidade, pos: [335, 349] }
+  - { ref: estado, pos: [350, 351] }
+  - { ref: brancos03, pos: [352, 381], default: "" }
+  - { ref: brancos04, pos: [382, 382], default: "" }
+  - { ref: identificador_conta_cobranca, pos: [383, 383] }
+  - { ref: complemento_conta_cobranca, pos: [384, 385] }
+  - { ref: brancos05, pos: [386, 391], default: "" }
+  - { ref: prazo_protesto, pos: [392, 393] }
+  - { ref: brancos06, pos: [394, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

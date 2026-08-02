@@ -1,0 +1,43 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  direction: retorno
+  record: detalhe_segmento_t
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "T" }
+  - { ref: boleto_dda, pos: [15, 15] }
+  - { ref: codigo_movimento, pos: [16, 17] }
+  - { ref: zeros01, pos: [18, 18], default: "0" }
+  - { ref: agencia, pos: [19, 22] }
+  - { ref: zeros02, pos: [23, 30], default: "0" }
+  - { ref: conta, pos: [31, 35] }
+  - { ref: zeros03, pos: [36, 36], default: "0" }
+  - { ref: dac, pos: [37, 37] }
+  - { ref: numero_carteira, pos: [38, 40] }
+  - { ref: nosso_numero, pos: [41, 48] }
+  - { ref: dac_nosso_numero, pos: [49, 49] }
+  - { ref: brancos01, pos: [50, 57], default: "" }
+  - { ref: zeros04, pos: [58, 58], default: "0" }
+  - { ref: numero_documento, pos: [59, 68] }
+  - { ref: brancos02, pos: [69, 73], default: "" }
+  - { ref: data_vencimento, pos: [74, 81] }
+  - { ref: valor_titulo, pos: [82, 96] }
+  - { ref: zeros05, pos: [97, 99], default: "0" }
+  - { ref: agencia_cobradora, pos: [100, 104] }
+  - { ref: agencia_cobradora_dac, pos: [105, 105] }
+  - { ref: uso_empresa, pos: [106, 130], default: "" }
+  - { ref: zeros06, pos: [131, 132], default: "0" }
+  - { ref: sacado_codigo_inscricao, pos: [133, 133] }
+  - { ref: sacado_numero_inscricao, pos: [134, 148] }
+  - { ref: nome_sacado, pos: [149, 178] }
+  - { ref: brancos04, pos: [179, 188], default: "" }
+  - { ref: zeros07, pos: [189, 198], default: "0" }
+  - { ref: valor_tarifa, pos: [199, 213] }
+  - { ref: erros, pos: [214, 221] }
+  - { ref: codigo_liquidacao, pos: [222, 223], picture: "X(2)" }
+  - { ref: brancos05, pos: [224, 240], default: "" }

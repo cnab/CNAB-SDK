@@ -1,0 +1,32 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  record: header_arquivo
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7], default: "0000" }
+  - { ref: tipo_registro, pos: [8, 8], default: "0" }
+  - { ref: uso_exclusivo_febraban_01, pos: [9, 17], default: "" }
+  - { ref: codigo_inscricao, pos: [18, 18] }
+  - { ref: numero_inscricao, pos: [19, 32] }
+  - { ref: brancos01, pos: [33, 52], default: "" }
+  - { ref: zeros01, pos: [53, 53], default: "0" }
+  - { ref: agencia, pos: [54, 57] }
+  - { ref: brancos02, pos: [58, 58], default: "" }
+  - { ref: zeros02, pos: [59, 65], default: "0" }
+  - { ref: conta, pos: [66, 70] }
+  - { ref: brancos04, pos: [71, 71], default: "" }
+  - { ref: dac, pos: [72, 72] }
+  - { ref: nome_empresa, pos: [73, 102] }
+  - { ref: nome_banco, pos: [103, 132], default: "BANCO ITAU SA" }
+  - { ref: brancos05, pos: [133, 142], default: "" }
+  - { ref: codigo_remessa_retorno, pos: [143, 143] }
+  - { ref: data_geracao, pos: [144, 151] }
+  - { ref: hora_geracao, pos: [152, 157] }
+  - { ref: numero_sequencial_arquivo, pos: [158, 163] }
+  - { ref: versao_layout_arquivo, pos: [164, 166], default: "040" }
+  - { ref: zeros03, pos: [167, 171], default: "0" }
+  - { ref: brancos07, pos: [172, 225], default: "" }
+  - { ref: zeros04, pos: [226, 228], default: "0" }
+  - { ref: brancos08, pos: [229, 240], default: "" }

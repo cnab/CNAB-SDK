@@ -1,0 +1,18 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  record: trailer_lote
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "5" }
+  - { ref: uso_exclusivo_febraban_01, pos: [9, 17], default: "" }
+  - { ref: qtde_registro_lote, pos: [18, 23] }
+  - { ref: qtde_titulo_cobranca_simples, pos: [24, 29] }
+  - { ref: valor_total_titulo_simples, pos: [30, 46] }
+  - { ref: qtde_titulo_cobranca_vinculada, pos: [47, 52], picture: "9(6)" }
+  - { ref: valor_total_titulo_vinculada, pos: [53, 69] }
+  - { ref: zeros01, pos: [70, 115], default: "0" }
+  - { ref: aviso_bancario, pos: [116, 123] }
+  - { ref: brancos01, pos: [124, 240], default: "" }

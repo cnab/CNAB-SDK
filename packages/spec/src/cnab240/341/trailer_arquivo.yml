@@ -1,0 +1,14 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  record: trailer_arquivo
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7], default: "9999" }
+  - { ref: tipo_registro, pos: [8, 8], default: "9" }
+  - { ref: uso_exclusivo_febraban_01, pos: [9, 17], default: "" }
+  - { ref: qtde_lotes, pos: [18, 23] }
+  - { ref: qtde_registros, pos: [24, 29] }
+  - { ref: zeros01, pos: [30, 35], default: "0" }
+  - { ref: brancos01, pos: [36, 240], default: "" }
