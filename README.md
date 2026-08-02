@@ -15,7 +15,7 @@ One TypeScript engine, projected to each language by
 
 | Language | Minimum version | Package | Tested in CI on | Unit tests |
 | --- | --- | --- | --- | --- |
-| **Node.js / TypeScript** | **18** (`engines`) | `@cnab/core`, `@cnab/spec`, `@cnab/cli` | 22 | 242 |
+| **Node.js / TypeScript** | **18** (`engines`) | `@cnab/core`, `@cnab/spec`, `@cnab/cli` | 22 | 316 |
 | **Python** | **3.10** (`Requires-Python`) | `cnab-core` (module `cnab_core`) | 3.11 | 58 |
 | **Java** | **8** (compiled `source/target 1.8`) | `org.cnab:cnab-core` | 17 | 46 |
 | **.NET** | **6.0** (`net6.0`) | `Cnab.Core` | 8.0 | 50 |
@@ -105,9 +105,16 @@ packages/core    jsii engine: parse / build / validate (Node/.NET/Python/Java)
 packages/cli     @cnab/cli — command-line tool
 bindings/        per-language unit suites (pytest / JUnit 5 / xUnit) run against
                  the GENERATED bindings, not the TypeScript source
-tools/           build-spec.mjs (compiler/validator), migrate-legacy.mjs
-docs/            REFORMULATION plan, ADRs (0001-0008), see also CONTEXT.md
+tools/           build-spec.mjs (compiler/validator), migrate-legacy.mjs,
+                 fetch-layouts.mjs (rebuilds the bank manuals we transcribe from)
+docs/            REFORMULATION plan, ADRs (0001-0010), layouts/ (manual
+                 provenance), see also CONTEXT.md
 ```
+
+Every position in the spec comes from a bank manual, and
+[`docs/layouts/`](docs/layouts/README.md) records which one. The manuals are not
+committed — `node tools/fetch-layouts.mjs` reconstructs them from pinned
+upstream commits, verified by sha256.
 
 ## Quick start
 
