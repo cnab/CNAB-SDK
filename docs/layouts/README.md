@@ -56,18 +56,69 @@ the current manual; **not** good enough to implement from and ship unreviewed.
 A layout transcribed from a stale document produces files a bank rejects — or,
 worse, accepts with the wrong values in them.
 
-## Which issues these unblock
+## What has been transcribed from them
 
-| Issue | Bank / gap | Document |
+37 records so far, across two batches:
+
+| Issue | Records | Status |
 | --- | --- | --- |
-| [#70](https://github.com/cnab/CNAB-SDK/issues/70) | Itaú 341 CNAB240 (we have **zero** records) | ✅ Fev/2016 |
-| [#71](https://github.com/cnab/CNAB-SDK/issues/71) | Bradesco 237 CNAB240 (we have **zero**) | ⚠️ 2013, v02 of v09 |
-| [#72](https://github.com/cnab/CNAB-SDK/issues/72) / [#27](https://github.com/cnab/CNAB-SDK/issues/27) | Santander 033 CNAB400 (we have **zero**) | ✅ v2.17 Out/2017 |
-| [#74](https://github.com/cnab/CNAB-SDK/issues/74) | Sicredi 748 | ⚠️ CNAB400 only |
-| [#73](https://github.com/cnab/CNAB-SDK/issues/73) | Sicoob 756 | ❌ regional spreadsheet |
-| — | 001 CNAB240 trailers, 104/237 CNAB400 remessa | ✅ |
+| [#70](https://github.com/cnab/CNAB-SDK/issues/70) | Itaú 341 CNAB240 (9) | ✅ closed |
+| [#72](https://github.com/cnab/CNAB-SDK/issues/72) | Santander 033 CNAB400 (7) | ✅ closed |
+| [#25](https://github.com/cnab/CNAB-SDK/issues/25) | Bradesco 237 CNAB400 remessa (4) | ✅ closed |
+| [#26](https://github.com/cnab/CNAB-SDK/issues/26) | BB 001 CNAB400 remessa (4) | ✅ closed |
+| [#71](https://github.com/cnab/CNAB-SDK/issues/71) | Bradesco 237 CNAB240 (9) | ⚠️ **open** — shipped as a draft, 2013 manual |
+| [#24](https://github.com/cnab/CNAB-SDK/issues/24) | Caixa 104 CNAB400 remessa (4) | ⚠️ **open** — SIGCB shipped, issue asks for SICOB |
+| [#27](https://github.com/cnab/CNAB-SDK/issues/27) | Santander 033 CNAB400 | ⚠️ **open** — records done, occurrence table missing |
+| [#74](https://github.com/cnab/CNAB-SDK/issues/74) | Sicredi 748 | ❌ not started — CNAB400 manual only |
+| [#73](https://github.com/cnab/CNAB-SDK/issues/73) | Sicoob 756 | ❌ blocked — regional spreadsheet, not the 756 manual |
 
-Banrisul 041 and Safra 422 have no issue yet; they arrived with the batch.
+Banrisul 041 and Safra 422 have manuals here but no issue; they arrived with
+the batch.
+
+## Verification against the manuals
+
+Every `pos` pair in a record can be checked against the position column printed
+in its manual. That is a different question from whether the build passes:
+gapless coverage proves a record is well-*formed*, and only the manual says
+whether it is *right*.
+
+| Records | Fields | Not corroborated |
+| --- | --- | --- |
+| The 37 transcribed above | 869 | **1** — an Itaú typesetting artifact (`073  0 73`), confirmed by hand |
+| Itaú 341 CNAB400 remessa | 65 | **0** |
+| Itaú 341 CNAB400 retorno | 88 | **0** |
+| BB 001 CNAB400 retorno | 93 | 6 |
+| Bradesco 237 CNAB400 retorno | 70 | 3 |
+| Caixa 104 CNAB400 retorno | 58 | 8 |
+
+Itaú's CNAB400 remessa is worth singling out: it was authored by *copying the
+generic layout* before any manual was reachable, and every one of its 65
+positions turns out to match the real document.
+
+"Not corroborated" is not the same as "wrong". Most are places where a record
+merges or splits rows the manual prints differently, which changes structure
+and naming but not bytes — Bradesco's `169 a 173 Agência Cobradora 005`, for
+instance, is one field in the manual and agência + DV in the spec.
+
+Two are worth acting on:
+
+- **Caixa 104 CNAB400 retorno does not match the SIGCB manual** we hold. SIGCB
+  puts `Uso da Empresa` at 32-56, `Modalidade` at 57-58 and `Nosso Número` at
+  59-73; the shipped record has `uso_empresa` 38-62 and `nosso_numero` 63-73.
+  So nosso número does not round-trip between our SIGCB remessa and this
+  retorno. Tracked on [#24](https://github.com/cnab/CNAB-SDK/issues/24).
+- **The remaining BB and Bradesco items have not been triaged one by one.**
+  They are listed above rather than dismissed, because the one case that *was*
+  chased down turned out to be a real bug: BB's retorno 169-173 was a filler
+  field named `reservado_bb_d1` where the manual defines "Prefixo da agência
+  recebedora" + DV, so every parsed BB retorno silently discarded which agency
+  received the payment ([#97](https://github.com/cnab/CNAB-SDK/pull/97)).
+
+Reproduce with the manuals fetched:
+
+```
+node tools/fetch-layouts.mjs
+```
 
 ## Sources
 

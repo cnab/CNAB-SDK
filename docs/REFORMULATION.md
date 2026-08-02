@@ -65,10 +65,10 @@ consumed by `@cnab/core` (engine) and `@cnab/cli`.
 Since the original A–E scope closed:
 
 - [x] **Releases.** Changesets in lockstep; tag + GitHub Release with every
-      language artifact attached. Current: **v0.4.0**. Nothing is on a registry
+      language artifact attached. Current: **v0.5.0**. Nothing is on a registry
       yet ([#14](https://github.com/cnab/CNAB-SDK/issues/14)).
-- [x] **Per-language test suites** under `bindings/` — 53 Python, 41 Java,
-      45 .NET, run against the generated artifacts. These exist because a
+- [x] **Per-language test suites** under `bindings/` — 58 Python, 46 Java,
+      50 .NET, 11 Go, run against the generated artifacts. These exist because a
       Node-only suite cannot see a projection bug: `setDecimal`/`setDateIso`
       mutated their argument, which works in Node and did nothing at all in the
       other three, since jsii marshals maps **by value**.
@@ -90,8 +90,21 @@ Since the original A–E scope closed:
 Covers banks 001 (BB), 033 (Santander), 104 (Caixa, incl. SIGCB variant),
 237 (Bradesco) and 341 (Itaú), plus `generic` reference templates. Every
 non-template record is verified for full, gapless, non-overlapping 240/400
-coverage by `tools/build-spec.mjs`. Itaú 341 CNAB400 remessa records were
-authored by copying the generic Itaú 400 layout (legacy had only retorno).
+coverage by `tools/build-spec.mjs`.
+
+**Sourced from the manuals (post-migration).** The migration could only carry
+across what the legacy repos held, which left three empty cells: Itaú and
+Bradesco had no CNAB240 at all, and Santander no CNAB400. Those, plus CNAB400
+remessa for BB, Caixa and Bradesco, were transcribed from each bank's own
+cobrança manual once the manuals became reachable — 37 records, every `pos`
+pair cross-checked against the position column printed in the PDF. Provenance
+is pinned in [`docs/layouts/`](layouts/README.md); `node tools/fetch-layouts.mjs`
+rebuilds the collection.
+
+Itaú 341 CNAB400 remessa was authored differently — copied from the generic
+Itaú 400 layout, before any manual was reachable. It has since been checked
+against the real manual and **all 65 positions are corroborated**, so the copy
+was sound; see the verification table in [`docs/layouts/`](layouts/README.md).
 
 **Tested (step C):** `packages/core` golden-file tests (`node --test`) cover
 Caixa 104 CNAB240 (remessa header + segment P, retorno segment T) and Itaú 341
