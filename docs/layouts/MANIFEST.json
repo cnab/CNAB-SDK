@@ -294,6 +294,38 @@
         "path": "support/ATUALIZADO_Layouts_para_troca_de_informações.xls"
       },
       "issue": 73
+    },
+    {
+      "path": "deutsche/cnab240-cobranca.pdf",
+      "bank": "487",
+      "bankName": "Deutsche Bank",
+      "format": "cnab240",
+      "service": "cobranca",
+      "docVersion": "Versão 1.1 — April 2015 (English-language layout)",
+      "bytes": 1246731,
+      "sha256": "d71c771d06a74e20be4965cda68fe0cf222da6718c4064d44f42a4af858d43de",
+      "pages": 35,
+      "source": {
+        "repo": "lucianoww/Layouts-Bancarios",
+        "commit": "e9cc9a8a77bf1db8dc5fdaca683fab941a8e7dcd",
+        "path": "DEUTSCH BANK - COBRANÇA - CNAB240.pdf"
+      }
+    },
+    {
+      "path": "votorantim/cnab400-cobranca.pdf",
+      "bank": "655",
+      "bankName": "Votorantim (BV)",
+      "format": "cnab400",
+      "service": "cobranca",
+      "docVersion": "undated",
+      "bytes": 286911,
+      "sha256": "60b50e793a81591616d658f7facd8b6425f7df3af75064bb2bbd48933103ad7b",
+      "pages": 22,
+      "source": {
+        "repo": "lucianoww/Layouts-Bancarios",
+        "commit": "e9cc9a8a77bf1db8dc5fdaca683fab941a8e7dcd",
+        "path": "VOTORANTIM - COBRANÇA -CNAB400.pdf"
+      }
     }
   ]
 }
