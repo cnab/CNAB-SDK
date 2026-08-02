@@ -19,9 +19,16 @@
 // `npm test` runs it.
 //
 // Scope, deliberately: only claims that are mechanically checkable against the
-// compiled spec. Per-language unit-test counts are NOT checked — they would
-// need every binding suite to have run — so those stay manual and are called
-// out as such in the report below.
+// compiled spec. Per-language unit-test counts — "242 Node tests, 58 Python" —
+// are NOT checked, because knowing them means running every binding suite. Those
+// stay manual and are called out as such in the report below.
+//
+// What IS checked, and was added after it bit: the record COUNT hardcoded inside
+// the binding suites. Adding 25 bank records turned `assert len(keys) == 55` into
+// three red CI jobs — Python, Java and .NET — while `npm test` stayed green,
+// because the counts live in test files that only CI executes. Same rotting-prose
+// failure as the README, just written in three more languages, and discovered the
+// expensive way. Go had no such assertion, which is the only reason it passed.
 //
 // Run: node tools/check-docs-claims.mjs
 
@@ -90,6 +97,44 @@ const CLAIMS = [
   ['docs/REFORMULATION.md', /^(\d+) full standalone records/m, 'records'],
   ['docs/REFORMULATION.md', /records \+ (\d+) code tables/, 'codeTables'],
   ['docs/REFORMULATION.md', /driven by a (\d+)-field catalog/, 'catalog'],
+  // Counts hardcoded in the binding suites. These only ever run in CI, so
+  // without this they fail three jobs after `npm test` has already gone green.
+  //
+  // Each suite asserts on a `keys` variable TWICE — once for record keys, once
+  // for code-table keys — with identical syntax. So each pattern includes the
+  // call that produced the variable. Matching on the assertion alone finds
+  // whichever comes first in the file, which is correct today and silently
+  // wrong the moment someone reorders the tests.
+  [
+    'bindings/python/test_cnab_core.py',
+    /record_keys\(\)\s*\n\s*assert len\(keys\) == (\d+)/,
+    'records',
+  ],
+  [
+    'bindings/python/test_cnab_core.py',
+    /code_table_keys\(\)\s*\n\s*assert len\(keys\) == (\d+)/,
+    'codeTables',
+  ],
+  [
+    'bindings/java/src/test/java/org/cnab/core/tests/CnabCoreBindingTest.java',
+    /recordKeys\(\);\s*\n\s*assertEquals\((\d+), keys\.size\(\)\)/,
+    'records',
+  ],
+  [
+    'bindings/java/src/test/java/org/cnab/core/tests/CnabCoreBindingTest.java',
+    /codeTableKeys\(\);\s*\n\s*assertEquals\((\d+), keys\.size\(\)\)/,
+    'codeTables',
+  ],
+  [
+    'bindings/dotnet/CnabCoreBindingTests.cs',
+    /RecordKeys\(\);\s*\n\s*Assert\.Equal\((\d+), keys\.Length\)/,
+    'records',
+  ],
+  [
+    'bindings/dotnet/CnabCoreBindingTests.cs',
+    /CodeTableKeys\(\);\s*\n\s*Assert\.Equal\((\d+), keys\.Length\)/,
+    'codeTables',
+  ],
 ];
 
 const problems = [];
@@ -136,6 +181,7 @@ if (problems.length) {
 console.log(
   `check-docs-claims: OK — ${checked} spec-derived claims agree ` +
     `(${truth.records} records, ${truth.codeTables} code tables, ` +
-    `${truth.banks} banks, ${truth.catalog} catalog fields). ` +
-    `Per-language test counts are NOT checked here.`
+    `${truth.banks} banks, ${truth.catalog} catalog fields), ` +
+    `including the record count hardcoded in the Python, Java and .NET suites. ` +
+    `Per-language TEST counts are NOT checked here.`
 );

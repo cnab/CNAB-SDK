@@ -50,7 +50,7 @@ def header(spec):
 
 def test_bundled_spec_loads_every_record(spec):
     keys = spec.record_keys()
-    assert len(keys) == 55
+    assert len(keys) == 80
     assert SEG_P in keys
 
 

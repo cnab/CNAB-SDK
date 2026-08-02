@@ -54,7 +54,7 @@ namespace Cnab.Core.BindingTests
         public void BundledSpecLoadsEveryRecord()
         {
             var keys = _spec.RecordKeys();
-            Assert.Equal(55, keys.Length);
+            Assert.Equal(80, keys.Length);
             Assert.Contains(SegPKey, keys);
         }
 
