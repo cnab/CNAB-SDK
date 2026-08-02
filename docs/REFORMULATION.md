@@ -86,7 +86,7 @@ Since the original A–E scope closed:
 ## What was migrated / tested / remains
 
 **Migrated (step A):** all CNAB240 and CNAB400 specs from `cnab_yaml` →
-55 full standalone records + 6 code tables, driven by a 277-field catalog.
+80 full standalone records + 6 code tables, driven by a 305-field catalog.
 Covers banks 001 (BB), 033 (Santander), 104 (Caixa, incl. SIGCB variant),
 237 (Bradesco) and 341 (Itaú), plus `generic` reference templates. Every
 non-template record is verified for full, gapless, non-overlapping 240/400

@@ -1,0 +1,33 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  direction: remessa
+  record: detalhe_segmento_r
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "R" }
+  - { ref: uso_exclusivo_febraban_01, pos: [15, 15], default: "" }
+  - { ref: codigo_ocorrencia, pos: [16, 17] }
+  - { ref: zeros01, pos: [18, 18], default: "0" }
+  - { ref: data_desconto_02, pos: [19, 26] }
+  - { ref: valor_desconto_02, pos: [27, 41] }
+  - { ref: zeros02, pos: [42, 42], default: "0" }
+  - { ref: data_desconto_03, pos: [43, 50] }
+  - { ref: valor_desconto_03, pos: [51, 65] }
+  - { ref: codigo_multa, pos: [66, 66] }
+  - { ref: data_multa, pos: [67, 74] }
+  - { ref: valor_multa, pos: [75, 89] }
+  - { ref: brancos01, pos: [90, 99], default: "" }
+  - { ref: informacao_sacado, pos: [100, 139], default: "" }
+  - { ref: brancos02, pos: [140, 199], default: "" }
+  - { ref: ocorrencia_sacado_codigo, pos: [200, 207] }
+  - { ref: zeros03, pos: [208, 215], default: "0" }
+  - { ref: brancos04, pos: [216, 216], default: "" }
+  - { ref: zeros04, pos: [217, 228], default: "0" }
+  - { ref: brancos05, pos: [229, 230], default: "" }
+  - { ref: zeros05, pos: [231, 231], default: "0" }
+  - { ref: brancos07, pos: [232, 240], default: "" }

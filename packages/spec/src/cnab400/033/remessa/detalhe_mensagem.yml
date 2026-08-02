@@ -1,0 +1,24 @@
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: remessa
+  record: detalhe_mensagem
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "2" }
+  - { ref: uso_banco, pos: [2, 17], default: "" }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: conta, pos: [22, 29] }
+  - { ref: conta_cobranca, pos: [30, 37] }
+  - { ref: uso_banco01, pos: [38, 47], default: "" }
+  - { ref: sub_sequencia_01, pos: [48, 49], default: "01" }
+  - { ref: mensagem_1, pos: [50, 99], picture: "X(50)" }
+  - { ref: sub_sequencia_02, pos: [100, 101], default: "02" }
+  - { ref: mensagem_2, pos: [102, 151], picture: "X(50)" }
+  - { ref: sub_sequencia_03, pos: [152, 153], default: "03" }
+  - { ref: mensagem_3, pos: [154, 203], picture: "X(50)" }
+  - { ref: uso_exclusivo_banco_04, pos: [204, 382], default: "" }
+  - { ref: identificador_conta_cobranca, pos: [383, 383] }
+  - { ref: complemento_conta_cobranca, pos: [384, 385] }
+  - { ref: brancos01, pos: [386, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

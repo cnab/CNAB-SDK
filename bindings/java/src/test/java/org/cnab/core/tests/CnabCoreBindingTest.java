@@ -81,7 +81,7 @@ class CnabCoreBindingTest {
     @DisplayName("the bundled spec loads every record")
     void bundledSpecLoads() {
         List<String> keys = spec.recordKeys();
-        assertEquals(55, keys.size());
+        assertEquals(80, keys.size());
         assertTrue(keys.contains(SEG_P));
     }
 

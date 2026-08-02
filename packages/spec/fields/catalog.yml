@@ -30,6 +30,14 @@ agencia_cobradora_dv:
   picture: "9(1)"
   description: "Preencher com zeros - o sistema atribuirá a agência encarregada da cobrança pelo CEP do sacado."
 
+agencia_debito:
+  picture: "9(5)"
+  description: "Código da agência do pagador na qual será efetuado o débito automático."
+
+agencia_debito_dv:
+  picture: "9(1)"
+  description: "Dígito verificador da agência de débito automático do pagador."
+
 agencia_dv:
   picture: "9(1)"
   description: "Dígito Verificador da Agência"
@@ -45,6 +53,10 @@ agencia_dv_mais_codigo_cedente_dv:
 agencia_mais_cedente_dv:
   picture: "9(1)"
   description: "Campo não tratado pelo Banco do Brasil. Informar 'branco' (espaço) OU zero."
+
+agencia_mais_conta_debito_dv:
+  picture: "9(1)"
+  description: "Dígito verificador do par agência/conta de débito automático do pagador."
 
 agencia_mais_conta_dv:
   picture: "X(1)"
@@ -73,6 +85,10 @@ aviso_bancario_dup3:
 aviso_bancario_dup4:
   picture: "X(08)"
   description: "Referência do aviso bancário — 5º bloco de totais do registro trailer."
+
+aviso_debito_automatico:
+  picture: "9(1)"
+  description: "Identificação da emissão do aviso de débito automático em conta corrente."
 
 bairro:
   picture: "X(15)"
@@ -134,6 +150,10 @@ cep:
   picture: "9(8)"
   description: "CEP do endereço do sacado (pagador)."
 
+cep_sufixo:
+  picture: "9(3)"
+  description: "Sufixo do CEP do endereço do sacado (pagador) — os três dígitos após o hífen."
+
 cidade:
   picture: "X(15)"
   description: "Cidade do endereço do sacado (pagador)."
@@ -157,6 +177,10 @@ codigo_banco:
 codigo_banco_correspondente:
   picture: "9(3)"
   description: "Código do banco correspondente na câmara de compensação."
+
+codigo_banco_debito:
+  picture: "9(3)"
+  description: "Código do banco na conta do pagador em que será efetuado o débito automático."
 
 codigo_campo_01:
   picture: "9(4)"
@@ -191,6 +215,10 @@ codigo_desconto_02:
   picture: "9(1)"
   description: "Código do 2º desconto: 0 = sem desconto, 1 = valor fixo até a data, 2 = percentual até a data."
 
+codigo_desconto_03:
+  picture: "9(1)"
+  description: "Código do 3º desconto: 0 = sem desconto, 1 = valor fixo até a data, 2 = percentual até a data."
+
 codigo_desconto_1:
   picture: "9(1)"
   description: "‘0’ = Sem Desconto ‘1’ = Valor Fixo até a data informada ‘2’ = Percentual até a data informada"
@@ -202,6 +230,14 @@ codigo_do_banco:
 codigo_erro_01:
   picture: "9(3)"
   description: "Código do erro apurado no campo indicado — 1º par campo/erro do registro."
+
+codigo_erro_02:
+  picture: "X(3)"
+  description: "Código do erro apurado no campo indicado — 2ª ocorrência de erro do registro."
+
+codigo_erro_03:
+  picture: "X(3)"
+  description: "Código do erro apurado no campo indicado — 3ª ocorrência de erro do registro."
 
 codigo_inscricao:
   picture: "9(1)"
@@ -241,6 +277,14 @@ codigo_ocorrencia:
   aliases: [codigo_de_ocorrencia]
   description: "Código de Movimento Remessa"
 
+codigo_ocorrencia_pagador:
+  picture: "9(8)"
+  description: "Códigos das ocorrências do pagador (alegações) com as quais o beneficiário não concorda."
+
+codigo_original_remessa:
+  picture: "9(2)"
+  description: "Código de ocorrência original da remessa que originou a rejeição ou a liquidação parcial."
+
 codigo_protesto:
   picture: "9(1)"
   description: "Código adotado pela FEBRABAN para identificar a instrução de protesto do título."
@@ -260,6 +304,10 @@ codigo_segmento:
 codigo_transmissao:
   picture: "9(15)"
   description: "Código de transmissão fornecido pelo banco, que identifica o cedente no envio do arquivo."
+
+complemento_conta_cobranca:
+  picture: "9(2)"
+  description: "Complemento da conta cobrança de 10 posições: última posição da conta mais o dígito verificador."
 
 conta:
   picture: "9(12)"
@@ -288,6 +336,14 @@ conta_cobranca_dv:
 conta_dac:
   picture: "9(1)"
   description: "Dígito de autoconferência (DAC) da conta corrente."
+
+conta_debito:
+  picture: "9(12)"
+  description: "Número da conta corrente do pagador a ser debitada no débito automático."
+
+conta_debito_dv:
+  picture: "9(1)"
+  description: "Dígito verificador da conta corrente de débito automático do pagador."
 
 conta_dv:
   picture: "9(1)"
@@ -342,6 +398,11 @@ data_desconto_02:
   picture: "9(8)"
   date_format: "%d%m%Y"
   description: "Data limite para concessão do 2º desconto."
+
+data_desconto_03:
+  picture: "9(8)"
+  date_format: "%d%m%Y"
+  description: "Data limite para concessão do 3º desconto."
 
 data_desconto_1:
   picture: "9(8)"
@@ -449,6 +510,10 @@ identificador_carne:
   picture: "9(3)"
   description: "Identificador do carnê ao qual as parcelas do título pertencem."
 
+identificador_conta_cobranca:
+  picture: "X(1)"
+  description: "Identificador da conta cobrança: 'I' indica o uso de uma conta cobrança de 10 posições."
+
 indicador_rateio:
   picture: "X(1)"
   description: "Indicador de rateio do crédito do título."
@@ -528,6 +593,10 @@ mensagem_4:
   picture: "X(40)"
   description: "Texto de observações destinado ao envio de mensagens livres, a serem impressas no campo de"
 
+mensagem_5:
+  picture: "X(47)"
+  description: "Texto de observações destinado ao envio de mensagens livres, a serem impressas no boleto."
+
 modalidade_carteira:
   picture: "9(2)"
   description: "Modalidade da carteira de cobrança na CAIXA."
@@ -602,6 +671,10 @@ numero_carteira:
 numero_cartorio:
   picture: "9(2)"
   description: "Número do cartório em que o título foi protestado."
+
+numero_contrato:
+  picture: "9(10)"
+  description: "Número do contrato da operação de crédito, adotado pela empresa beneficiária."
 
 numero_convenio:
   picture: "9(07)"
@@ -696,6 +769,10 @@ prazo_protesto:
 prefixo_titulo:
   picture: "X(03)"
   description: "Nota 6"
+
+qtde_contas_conciliacao:
+  picture: "9(6)"
+  description: "Quantidade de contas para conciliação (lotes) informada no trailer de arquivo."
 
 qtde_de_detalhes:
   picture: "9(08)"
@@ -832,6 +909,22 @@ sacador_numero_inscricao:
 sequencial_parcela:
   picture: "9(3)"
   description: "Número sequencial da parcela dentro do carnê."
+
+sigla_empresa:
+  picture: "X(4)"
+  description: "Sigla da empresa no sistema do banco."
+
+sub_sequencia_01:
+  picture: "9(2)"
+  description: "Sub-sequência do registro de mensagem variável — 1ª mensagem da linha."
+
+sub_sequencia_02:
+  picture: "9(2)"
+  description: "Sub-sequência do registro de mensagem variável — 2ª mensagem da linha."
+
+sub_sequencia_03:
+  picture: "9(2)"
+  description: "Sub-sequência do registro de mensagem variável — 3ª mensagem da linha."
 
 taxa_desconto:
   picture: "9(05)"
@@ -1006,6 +1099,10 @@ valor_desconto_02:
   picture: "9(13)V9(2)"
   description: "Valor ou Percentual (de acordo com o código)"
 
+valor_desconto_03:
+  picture: "9(13)V9(2)"
+  description: "Valor ou percentual do 3º desconto a ser concedido (conforme o código do desconto 3)."
+
 valor_desconto_1:
   picture: "9(13)V9(2)"
   description: "Valor ou percentual de desconto a ser concedido sobre o título de cobrança."
@@ -1013,6 +1110,10 @@ valor_desconto_1:
 valor_iof:
   picture: "9(13)V9(2)"
   description: "Valor Do Iof A Ser Recolhido (notas Seguro)"
+
+valor_iof_moeda:
+  picture: "9(8)V9(5)"
+  description: "Valor do IOF expresso em outra unidade de valor (moeda variável)."
 
 valor_juros:
   picture: "9(11)V9(2)"
@@ -1148,3 +1249,14 @@ zeros04:
   picture: "9(2)"
   description: "Filler — preencher com zeros."
 
+zeros05:
+  picture: "9(1)"
+  description: "Filler — preencher com zeros."
+
+zeros06:
+  picture: "9(13)"
+  description: "Filler — preencher com zeros."
+
+zeros07:
+  picture: "9(10)"
+  description: "Filler — preencher com zeros."

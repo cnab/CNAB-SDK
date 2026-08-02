@@ -1,0 +1,25 @@
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: retorno
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_remessa_retorno, pos: [2, 2], default: "2" }
+  - { ref: literal_de_retorno, pos: [3, 9], default: "RETORNO" }
+  - { ref: codigo_de_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26], default: "COBRANCA" }
+  - { ref: agencia, pos: [27, 30] }
+  - { ref: conta, pos: [31, 38] }
+  - { ref: conta_cobranca, pos: [39, 46] }
+  - { ref: nome_empresa, pos: [47, 76] }
+  - { ref: codigo_banco, pos: [77, 79], default: "033" }
+  - { ref: nome_banco, pos: [80, 94], default: "SANTANDER" }
+  - { ref: data_geracao, pos: [95, 100], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: densidade, pos: [101, 108], picture: "9(08)" }
+  - { ref: brancos01, pos: [109, 385], default: "" }
+  - { ref: sigla_empresa, pos: [386, 389] }
+  - { ref: brancos02, pos: [390, 391], default: "" }
+  - { ref: versao_layout_arquivo, pos: [392, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

@@ -47,22 +47,34 @@ cut as GitHub Releases with the artifacts attached; registry publishing is
 
 ## Bank coverage
 
-**5 banks**, **55 records** (37 bank-specific + 18 generic FEBRABAN templates),
-**6 code tables** and **277 catalog fields**.
+**5 banks**, **80 records** (62 bank-specific + 18 generic FEBRABAN templates),
+**6 code tables** and **305 catalog fields**.
 
 | Bank | Code | CNAB 240 | CNAB 400 | remessa | retorno |
 | --- | --- | --- | --- | --- | --- |
 | Caixa Econômica Federal | `104` | ✅ (incl. SIGCB) | ✅ | ✅ | ✅ |
-| Banco do Brasil | `001` | ✅ | ✅ | ✅ | ✅ |
-| Santander | `033` | ✅ | — | ✅ | ⚠️ thin |
-| Itaú | `341` | — | ✅ | ✅ | ✅ |
-| Bradesco | `237` | — | ✅ | ❌ **none** | ✅ |
+| Banco do Brasil | `001` | ⚠️ partial | ✅ | ⚠️ thin | ✅ |
+| Santander | `033` | ✅ | ✅ | ✅ | ✅ |
+| Itaú | `341` | ✅ | ✅ | ✅ | ✅ |
+| Bradesco | `237` | ⚠️ **draft** | ✅ | ⚠️ **draft** | ✅ |
 
-**Read the remessa/retorno columns before planning around this table.** Coverage
-is not symmetric, and a bank being listed does not mean you can both read and
-write its files. Bradesco is **retorno-only** — there are no remessa records, so
-you cannot generate a Bradesco file today. Santander's retorno coverage is a
-single record.
+**Read the qualifiers before planning around this table.** A bank being listed
+does not mean you can both read and write its files.
+
+- **Bradesco CNAB240 is a draft.** It was transcribed from version 02 of
+  Bradesco's manual, dated 2013; the bank publishes version 09. The positions
+  are faithful to that document, but two defaults most likely to have moved
+  (`versao_layout_arquivo` and `versao_layout_lote`) will be accepted or
+  rejected wholesale by the bank, and anything Bradesco has since carved out of
+  what 2013 called filler will be blank in generated files. Review it against a
+  current manual before generating a real remessa. See
+  [#71](https://github.com/cnab/CNAB-SDK/issues/71).
+- **Banco do Brasil CNAB240 is three records** — header arquivo, header lote
+  and remessa segmento P, with no trailers, so a file cannot be closed with
+  bank-specific records alone.
+- Where a bank record is missing, the `generic` FEBRABAN templates can usually
+  stand in, since trailers in particular are standard. That substitution is not
+  yet tested or documented, so treat it as unverified.
 
 Every shipped record is verified by the compiler for full, gapless,
 non-overlapping line coverage, and has a golden-line test plus round-trip

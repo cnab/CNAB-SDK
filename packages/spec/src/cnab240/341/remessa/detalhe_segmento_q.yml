@@ -1,0 +1,30 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  direction: remessa
+  record: detalhe_segmento_q
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "Q" }
+  - { ref: uso_exclusivo_febraban_01, pos: [15, 15], default: "" }
+  - { ref: codigo_ocorrencia, pos: [16, 17] }
+  - { ref: sacado_codigo_inscricao, pos: [18, 18] }
+  - { ref: sacado_numero_inscricao, pos: [19, 33] }
+  - { ref: nome_sacado, pos: [34, 63] }
+  - { ref: brancos01, pos: [64, 73], default: "" }
+  - { ref: logradouro, pos: [74, 113] }
+  - { ref: bairro, pos: [114, 128] }
+  - { ref: cep, pos: [129, 133] }
+  - { ref: cep_sufixo, pos: [134, 136] }
+  - { ref: cidade, pos: [137, 151] }
+  - { ref: estado, pos: [152, 153] }
+  - { ref: sacador_codigo_inscricao, pos: [154, 154] }
+  - { ref: sacador_numero_inscricao, pos: [155, 169] }
+  - { ref: sacador, pos: [170, 199] }
+  - { ref: brancos02, pos: [200, 209], default: "" }
+  - { ref: zeros01, pos: [210, 212], default: "0" }
+  - { ref: brancos04, pos: [213, 240], default: "" }

@@ -1,0 +1,50 @@
+meta:
+  layout: cnab240
+  bank: "341"
+  direction: remessa
+  record: detalhe_segmento_p
+  lineLength: 240
+fields:
+  - { ref: codigo_banco, pos: [1, 3], default: "341" }
+  - { ref: lote_servico, pos: [4, 7] }
+  - { ref: tipo_registro, pos: [8, 8], default: "3" }
+  - { ref: numero_sequencial_lote, pos: [9, 13] }
+  - { ref: codigo_segmento, pos: [14, 14], default: "P" }
+  - { ref: uso_exclusivo_febraban_01, pos: [15, 15], default: "" }
+  - { ref: codigo_ocorrencia, pos: [16, 17] }
+  - { ref: zeros01, pos: [18, 18], default: "0" }
+  - { ref: agencia, pos: [19, 22] }
+  - { ref: brancos01, pos: [23, 23], default: "" }
+  - { ref: zeros02, pos: [24, 30], default: "0" }
+  - { ref: conta, pos: [31, 35] }
+  - { ref: brancos02, pos: [36, 36], default: "" }
+  - { ref: dac, pos: [37, 37] }
+  - { ref: numero_carteira, pos: [38, 40] }
+  - { ref: nosso_numero, pos: [41, 48] }
+  - { ref: dac_nosso_numero, pos: [49, 49] }
+  - { ref: brancos04, pos: [50, 57], default: "" }
+  - { ref: zeros03, pos: [58, 62], default: "0" }
+  - { ref: numero_documento, pos: [63, 72] }
+  - { ref: brancos05, pos: [73, 77], default: "" }
+  - { ref: vencimento, pos: [78, 85] }
+  - { ref: valor_titulo, pos: [86, 100] }
+  - { ref: agencia_cobradora, pos: [101, 105], default: "0" }
+  - { ref: agencia_cobradora_dac, pos: [106, 106], default: "0" }
+  - { ref: especie, pos: [107, 108] }
+  - { ref: aceite, pos: [109, 109] }
+  - { ref: data_emissao, pos: [110, 117] }
+  - { ref: zeros04, pos: [118, 118], default: "0" }
+  - { ref: data_juros_mora, pos: [119, 126] }
+  - { ref: juros_um_dia, pos: [127, 141] }
+  - { ref: zeros05, pos: [142, 142], default: "0" }
+  - { ref: data_desconto_1, pos: [143, 150] }
+  - { ref: valor_desconto_1, pos: [151, 165] }
+  - { ref: valor_iof, pos: [166, 180], default: "0" }
+  - { ref: valor_abatimento, pos: [181, 195], default: "0" }
+  - { ref: uso_empresa, pos: [196, 220], default: "" }
+  - { ref: codigo_protesto, pos: [221, 221] }
+  - { ref: prazo_protesto, pos: [222, 223] }
+  - { ref: codigo_baixa, pos: [224, 224] }
+  - { ref: prazo_baixa, pos: [225, 226] }
+  - { ref: zeros06, pos: [227, 239], default: "0" }
+  - { ref: brancos07, pos: [240, 240], default: "" }

@@ -1,0 +1,57 @@
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: retorno
+  record: detalhe
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "1" }
+  - { ref: codigo_inscricao, pos: [2, 3], picture: "9(02)" }
+  - { ref: numero_inscricao, pos: [4, 17] }
+  - { ref: agencia, pos: [18, 21] }
+  - { ref: conta, pos: [22, 29] }
+  - { ref: conta_cobranca, pos: [30, 37] }
+  - { ref: controle_participante, pos: [38, 62] }
+  - { ref: nosso_numero, pos: [63, 70] }
+  - { ref: brancos01, pos: [71, 107], default: "" }
+  - { ref: codigo_carteira, pos: [108, 108] }
+  - { ref: codigo_ocorrencia, pos: [109, 110] }
+  - { ref: data_de_ocorrencia, pos: [111, 116], date_format: "%d%m%y" }
+  - { ref: numero_documento, pos: [117, 126], picture: "X(10)" }
+  - { ref: nosso_numero_dup, pos: [127, 134], picture: "9(08)" }
+  - { ref: codigo_original_remessa, pos: [135, 136] }
+  - { ref: codigo_erro_01, pos: [137, 139], picture: "X(03)" }
+  - { ref: codigo_erro_02, pos: [140, 142] }
+  - { ref: codigo_erro_03, pos: [143, 145] }
+  - { ref: brancos02, pos: [146, 146], default: "" }
+  - { ref: data_vencimento, pos: [147, 152], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: valor_titulo, pos: [153, 165], picture: "9(11)V9(2)" }
+  - { ref: codigo_do_banco, pos: [166, 168] }
+  - { ref: agencia_cobradora, pos: [169, 173] }
+  - { ref: especie, pos: [174, 175] }
+  - { ref: valor_tarifa, pos: [176, 188], picture: "9(11)V9(2)" }
+  - { ref: valor_outras_despesas, pos: [189, 201], picture: "9(11)V9(2)" }
+  - { ref: valor_juros, pos: [202, 214] }
+  - { ref: valor_iof, pos: [215, 227], picture: "9(11)V9(2)" }
+  - { ref: valor_abatimento, pos: [228, 240], picture: "9(11)V9(2)" }
+  - { ref: valor_desconto, pos: [241, 253], picture: "9(11)V9(2)" }
+  - { ref: valor_principal, pos: [254, 266] }
+  - { ref: valor_mora_multa, pos: [267, 279] }
+  - { ref: valor_outros_creditos, pos: [280, 292], picture: "9(11)V9(2)" }
+  - { ref: brancos03, pos: [293, 293], default: "" }
+  - { ref: aceite, pos: [294, 294], default: "N" }
+  - { ref: brancos04, pos: [295, 295], default: "" }
+  - { ref: data_credito, pos: [296, 301], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: nome_sacado, pos: [302, 337], picture: "X(36)" }
+  - { ref: identificador_conta_cobranca, pos: [338, 338] }
+  - { ref: codigo_moeda, pos: [339, 340], default: "00" }
+  - { ref: qtde_moeda, pos: [341, 353] }
+  - { ref: valor_iof_moeda, pos: [354, 366] }
+  - { ref: valor_lancamento, pos: [367, 379] }
+  - { ref: indicativo_debito_credito, pos: [380, 380], picture: "X(01)" }
+  - { ref: brancos05, pos: [381, 383], default: "" }
+  - { ref: complemento_conta_cobranca, pos: [384, 385] }
+  - { ref: sigla_empresa, pos: [386, 389] }
+  - { ref: brancos06, pos: [390, 391], default: "" }
+  - { ref: versao_layout_arquivo, pos: [392, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

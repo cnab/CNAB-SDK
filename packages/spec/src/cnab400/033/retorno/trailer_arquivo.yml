@@ -1,0 +1,28 @@
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: retorno
+  record: trailer_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "9" }
+  - { ref: codigo_remessa_retorno, pos: [2, 2], default: "2" }
+  - { ref: codigo_de_servico, pos: [3, 4], default: "01" }
+  - { ref: codigo_banco, pos: [5, 7], default: "033" }
+  - { ref: brancos01, pos: [8, 17], default: "" }
+  - { ref: qtde_titulo_cobranca_simples, pos: [18, 25], picture: "9(08)" }
+  - { ref: valor_total_titulo_simples, pos: [26, 39], picture: "9(12)V9(2)" }
+  - { ref: aviso_bancario, pos: [40, 47], picture: "9(08)" }
+  - { ref: brancos02, pos: [48, 57], default: "" }
+  - { ref: zeros01, pos: [58, 87], default: "0" }
+  - { ref: brancos03, pos: [88, 97], default: "" }
+  - { ref: qtde_titulo_cobranca_caucionada, pos: [98, 105], picture: "9(08)" }
+  - { ref: valor_total_titulo_caucionada, pos: [106, 119], picture: "9(12)V9(2)" }
+  - { ref: aviso_bancario_dup, pos: [120, 127], picture: "9(08)" }
+  - { ref: brancos04, pos: [128, 137], default: "" }
+  - { ref: qtde_titulo_cobranca_descontada, pos: [138, 145], picture: "9(08)" }
+  - { ref: valor_total_titulo_descontada, pos: [146, 159], picture: "9(12)V9(2)" }
+  - { ref: aviso_bancario_dup2, pos: [160, 167], picture: "9(08)" }
+  - { ref: brancos05, pos: [168, 391], default: "" }
+  - { ref: versao_layout_arquivo, pos: [392, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

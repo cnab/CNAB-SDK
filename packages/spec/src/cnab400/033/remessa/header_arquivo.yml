@@ -1,0 +1,27 @@
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: remessa
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_remessa_retorno, pos: [2, 2], default: "1" }
+  - { ref: literal_remessa, pos: [3, 9], default: "REMESSA" }
+  - { ref: codigo_de_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26], default: "COBRANCA" }
+  - { ref: codigo_transmissao, pos: [27, 46] }
+  - { ref: nome_empresa, pos: [47, 76] }
+  - { ref: codigo_banco, pos: [77, 79], default: "033" }
+  - { ref: nome_banco, pos: [80, 94], default: "SANTANDER" }
+  - { ref: data_geracao, pos: [95, 100], picture: "9(06)", date_format: "%d%m%y" }
+  - { ref: zeros01, pos: [101, 116], default: "0" }
+  - { ref: mensagem_1, pos: [117, 163], picture: "X(47)" }
+  - { ref: mensagem_2, pos: [164, 210], picture: "X(47)" }
+  - { ref: mensagem_3, pos: [211, 257], picture: "X(47)" }
+  - { ref: mensagem_4, pos: [258, 304], picture: "X(47)" }
+  - { ref: mensagem_5, pos: [305, 351] }
+  - { ref: brancos01, pos: [352, 385], default: "" }
+  - { ref: brancos02, pos: [386, 391], default: "" }
+  - { ref: versao_layout_arquivo, pos: [392, 394] }
+  - { ref: numero_sequencial, pos: [395, 400], default: "1" }
