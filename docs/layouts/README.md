@@ -3,7 +3,7 @@
 The record layouts in `packages/spec` have to come from somewhere, and until now
 that provenance lived nowhere. This directory records it.
 
-`MANIFEST.json` pins 18 documents by upstream repository, commit and sha256.
+`MANIFEST.json` pins 20 documents by upstream repository, commit and sha256.
 The files themselves are **not committed** — they are bank-published manuals and
 we do not redistribute them. To get them:
 
@@ -26,7 +26,17 @@ A sha256 mismatch is a hard failure. Do not "fix" it by updating the digest.
 | **756** Sicoob | ⚠️ spreadsheet | ⚠️ spreadsheet | see caveat below |
 | **041** Banrisul | ❌ | ✅ | undated |
 | **422** Safra | ❌ | ✅ | Dezembro/2017 |
+| **655** Votorantim (BV) | ❌ | ✅ | undated |
+| **487** Deutsche Bank | ✅ | ❌ | v1.1 April 2015 (English) |
 | — FEBRABAN | ✅ V09.1 + V08.6 | — | 19/10/2015 · 05/01/2012 |
+
+The bottom five have manuals but **no records in the spec yet** — one ticket
+each: Sicredi [#74](https://github.com/cnab/CNAB-SDK/issues/74), Sicoob
+[#73](https://github.com/cnab/CNAB-SDK/issues/73), Banrisul
+[#99](https://github.com/cnab/CNAB-SDK/issues/99), Safra
+[#100](https://github.com/cnab/CNAB-SDK/issues/100), Votorantim
+[#101](https://github.com/cnab/CNAB-SDK/issues/101), Deutsche Bank
+[#102](https://github.com/cnab/CNAB-SDK/issues/102).
 
 ## Read this before using any of it
 
