@@ -48,7 +48,7 @@ cut as GitHub Releases with the artifacts attached; registry publishing is
 ## Bank coverage
 
 **5 banks**, **92 records** (74 bank-specific + 18 generic FEBRABAN templates),
-**6 code tables** and **317 catalog fields**.
+**6 code tables** and **318 catalog fields**.
 
 Each cell states both directions, because coverage is not symmetric and a bare
 tick would hide that.

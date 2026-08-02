@@ -53,6 +53,14 @@ agencia_dv_mais_codigo_cedente_dv:
 agencia_mais_cedente_dv:
   picture: "9(1)"
   description: "Campo não tratado pelo Banco do Brasil. Informar 'branco' (espaço) OU zero."
+agencia_recebedora:
+  picture: "9(4)"
+  description: "Prefixo da agência recebedora do título (CBR643 campo 29)."
+
+agencia_recebedora_dv:
+  picture: "X(1)"
+  description: "Dígito verificador do prefixo da agência recebedora (CBR643 campo 30)."
+
 
 agencia_mais_conta_debito_dv:
   picture: "9(1)"
@@ -882,9 +890,6 @@ remessa_teste:
   picture: "X(2)"
   description: "Indicador de remessa de teste (fase de homologação)."
 
-reservado_bb_d1:
-  picture: "9(5)"
-  description: "Reserved (BB) — verify against Banco do Brasil manual"
 
 reservado_caixa_t1:
   picture: "9(6)"

@@ -32,7 +32,8 @@ fields:
   - { ref: data_vencimento, pos: [147, 152], date_format: "%d%m%y" }
   - { ref: valor_titulo, pos: [153, 165] }
   - { ref: codigo_do_banco, pos: [166, 168] }
-  - { ref: reservado_bb_d1, pos: [169, 173], default: "0" }
+  - { ref: agencia_recebedora, pos: [169, 172] }
+  - { ref: agencia_recebedora_dv, pos: [173, 173] }
   - { ref: especie, pos: [174, 175] }
   - { ref: data_credito, pos: [176, 181], date_format: "%d%m%y" }
   - { ref: valor_tarifa, pos: [182, 188] }
