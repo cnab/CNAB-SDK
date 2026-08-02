@@ -1,0 +1,22 @@
+meta:
+  layout: cnab400
+  bank: "237"
+  direction: remessa
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_remessa_retorno, pos: [2, 2], default: "1" }
+  - { ref: literal_remessa, pos: [3, 9], default: "REMESSA" }
+  - { ref: codigo_de_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26], default: "COBRANCA" }
+  - { ref: codigo_cedente, pos: [27, 46] }
+  - { ref: nome_empresa, pos: [47, 76] }
+  - { ref: codigo_banco, pos: [77, 79], default: "237" }
+  - { ref: nome_banco, pos: [80, 94], default: "BRADESCO" }
+  - { ref: data_geracao, pos: [95, 100], date_format: "%d%m%y" }
+  - { ref: brancos01, pos: [101, 108], default: "" }
+  - { ref: identificacao_sistema, pos: [109, 110], default: "MX" }
+  - { ref: numero_sequencial_arquivo, pos: [111, 117] }
+  - { ref: brancos02, pos: [118, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400], default: "1" }

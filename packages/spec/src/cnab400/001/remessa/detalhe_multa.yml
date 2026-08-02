@@ -1,0 +1,14 @@
+meta:
+  layout: cnab400
+  bank: "001"
+  direction: remessa
+  record: detalhe_multa
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "5" }
+  - { ref: tipo_servico, pos: [2, 3], default: "99" }
+  - { ref: codigo_multa, pos: [4, 4] }
+  - { ref: data_multa, pos: [5, 10], date_format: "%d%m%y" }
+  - { ref: valor_multa, pos: [11, 22] }
+  - { ref: brancos01, pos: [23, 394], default: "" }
+  - { ref: numero_sequencial, pos: [395, 400] }

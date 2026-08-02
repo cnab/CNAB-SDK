@@ -1,0 +1,24 @@
+meta:
+  layout: cnab400
+  bank: "237"
+  direction: remessa
+  record: detalhe_mensagem
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "2" }
+  - { ref: mensagem_1, pos: [2, 81] }
+  - { ref: mensagem_2, pos: [82, 161] }
+  - { ref: mensagem_3, pos: [162, 241] }
+  - { ref: mensagem_4, pos: [242, 321] }
+  - { ref: data_desconto_02, pos: [322, 327], date_format: "%d%m%y" }
+  - { ref: valor_desconto_02, pos: [328, 340] }
+  - { ref: data_desconto_03, pos: [341, 346], date_format: "%d%m%y" }
+  - { ref: valor_desconto_03, pos: [347, 359] }
+  - { ref: brancos01, pos: [360, 366], default: "" }
+  - { ref: carteira, pos: [367, 369] }
+  - { ref: agencia, pos: [370, 374] }
+  - { ref: conta, pos: [375, 381] }
+  - { ref: conta_dac, pos: [382, 382] }
+  - { ref: nosso_numero, pos: [383, 393] }
+  - { ref: dac_nosso_numero, pos: [394, 394] }
+  - { ref: numero_sequencial, pos: [395, 400] }

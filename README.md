@@ -47,19 +47,21 @@ cut as GitHub Releases with the artifacts attached; registry publishing is
 
 ## Bank coverage
 
-**5 banks**, **80 records** (62 bank-specific + 18 generic FEBRABAN templates),
-**6 code tables** and **305 catalog fields**.
+**5 banks**, **92 records** (74 bank-specific + 18 generic FEBRABAN templates),
+**6 code tables** and **317 catalog fields**.
 
-| Bank | Code | CNAB 240 | CNAB 400 | remessa | retorno |
-| --- | --- | --- | --- | --- | --- |
-| Caixa Econômica Federal | `104` | ✅ (incl. SIGCB) | ✅ | ✅ | ✅ |
-| Banco do Brasil | `001` | ⚠️ partial | ✅ | ⚠️ thin | ✅ |
-| Santander | `033` | ✅ | ✅ | ✅ | ✅ |
-| Itaú | `341` | ✅ | ✅ | ✅ | ✅ |
-| Bradesco | `237` | ⚠️ **draft** | ✅ | ⚠️ **draft** | ✅ |
+Each cell states both directions, because coverage is not symmetric and a bare
+tick would hide that.
 
-**Read the qualifiers before planning around this table.** A bank being listed
-does not mean you can both read and write its files.
+| Bank | Code | CNAB 240 | CNAB 400 |
+| --- | --- | --- | --- |
+| Caixa Econômica Federal | `104` | ✅ remessa + retorno (SIGCB) | ✅ remessa + retorno |
+| Santander | `033` | ✅ remessa + retorno | ✅ remessa + retorno |
+| Itaú | `341` | ✅ remessa + retorno | ✅ remessa + retorno |
+| Banco do Brasil | `001` | ⚠️ **3 records, no trailers** | ✅ remessa + retorno |
+| Bradesco | `237` | ⚠️ **draft** — remessa + retorno | ✅ remessa + retorno |
+
+**Every bank can now both read and write CNAB 400.** Two qualifiers still matter:
 
 - **Bradesco CNAB240 is a draft.** It was transcribed from version 02 of
   Bradesco's manual, dated 2013; the bank publishes version 09. The positions
@@ -68,13 +70,25 @@ does not mean you can both read and write its files.
   rejected wholesale by the bank, and anything Bradesco has since carved out of
   what 2013 called filler will be blank in generated files. Review it against a
   current manual before generating a real remessa. See
-  [#71](https://github.com/cnab/CNAB-SDK/issues/71).
+  [#71](https://github.com/cnab/CNAB-SDK/issues/71). **Bradesco CNAB400 is not
+  affected** — it comes from a late revision of its own manual series.
 - **Banco do Brasil CNAB240 is three records** — header arquivo, header lote
   and remessa segmento P, with no trailers, so a file cannot be closed with
-  bank-specific records alone.
+  bank-specific records alone. Its CNAB400 is complete in both directions.
 - Where a bank record is missing, the `generic` FEBRABAN templates can usually
   stand in, since trailers in particular are standard. That substitution is not
   yet tested or documented, so treat it as unverified.
+
+Two CNAB400 remessa layouts are scoped by the manual they came from, and the
+scope is not a property the spec can express — read this before relying on them:
+
+- **Banco do Brasil** is transcribed from the manual for **convênios numbered
+  above 1.000.000**. Convênios at or below that number place the convênio field
+  differently and are not covered.
+- **Caixa** carries a Caixa-specific split the generic template does not have:
+  nosso número is 17 positions, of which the first two are the *modalidade*
+  (`modalidade_carteira` 57-58, `nosso_numero` 59-73), and carteira is 2
+  positions rather than 1.
 
 Every shipped record is verified by the compiler for full, gapless,
 non-overlapping line coverage, and has a golden-line test plus round-trip

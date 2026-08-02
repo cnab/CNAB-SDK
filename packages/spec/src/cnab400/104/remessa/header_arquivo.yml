@@ -1,0 +1,22 @@
+meta:
+  layout: cnab400
+  bank: "104"
+  direction: remessa
+  record: header_arquivo
+  lineLength: 400
+fields:
+  - { ref: tipo_registro, pos: [1, 1], default: "0" }
+  - { ref: codigo_remessa_retorno, pos: [2, 2], default: "1" }
+  - { ref: literal_remessa, pos: [3, 9], default: "REMESSA" }
+  - { ref: codigo_de_servico, pos: [10, 11], default: "01" }
+  - { ref: literal_de_servico, pos: [12, 26], default: "COBRANCA" }
+  - { ref: agencia, pos: [27, 30] }
+  - { ref: codigo_cedente, pos: [31, 36] }
+  - { ref: brancos01, pos: [37, 46], default: "" }
+  - { ref: nome_empresa, pos: [47, 76] }
+  - { ref: codigo_banco, pos: [77, 79], default: "104" }
+  - { ref: nome_banco, pos: [80, 94], default: "C ECON FEDERAL" }
+  - { ref: data_geracao, pos: [95, 100], date_format: "%d%m%y" }
+  - { ref: brancos02, pos: [101, 389], default: "" }
+  - { ref: numero_sequencial_a, pos: [390, 394], default: "1" }
+  - { ref: numero_sequencial_b, pos: [395, 400], default: "1" }
