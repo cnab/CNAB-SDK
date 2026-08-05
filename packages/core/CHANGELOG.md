@@ -1,5 +1,121 @@
 # @cnab/core
 
+## 0.6.0
+
+### Minor Changes
+
+- c76936b: Add 25 bank records: Santander 033 CNAB400, Itaú 341 CNAB240, Bradesco 237
+  CNAB240.
+
+  These were the three empty cells in the coverage matrix. Itaú and Bradesco had
+  no CNAB240 records at all, and Santander had no CNAB400 — so for each of those
+  banks half the product was simply unavailable, on the format that bank's
+  customers most often use.
+
+  ```ts
+  spec.getRecord('cnab240/341/remessa/detalhe_segmento_p'); // was: record not found
+  spec.getRecord('cnab400/033/retorno/detalhe'); // was: record not found
+  ```
+
+  Each record was transcribed from that bank's own cobrança manual, and every
+  `pos` pair was cross-checked against the position column printed in the PDF —
+  620 fields, one discrepancy, which turned out to be a typesetting artifact
+  (`073  0 73`) confirmed by hand against its neighbours. The manuals are pinned
+  in `docs/layouts/MANIFEST.json`.
+
+  Two Itaú deviations from the FEBRABAN baseline are worth knowing about: the
+  38-57 nosso-número block is split into carteira(3) + nosso número(8) + DAC(1),
+  and `numero_documento` is 10 wide rather than 15.
+
+  **Bradesco 237 CNAB240 is a draft.** Its manual is version 02 from 2013 and the
+  bank publishes version 09; bradesco.com.br is not reachable from CI, so the
+  current document could not be diffed against it. The positions are faithful to
+  what we have, but `versao_layout_arquivo` / `versao_layout_lote` are exactly the
+  defaults a bank accepts or rejects wholesale, and anything carved out of
+  2013-era filler since will be blank. Review against a current manual before
+  generating a real remessa. The README says so at the point of use.
+
+  Coverage validation proves a record is well-formed, not correct — a wrong
+  position produces a plausible, wrong number rather than an error. That is why
+  the transcription was verified against the source document rather than only
+  against the build.
+
+- 001d0f5: Add CNAB400 remessa for Banco do Brasil 001, Caixa 104 and Bradesco 237.
+
+  All three banks could already parse a retorno and none could generate a
+  remessa — you could read what the bank sent you and could not bill anyone
+  through it. That asymmetry is now gone: **every supported bank can both read
+  and write CNAB 400.**
+
+  ```ts
+  spec.getRecord('cnab400/001/remessa/detalhe'); // was: record not found
+  spec.getRecord('cnab400/104/remessa/detalhe'); // was: record not found
+  spec.getRecord('cnab400/237/remessa/detalhe'); // was: record not found
+  ```
+
+  12 records, 80 -> 92. Each was transcribed from that bank's own cobrança manual
+  (pinned in `docs/layouts/MANIFEST.json`) and every `pos` pair was cross-checked
+  against the position column printed in the PDF: **249 fields, two deviations,
+  both deliberate and disclosed** — BB's header splits the manual's single
+  18-byte `001BANCODOBRASIL` literal into `codigo_banco` + `nome_banco` so scope
+  detection can read the bank code, and the output is byte-identical.
+
+  Two layouts carry scope the spec cannot express, so they are documented in the
+  README instead:
+
+  - **Banco do Brasil** comes from the manual for convênios above 1.000.000.
+    Convênios at or below that place the convênio field differently.
+  - **Caixa** splits nosso número as modalidade(2) + número(15) at 57-73, and
+    carteira is 2 positions rather than the generic template's 1.
+
+  Naming: all three banks' `vencimento` and `abatimento` fields use the CNAB400
+  _remessa_ spelling, matching the generic template and the existing 033/341
+  remessa records, rather than the `data_vencimento`/`valor_abatimento` spelling
+  their own retorno records use. Writing a remessa across banks should not need
+  two names for one concept.
+
+  Where a bank's multa turned out to live inside the detalhe rather than in its
+  own record — Caixa and Bradesco both — no `detalhe_multa` was invented. Both
+  ship the message record their manual actually defines, as `detalhe_mensagem`.
+  Banco do Brasil does define a real standalone multa record and it is included.
+
+### Patch Changes
+
+- 8240f13: Fix: Banco do Brasil CNAB400 retorno silently discarded the receiving agency.
+
+  Positions 169-173 of `cnab400/001/retorno/detalhe` were a single filler field
+  named `reservado_bb_d1` — a placeholder added during the legacy migration and
+  flagged then as needing verification against the manual. BB's CBR643 manual
+  splits that span into two real fields:
+
+  ```
+  29  169 a 172  9(004)  Prefixo da agência recebedora
+  30  173 a 173  X(001)  DV prefixo recebedora
+  ```
+
+  So every parsed BB retorno reported `reservado_bb_d1` instead of telling you
+  which agency received the payment. The data was in the file the whole time and
+  the SDK threw it away — the quiet kind of wrong, since nothing errored.
+
+  ```ts
+  rec.parse(line).agencia_recebedora; // "1430"  (was: absent)
+  rec.parse(line).agencia_recebedora_dv; // "A"     (was: absent)
+  rec.parse(line).reservado_bb_d1; // now undefined
+  ```
+
+  Adds `agencia_recebedora` and `agencia_recebedora_dv` to the catalog and
+  retires the `reservado_bb_d1` placeholder, which had no other user. The
+  existing `agencia_cobradora` names could not be reused: the same record already
+  uses them at 18-22, and _cobradora_ and _recebedora_ are different roles.
+
+  Every neighbouring field (153-165, 166-168, 174-175, 176-181, 182-188,
+  189-201) already matched the manual exactly, which is why this was an isolated
+  defect rather than a drifted region. Verifying it was an explicit acceptance
+  item on #26 and became possible once the CBR643 manual was pinned in
+  `docs/layouts/MANIFEST.json`.
+
+  The golden fixture changes only within 169-173.
+
 ## 0.5.0
 
 ### Minor Changes
