@@ -1,0 +1,224 @@
+name: Publish auth check (never publishes)
+
+# Proves each publishing credential resolves, without uploading anything.
+# Part of #35.
+#
+# Why this exists: every registry in this project is effectively write-once.
+# npm, PyPI and NuGet do not allow re-uploading a version; Maven Central is
+# immutable per coordinate; Go's proxy is append-only. So the first time a
+# credential is exercised must not also be the first time it is tested — a
+# half-published release is far worse than a failed one.
+#
+# OIDC EVERYWHERE IT EXISTS. npm, PyPI and NuGet authenticate by workflow
+# identity, so they store no secret at all. Only two targets still need one:
+# Maven Central, which has no OIDC support, and the Go module push, which
+# writes to a different repository than GITHUB_TOKEN is scoped to.
+#
+# Run it from the Actions tab after configuring an environment. Each job is
+# gated on its own GitHub Environment, so it also proves the environment
+# exists, that its reviewers approve, and that the branch/tag restrictions let
+# the job run at all — none of which is visible from the workflow file.
+#
+# HONESTY ABOUT COVERAGE. A green tick means different things per registry, and
+# each job prints which kind of check it ran:
+#
+#   REAL AUTH  the registry was contacted and accepted the identity
+#   WEAK       only that this workflow can mint an OIDC token at all
+#
+# npm is the sole WEAK one, and not by choice: it has no auth-only endpoint.
+# See the note in that job.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which environment to check
+        type: choice
+        default: all
+        options: [all, npm, pypi, maven-central, nuget, go-module]
+
+permissions:
+  contents: read
+
+jobs:
+  npm:
+    if: inputs.target == 'all' || inputs.target == 'npm'
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check npm OIDC identity
+        run: |
+          # npm performs its OIDC exchange INSIDE `npm publish`. It exposes no
+          # token-mint or auth-only endpoint — both plausible paths under
+          # /-/npm/v1/oidc/ return ResourceNotFound — so unlike PyPI and NuGet
+          # there is nothing to call that would confirm npm trusts us.
+          #
+          # This therefore only proves the job can mint an OIDC token. Whether
+          # npmjs.com accepts that identity is first discovered at publish time.
+          # That is a real gap, not an oversight: publish a PRERELEASE first.
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::No OIDC token available. Is 'id-token: write' set?"
+            exit 1
+          fi
+          tok=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm:registry.npmjs.org" | jq -r '.value // empty')
+          if [ -z "$tok" ]; then
+            echo "::error::Could not mint an OIDC token."
+            exit 1
+          fi
+          sub=$(echo "$tok" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq -r '.sub // "?"')
+          echo "WEAK: OIDC token minted. Claim presented to npm would be:"
+          echo "  sub = $sub"
+          echo "Register a Trusted Publisher on npmjs.com matching that claim."
+
+  pypi:
+    if: inputs.target == 'all' || inputs.target == 'pypi'
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check PyPI Trusted Publisher
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::No OIDC token available. Is 'id-token: write' set?"
+            exit 1
+          fi
+          echo "REAL AUTH: exchanging the OIDC token at PyPI's mint-token endpoint."
+          echo "This validates the Trusted Publisher config and mints a short-lived,"
+          echo "upload-scoped token. It uploads nothing."
+          oidc=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi" | jq -r '.value')
+          code=$(curl -sS -o /tmp/mint.json -w '%{http_code}' \
+            -X POST https://pypi.org/_/oidc/mint-token \
+            -H 'Content-Type: application/json' \
+            -d "{\"token\":\"$oidc\"}")
+          if [ "$code" = "200" ]; then
+            echo "  PyPI accepted the identity and minted a token."
+          else
+            echo "::error::PyPI rejected the identity (HTTP $code)."
+            jq -r '.errors[]?.description // .message? // .' /tmp/mint.json 2>/dev/null | head -10
+            exit 1
+          fi
+
+  maven-central:
+    if: inputs.target == 'all' || inputs.target == 'maven-central'
+    runs-on: ubuntu-latest
+    environment: maven-central
+    steps:
+      # Central Portal has no OIDC support, so this is the one target that must
+      # hold long-lived secrets. Four of them.
+      - name: Check the GPG signing key
+        env:
+          KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::error::MAVEN_GPG_PRIVATE_KEY is not set. Central rejects unsigned artifacts."
+            exit 1
+          fi
+          echo "REAL: importing the key and signing a scratch file."
+          echo "$KEY" | gpg --batch --import 2>&1 | sed 's/^/  /'
+          echo probe > /tmp/probe.txt
+          echo "$PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 --detach-sign --armor /tmp/probe.txt
+          gpg --verify /tmp/probe.txt.asc /tmp/probe.txt
+          echo "  Key imports and signs. Confirm the PUBLIC key is on a keyserver —"
+          echo "  Central verifies against one and that cannot be checked from here."
+      - name: Check the Central Portal token
+        env:
+          USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+        run: |
+          if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+            echo "::error::CENTRAL_TOKEN_USERNAME / CENTRAL_TOKEN_PASSWORD not set."
+            exit 1
+          fi
+          echo "REAL AUTH: asking the Central Portal to accept the token."
+          bearer=$(printf '%s:%s' "$USERNAME" "$PASSWORD" | base64 -w0)
+          code=$(curl -sS -o /tmp/central.json -w '%{http_code}' \
+            -X POST "https://central.sonatype.com/api/v1/publisher/deployments" \
+            -H "Authorization: Bearer $bearer" || echo 000)
+          case "$code" in
+            401|403) echo "::error::Central rejected the token (HTTP $code)."; exit 1 ;;
+            000)     echo "::warning::Could not reach Central. Network, not credentials." ;;
+            *)       echo "  Token accepted (HTTP $code — not an auth failure)." ;;
+          esac
+
+  nuget:
+    if: inputs.target == 'all' || inputs.target == 'nuget'
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check NuGet Trusted Publishing
+        env:
+          NUGET_USER: ${{ vars.NUGET_USER }}
+        run: |
+          # nuget.org DOES have a side-effect-free exchange: POST /api/v2/token
+          # with the OIDC token as a bearer returns a short-lived API key.
+          # (Probed: it answers 401 "The Authorization header is missing." when
+          # called bare, so the endpoint is real and auth-gated.)
+          #
+          # This is strictly better than the API-key path, which could only ever
+          # be a presence check — nuget.org has no way to validate a key without
+          # using it.
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::No OIDC token available. Is 'id-token: write' set?"
+            exit 1
+          fi
+          if [ -z "$NUGET_USER" ]; then
+            echo "::error::Repository variable NUGET_USER is not set."
+            echo "  It is the nuget.org username that owns the Trusted Publishing"
+            echo "  policy. A VARIABLE, not a secret — it is not sensitive."
+            exit 1
+          fi
+          echo "REAL AUTH: exchanging the OIDC token for a short-lived NuGet API key."
+          oidc=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=nuget.org" | jq -r '.value')
+          code=$(curl -sS -o /tmp/nuget.json -w '%{http_code}' \
+            -X POST "https://www.nuget.org/api/v2/token" \
+            -H "Authorization: Bearer $oidc" \
+            -H 'Content-Type: application/json' \
+            -d "{\"username\":\"$NUGET_USER\",\"tokenType\":\"ApiKey\"}")
+          case "$code" in
+            200) echo "  nuget.org accepted the identity and issued a temporary key." ;;
+            401|403)
+              echo "::error::nuget.org rejected the identity (HTTP $code)."
+              jq -r '.error? // .' /tmp/nuget.json 2>/dev/null | head -5
+              echo "  Check the Trusted Publishing policy on nuget.org matches this"
+              echo "  repo, workflow filename and environment — and that NUGET_USER"
+              echo "  ($NUGET_USER) owns it."
+              exit 1 ;;
+            *) echo "::warning::Unexpected HTTP $code — not a clear auth failure."
+               head -c 300 /tmp/nuget.json ;;
+          esac
+
+  go-module:
+    if: inputs.target == 'all' || inputs.target == 'go-module'
+    runs-on: ubuntu-latest
+    environment: go-module
+    steps:
+      - name: Check write access to cnab/cnab-core-go
+        env:
+          TOKEN: ${{ secrets.GO_MODULE_PUSH_TOKEN }}
+        run: |
+          # Go has no registry and no account: the target repo IS the channel.
+          # GITHUB_TOKEN cannot write to another repository and there is no OIDC
+          # path for pushing git, so this needs its own credential (#41).
+          if [ -z "$TOKEN" ]; then
+            echo "::error::GO_MODULE_PUSH_TOKEN is not set."
+            exit 1
+          fi
+          echo "REAL AUTH: git ls-remote against the module repo (read-only, no push)."
+          git ls-remote "https://x-access-token:$TOKEN@github.com/cnab/cnab-core-go.git" >/dev/null
+          echo "  Repo reachable with this token."
+          echo "  NOTE: ls-remote proves READ. Push access cannot be proven without"
+          echo "  pushing, and proxy.golang.org is append-only — so the first push"
+          echo "  must be a throwaway prerelease tag, never v1."
