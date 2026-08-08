@@ -280,7 +280,7 @@ namespace Cnab.Core.BindingTests
         public void CodeTablesAreAvailable()
         {
             var keys = _spec.CodeTableKeys();
-            Assert.Equal(6, keys.Length);
+            Assert.Equal(12, keys.Length);
             var key = keys[0];
             Assert.True(_spec.HasCodeTable(key));
             var table = _spec.GetCodeTable(key);

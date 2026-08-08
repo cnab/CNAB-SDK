@@ -1,0 +1,36 @@
+# Código de Ocorrência — Santander 033, CNAB400 cobrança retorno.
+# Fonte: .layouts/santander/cnab400-cobranca.pdf, "Registro Movimento -
+# Retorno", campo posições 109-110 "Código de ocorrência", página 12 do PDF
+# (rodapé "CNAB 400 BC 353 H7800 11 V 2.17 Outubro/2017").
+meta:
+  layout: cnab400
+  bank: "033"
+  direction: retorno
+  record: codigo_ocorrencia
+  kind: code_table
+codes:
+  "01": "TÍTULO NÃO EXISTE"
+  "02": "ENTRADA TÍT. CONFIRMADA"
+  "03": "ENTRADA TÍT. REJEITADA"
+  "06": "LIQUIDAÇÃO"
+  "07": "LIQUIDAÇÃO POR CONTA"
+  "08": "LIQUIDAÇÃO POR SALDO"
+  "09": "BAIXA AUTOMÁTICA"
+  "10": "TÍT. BAIX. CONF. INSTRUÇÃO"
+  "11": "EM SER"
+  "12": "ABATIMENTO CONCEDIDO"
+  "13": "ABATIMENTO CANCELADO"
+  "14": "ALTERAÇÃO DE VENCIMENTO"
+  "15": "CONFIRMAÇÃO DE PROTESTO"
+  "16": "TÍT. JÁ BAIXADO/LIQUIDADO"
+  "17": "LIQUIDADO EM CARTÓRIO"
+  "21": "TÍT. ENVIADO A CARTÓRIO"
+  "22": "TÍT. RETIRADO DE CARTÓRIO"
+  "24": "CUSTAS DE CARTÓRIO"
+  "25": "PROTESTAR TÍTULO"
+  "26": "SUSTAR PROTESTO"
+  "35": "TÍTULO DDA RECONHECIDO PELO PAGADOR"
+  "36": "TÍTULO DDA NÃO RECONHECIDO PELO PAGADOR"
+  "37": "TÍTULO DDA RECUSADO PELA CIP"
+  "38": "RECEBIMENTO DA INSTRUÇÃO NÃO PROTESTAR"
+  "39": "ESPÉCIE DE TÍTULO NÃO PERMITE A INSTRUÇÃO"

@@ -271,7 +271,7 @@ def test_date_round_trips_through_to_line_and_parse(seg_p):
 
 def test_code_tables_are_available(spec):
     keys = spec.code_table_keys()
-    assert len(keys) == 6
+    assert len(keys) == 12
     assert spec.has_code_table(keys[0]) is True
 
 

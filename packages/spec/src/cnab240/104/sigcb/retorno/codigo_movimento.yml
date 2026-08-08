@@ -1,0 +1,42 @@
+# Código de Movimento Retorno — Caixa 104, CNAB240 cobrança SIGCB (Segmento T,
+# pos 16-17). Fonte: .layouts/caixa/cnab240-cobranca-sigcb.pdf,
+# secção 4 "Descrição de Campos (Notas Explicativas)", nota C044, págs. 77-78,
+# manual "Leiaute de Arquivos – CNAB240" de 14/10/2015.
+meta:
+  layout: cnab240
+  bank: "104"
+  variant: sigcb
+  direction: retorno
+  record: codigo_movimento
+  kind: code_table
+codes:
+  "01": "Solicitação de Impressão de Títulos Confirmada"
+  "02": "Entrada Confirmada"
+  "03": "Entrada Rejeitada"
+  "04": "Transferência de Carteira/Entrada"
+  "05": "Transferência de Carteira/Baixa"
+  "06": "Liquidação"
+  "07": "Confirmação do Recebimento da Instrução de Desconto"
+  "08": "Confirmação do Recebimento do Cancelamento do Desconto"
+  "09": "Baixa"
+  "12": "Confirmação Recebimento Instrução de Abatimento"
+  "13": "Confirmação Recebimento Instrução de Cancelamento Abatimento"
+  "14": "Confirmação Recebimento Instrução Alteração de Vencimento"
+  "19": "Confirmação Recebimento Instrução de Protesto"
+  "20": "Confirmação Recebimento Instrução de Sustação/Cancelamento de Protesto"
+  "23": "Remessa a Cartório"
+  "24": "Retirada de Cartório"
+  "25": "Protestado e Baixado (Baixa por Ter Sido Protestado)"
+  "26": "Instrução Rejeitada"
+  "27": "Confirmação do Pedido de Alteração de Outros Dados"
+  "28": "Débito de Tarifas/Custas"
+  "30": "Alteração de Dados Rejeitada"
+  "35": "Confirmação de Inclusão Banco de Pagador"
+  "36": "Confirmação de Alteração Banco de Pagador"
+  "37": "Confirmação de Exclusão Banco de Pagador"
+  "38": "Emissão de Boletos de Banco de Pagador"
+  "39": "Manutenção de Pagador Rejeitada"
+  "40": "Entrada de Título via Banco de Pagador Rejeitada"
+  "41": "Manutenção de Banco de Pagador Rejeitada"
+  "44": "Estorno de Baixa / Liquidação"
+  "45": "Alteração de Dados"

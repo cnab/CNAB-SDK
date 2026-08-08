@@ -1,0 +1,35 @@
+# Código de Movimento Retorno — Santander 033, CNAB240 cobrança (Segmento T,
+# pos 16-17). Fonte: .layouts/santander/cnab240-cobranca.pdf, Nota 40
+# "CODIGOS DE MOVIMENTO PARA RETORNO", páginas 16-17 do PDF
+# (rodapé "CNAB 240 – H7815 V.01.07 Junho/2009"; capa "Versão Setembro/2009").
+meta:
+  layout: cnab240
+  bank: "033"
+  direction: retorno
+  record: codigo_movimento
+  kind: code_table
+codes:
+  "02": "Entrada confirmada"
+  "03": "Entrada rejeitada"
+  "04": "Transferência de carteira/entrada"
+  "05": "Transferência de carteira/baixa"
+  "06": "Liquidação"
+  "09": "Baixa"
+  "11": "Títulos em carteira (em ser)"
+  "12": "Confirmação recebimento instrução de abatimento"
+  "13": "Confirmação recebimento instrução de cancelamento abatimento"
+  "14": "Confirmação recebimento instrução alteração de vencimento"
+  "17": "Liquidação após baixa ou liquidação título não registrado"
+  "19": "Confirmação recebimento instrução de protesto"
+  "20": "Confirmação recebimento instrução de sustação/cancelamento de protesto"
+  "23": "Remessa a cartório (aponte em cartório)"
+  "24": "Retirada de cartório e manutenção em carteira"
+  "25": "Protestado e baixado (baixa por ter sido protestado)"
+  "26": "Instrução rejeitada"
+  "27": "Confirmação do pedido de alteração de outros dados"
+  "28": "Débito de tarifas/custas"
+  "29": "Ocorrências do sacado"
+  "30": "Alteração de dados rejeitada"
+  "35": "Título DDA reconhecido pelo sacado"
+  "36": "Título DDA não reconhecido pelo sacado"
+  "37": "Título DDA recusado pela CIP"

@@ -301,7 +301,7 @@ class CnabCoreBindingTest {
     @Test
     void codeTablesAreAvailable() {
         List<String> keys = spec.codeTableKeys();
-        assertEquals(6, keys.size());
+        assertEquals(12, keys.size());
         String key = keys.get(0);
         assertTrue(spec.hasCodeTable(key));
         Map<String, String> table = spec.getCodeTable(key);
