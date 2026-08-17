@@ -97,7 +97,7 @@ jobs:
 
       - name: Changesets — version PR or tag
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           # Applies pending changesets, rewrites changelogs AND refreshes the
           # lockfile. The chaining lives in the `version:packages` npm script,

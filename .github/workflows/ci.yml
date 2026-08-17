@@ -111,7 +111,7 @@ jobs:
       # Go: pacmak runs `go mod tidy` + `go build ./...` on the generated
       # module itself, so having the toolchain here is what turns "go is a
       # configured target" into "the Go projection actually compiles".
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version: '1.25'
       - run: npm install
@@ -175,7 +175,7 @@ jobs:
         with:
           dotnet-version: '8.0'
       # jsii-runtime-go requires >= 1.25, and so does pacmak's own go.mod.
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         if: matrix.language == 'go'
         with:
           go-version: '1.25'
