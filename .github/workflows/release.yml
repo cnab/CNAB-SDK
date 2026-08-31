@@ -97,7 +97,7 @@ jobs:
 
       - name: Changesets — version PR or tag
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           # Applies pending changesets, rewrites changelogs AND refreshes the
           # lockfile. The chaining lives in the `version:packages` npm script,
@@ -159,7 +159,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
